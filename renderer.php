@@ -339,14 +339,14 @@ class format_qmultopics_renderer extends format_section_renderer_base {
         $context = context_course::instance($course->id);
         $o = '';
 
-        require_once($CFG->dirroot.'/course/format/topics/locallib.php');
+        require_once($CFG->dirroot.'/course/format/qmultopics/locallib.php');
         $subcat = $DB->get_record('course_categories', array('id' => $course->category));
         $o .= $OUTPUT->heading(format_string($subcat->name), 2, 'schoolname');
         $o .= $OUTPUT->heading(format_string($course->fullname), 2, 'coursename');
 
         if ($PAGE->user_is_editing() && has_capability('moodle/course:update', $context)) {
             $o .= '<p class="clearfix"><a title="' . get_string('editnewssettings', 'format_topics') . '" ' .
-                ' href="' . $CFG->wwwroot . '/course/format/topics/newssettings.php' . '?course=' . $course->id . '"><img src="' . $OUTPUT->pix_url('t/edit') . '" ' .
+                ' href="' . $CFG->wwwroot . '/course/format/qmultopics/newssettings.php' . '?course=' . $course->id . '"><img src="' . $OUTPUT->pix_url('t/edit') . '" ' .
                 ' class="iconsmall edit" alt="' . $streditsummary . '" /></a></p>';
         }
 
