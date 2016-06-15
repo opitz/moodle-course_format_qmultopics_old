@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer for outputting the topics course format.
+ * Renderer for outputting the qmultopics course format.
  *
- * @package format_topics
+ * @package format_qmultopics
  * @copyright 2012 Dan Poltawski
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since Moodle 2.3
@@ -28,12 +28,12 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/course/format/renderer.php');
 
 /**
- * Basic renderer for topics format.
+ * Basic renderer for qmultopics format.
  *
  * @copyright 2012 Dan Poltawski
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_topics_renderer extends format_section_renderer_base {
+class format_qmultopics_renderer extends format_section_renderer_base {
 
     /**
      * Constructor method, calls the parent constructor
@@ -44,7 +44,7 @@ class format_topics_renderer extends format_section_renderer_base {
     public function __construct(moodle_page $page, $target) {
         parent::__construct($page, $target);
 
-        // Since format_topics_renderer::section_edit_controls() only displays the 'Set current section' control when editing mode is on
+        // Since format_qmultopics_renderer::section_edit_controls() only displays the 'Set current section' control when editing mode is on
         // we need to be sure that the link 'Turn editing mode on' is available for a user who does not have any other managing capability.
         $page->set_other_editing_capability('moodle/course:setcurrentsection');
     }
@@ -54,7 +54,7 @@ class format_topics_renderer extends format_section_renderer_base {
      * @return string HTML to output.
      */
     protected function start_section_list() {
-        return html_writer::start_tag('ul', array('class' => 'topics'));
+        return html_writer::start_tag('ul', array('class' => 'qmultopics'));
     }
 
     /**

@@ -18,7 +18,7 @@
  * This file contains main class for the course format Topic
  *
  * @since     Moodle 2.0
- * @package   format_topics
+ * @package   format_qmultopics
  * @copyright 2009 Sam Hemelryk
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,13 +27,13 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
 
 /**
- * Main class for the Topics course format
+ * Main class for the Topics (QMUL) course format
  *
- * @package    format_topics
+ * @package    format_qmultopics
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_topics extends format_base {
+class format_qmultopics extends format_base {
 
     /**
      * Returns true if this course format uses sections
@@ -63,7 +63,7 @@ class format_topics extends format_base {
     }
 
     /**
-     * Returns the default section name for the topics course format.
+     * Returns the default section name for the qmultopics course format.
      *
      * If the section number is 0, it will use the string with key = section0name from the course format's lang file.
      * If the section number is not 0, the base implementation of format_base::get_default_section_name which uses
@@ -75,7 +75,7 @@ class format_topics extends format_base {
     public function get_default_section_name($section) {
         if ($section->section == 0) {
             // Return the general section.
-            return get_string('section0name', 'format_topics');
+            return get_string('section0name', 'format_qmultopics');
         } else {
             // Use format_base::get_default_section_name implementation which
             // will display the section name in "Topic n" format.
@@ -215,7 +215,7 @@ class format_topics extends format_base {
     /**
      * Definitions of the additional options that this course format uses for course
      *
-     * Topics format uses the following options:
+     * Topics (QMUL) format uses the following options:
      * - coursedisplay
      * - numsections
      * - hiddensections
@@ -322,7 +322,7 @@ class format_topics extends format_base {
     /**
      * Updates format options for a course
      *
-     * In case if course format was changed to 'topics', we try to copy options
+     * In case if course format was changed to 'qmultopics', we try to copy options
      * 'coursedisplay', 'numsections' and 'hiddensections' from the previous format.
      * If previous course format did not have 'numsections' option, we populate it with the
      * current number of sections
