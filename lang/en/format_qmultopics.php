@@ -23,6 +23,18 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['alttext'] = 'Alt text';
+$string['currentimage'] = 'Current image';
+$string['deleteimage'] = 'Delete image';
+$string['displaynews'] = 'Do you want to display Module Announcements?';
+$string['editnewssettings'] = 'Edit news display settings';
+$string['imagefile'] = 'News or General Image file';
+$string['morenews'] = 'more news & announcements >>';
+$string['newssettingsof'] = 'News Settings of {$a}';
+$string['readfullpost'] = 'Read full post';
+$string['shownewsfull'] = 'Show full news text (no truncation)';
+$string['statictext'] = 'Static text';
+$string['usestatictext'] = 'Use static text instead of Module Announcements';
 $string['currentsection'] = 'This topic';
 $string['editsection'] = 'Edit topic';
 $string['deletesection'] = 'Delete topic';
