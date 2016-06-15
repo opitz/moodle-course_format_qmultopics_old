@@ -350,7 +350,7 @@ class format_qmultopics_renderer extends format_section_renderer_base {
                 ' class="iconsmall edit" alt="' . $streditsummary . '" /></a></p>';
         }
 
-        if ($newssettings = $DB->get_record('format_topics_news', array('courseid' => $course->id))) {
+        if ($newssettings = $DB->get_record('format_qmultopics_news', array('courseid' => $course->id))) {
             if ($newssettings->displaynews) {
                 if($newssettings->usestatictext) {
                     $newstext = $newssettings->statictext;
