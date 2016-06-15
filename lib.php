@@ -208,7 +208,11 @@ class format_qmultopics extends format_base {
     public function get_default_blocks() {
         return array(
             BLOCK_POS_LEFT => array(),
-            BLOCK_POS_RIGHT => array('search_forums', 'news_items', 'calendar_upcoming', 'recent_activity')
+            BLOCK_POS_RIGHT => array('search_forums', 'news_items', 'calendar_upcoming', 'recent_activity'),
+
+            // SYNERGY LEARNING - add 'topiczero' block region.
+            'topiczero' => array('assessment_information'),
+
         );
     }
 
