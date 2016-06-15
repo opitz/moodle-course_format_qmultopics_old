@@ -345,7 +345,7 @@ class format_qmultopics_renderer extends format_section_renderer_base {
         $o .= $OUTPUT->heading(format_string($course->fullname), 2, 'coursename');
 
         if ($PAGE->user_is_editing() && has_capability('moodle/course:update', $context)) {
-            $o .= '<p class="clearfix"><a title="' . get_string('editnewssettings', 'format_topics') . '" ' .
+            $o .= '<p class="clearfix"><a title="' . get_string('editnewssettings', 'format_qmultopics') . '" ' .
                 ' href="' . $CFG->wwwroot . '/course/format/qmultopics/newssettings.php' . '?course=' . $course->id . '"><img src="' . $OUTPUT->pix_url('t/edit') . '" ' .
                 ' class="iconsmall edit" alt="' . $streditsummary . '" /></a></p>';
         }
