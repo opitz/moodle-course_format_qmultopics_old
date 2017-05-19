@@ -1,0 +1,40 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    Course module chooser.
+}}
+{{#discussions}}
+    <div class="head clearfix">
+        <div class="info"><b>{{subject}}</b></div>
+        <div class="info">{{{displaymessage}}}</div>
+        <div class="link">
+            <a class="btn btn-sm btn-primary" href="{{discussionlink}}">{{#str}}readfullpost, format_qmultopics{{/str}}</a>
+        </div>
+        <div class="info mt-1">
+            <span class="name"><i>{{fullname}}</i></span>
+            <span class="date"><i>{{date}}</i></span>
+        </div>
+    </div>
+{{/discussions}}
+{{#morenewslink}}
+    <a href="{{morenewslink}}" class="btn btn-sm btn-info float-right">
+        {{#str}}morenews, format_qmultopics{{/str}}
+    </a>
+{{/morenewslink}}
+{{^discussions}}
+<p>{{#str}}nonews, forum{{/str}}</p>
+{{/discussions}}

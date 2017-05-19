@@ -62,7 +62,7 @@ function format_qmultopics_getimage($course, $alttext = '') {
  * @param object course
  */
 function format_qmultopics_getnews($course) {
-    global $CFG, $DB;
+    global $CFG, $DB, $OUTPUT;
 
     require_once($CFG->dirroot . '/mod/forum/lib.php');   // We'll need this
 
@@ -94,8 +94,10 @@ function format_qmultopics_getnews($course) {
 
     /// Get all the recent discussions we're allowed to see
 
+    $context = new stdClass();
+
     if (!$discussions = forum_get_discussions($cm, 'p.modified DESC', true, $currentgroup, 1)) {
-        $text .= '(' . get_string('nonews', 'forum') . ')';
+        return $OUTPUT->render_from_template('format_qmultopics/news', $context);
     }
 
     /// Actually create the listing now
@@ -105,37 +107,29 @@ function format_qmultopics_getnews($course) {
     $shownewsfull = $DB->get_field('format_qmultopics_news', 'shownewsfull', array('courseid' => $course->id));
 
     /// Accessibility: markup as a list.
-    foreach ($discussions as $discussion) {
+    foreach ($discussions as $key => $discussion) {
 
         $discussion->subject = $discussion->name;
 
         $discussion->subject = format_string($discussion->subject, true, $forum->course);
 
-        $displaymessage = $shownewsfull ? $discussion->message : format_qmultopics_truncatehtml($discussion->message, 500);
+        $discussion->displaymessage = $shownewsfull ? $discussion->message : format_qmultopics_truncatehtml($discussion->message, 500);
 
-        $discussionlink = new moodle_url('/mod/forum/discuss.php', array('d'=>$discussion->discussion));
-        $text .=
-                '<span class="head clearfix">' .
-                '<span class="info"><b>' . $discussion->subject . '</b><br />' .
-                '<span class="info">' . $displaymessage . '</span><br />' .
-                '<span class="link">' . html_writer::link($discussionlink, get_string('readfullpost', 'format_qmultopics')) . '</span><br /><br />' .
-                '<span class="name"><i>' . fullname($discussion) . '</i></span> ' .
-                '<span class="date"><i>' . userdate($discussion->modified, $strftimerecent) . '</i></span>' .
-                '</span>' .
-                "\n";
+        $discussion->discussionlink = new moodle_url('/mod/forum/discuss.php', array('d'=>$discussion->discussion));
+
+        $discussion->fullname = fullname($discussion);
+        $discussion->date = userdate($discussion->modified, $strftimerecent);
+        $discussions[$key] = $discussion;
     }
+
+    $context->discussions = array_values($discussions);
 
     //Links to older topics
     if (count($discussions)) {
-        $text .=
-                '<span class="newslink">' .
-                '<a href="' . $CFG->wwwroot . '/mod/forum/view.php?f=' . $forum->id . '&amp;showall=1">' .
-                get_string('morenews', 'format_qmultopics') .
-                '</a>' .
-                '</span>';
+        $context->morenewslink = new moodle_url('mod/forum/view.php', array('f'=>$forum->id, 'showall'=>1));
     }
 
-    return $text;
+    return $OUTPUT->render_from_template('format_qmultopics/news', $context);
 }
 
 function format_qmultopics_truncatehtml($text, $length = 100, $ending = '...', $exact = false, $considerHtml = true) {
