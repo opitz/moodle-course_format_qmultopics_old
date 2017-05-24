@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
+require_once($CFG->dirroot. '/course/format/topics/lib.php');
+require_once($CFG->dirroot. '/course/format/topcoll/lib.php'); // For format_qmultc.
 
 /**
  * Main class for the Topics (QMUL) course format
@@ -33,303 +35,101 @@ require_once($CFG->dirroot. '/course/format/lib.php');
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_qmultopics extends format_base {
+class format_qmultopics extends format_topics {
 
     /**
-     * Returns true if this course format uses sections
+     * Adds format options elements to the course/section edit form
      *
-     * @return bool
-     */
-    public function uses_sections() {
-        return true;
-    }
-
-    /**
-     * Returns the display name of the given section that the course prefers.
+     * This function is called from {@link course_edit_form::definition_after_data()}
      *
-     * Use section name is specified by user. Otherwise use default ("Topic #")
-     *
-     * @param int|stdClass $section Section object from database or just field section.section
-     * @return string Display name that the course format prefers, e.g. "Topic 2"
-     */
-    public function get_section_name($section) {
-        $section = $this->get_section($section);
-        if ((string)$section->name !== '') {
-            return format_string($section->name, true,
-                    array('context' => context_course::instance($this->courseid)));
-        } else {
-            return $this->get_default_section_name($section);
-        }
-    }
-
-    /**
-     * Returns the default section name for the qmultopics course format.
-     *
-     * If the section number is 0, it will use the string with key = section0name from the course format's lang file.
-     * If the section number is not 0, the base implementation of format_base::get_default_section_name which uses
-     * the string with the key = 'sectionname' from the course format's lang file + the section number will be used.
-     *
-     * @param stdClass $section Section object from database or just field course_sections section
-     * @return string The default value for the section name.
-     */
-    public function get_default_section_name($section) {
-        if ($section->section == 0) {
-            // Return the general section.
-            return get_string('section0name', 'format_qmultopics');
-        } else {
-            // Use format_base::get_default_section_name implementation which
-            // will display the section name in "Topic n" format.
-            return parent::get_default_section_name($section);
-        }
-    }
-
-    /**
-     * The URL to use for the specified course (with section)
-     *
-     * @param int|stdClass $section Section object from database or just field course_sections.section
-     *     if omitted the course view page is returned
-     * @param array $options options for view URL. At the moment core uses:
-     *     'navigation' (bool) if true and section has no separate page, the function returns null
-     *     'sr' (int) used by multipage formats to specify to which section to return
-     * @return null|moodle_url
-     */
-    public function get_view_url($section, $options = array()) {
-        global $CFG;
-        $course = $this->get_course();
-        $url = new moodle_url('/course/view.php', array('id' => $course->id));
-
-        $sr = null;
-        if (array_key_exists('sr', $options)) {
-            $sr = $options['sr'];
-        }
-        if (is_object($section)) {
-            $sectionno = $section->section;
-        } else {
-            $sectionno = $section;
-        }
-        if ($sectionno !== null) {
-            if ($sr !== null) {
-                if ($sr) {
-                    $usercoursedisplay = COURSE_DISPLAY_MULTIPAGE;
-                    $sectionno = $sr;
-                } else {
-                    $usercoursedisplay = COURSE_DISPLAY_SINGLEPAGE;
-                }
-            } else {
-                $usercoursedisplay = $course->coursedisplay;
-            }
-            if ($sectionno != 0 && $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE) {
-                $url->param('section', $sectionno);
-            } else {
-                if (empty($CFG->linkcoursesections) && !empty($options['navigation'])) {
-                    return null;
-                }
-                $url->set_anchor('section-'.$sectionno);
-            }
-        }
-        return $url;
-    }
-
-    /**
-     * Returns the information about the ajax support in the given source format
-     *
-     * The returned object's property (boolean)capable indicates that
-     * the course format supports Moodle course ajax features.
-     *
-     * @return stdClass
-     */
-    public function supports_ajax() {
-        $ajaxsupport = new stdClass();
-        $ajaxsupport->capable = true;
-        return $ajaxsupport;
-    }
-
-    /**
-     * Loads all of the course sections into the navigation
-     *
-     * @param global_navigation $navigation
-     * @param navigation_node $node The course node within the navigation
-     */
-    public function extend_course_navigation($navigation, navigation_node $node) {
-        global $PAGE;
-        // if section is specified in course/view.php, make sure it is expanded in navigation
-        if ($navigation->includesectionnum === false) {
-            $selectedsection = optional_param('section', null, PARAM_INT);
-            if ($selectedsection !== null && (!defined('AJAX_SCRIPT') || AJAX_SCRIPT == '0') &&
-                    $PAGE->url->compare(new moodle_url('/course/view.php'), URL_MATCH_BASE)) {
-                $navigation->includesectionnum = $selectedsection;
-            }
-        }
-
-        // check if there are callbacks to extend course navigation
-        parent::extend_course_navigation($navigation, $node);
-
-        // We want to remove the general section if it is empty.
-        $modinfo = get_fast_modinfo($this->get_course());
-        $sections = $modinfo->get_sections();
-        if (!isset($sections[0])) {
-            // The general section is empty to find the navigation node for it we need to get its ID.
-            $section = $modinfo->get_section_info(0);
-            $generalsection = $node->get($section->id, navigation_node::TYPE_SECTION);
-            if ($generalsection) {
-                // We found the node - now remove it.
-                $generalsection->remove();
-            }
-        }
-    }
-
-    /**
-     * Custom action after section has been moved in AJAX mode
-     *
-     * Used in course/rest.php
-     *
-     * @return array This will be passed in ajax respose
-     */
-    function ajax_section_move() {
-        global $PAGE;
-        $titles = array();
-        $course = $this->get_course();
-        $modinfo = get_fast_modinfo($course);
-        $renderer = $this->get_renderer($PAGE);
-        if ($renderer && ($sections = $modinfo->get_section_info_all())) {
-            foreach ($sections as $number => $section) {
-                $titles[$number] = $renderer->section_title($section, $course);
-            }
-        }
-        return array('sectiontitles' => $titles, 'action' => 'move');
-    }
-
-    /**
-     * Returns the list of blocks to be automatically added for the newly created course
-     *
-     * @return array of default blocks, must contain two keys BLOCK_POS_LEFT and BLOCK_POS_RIGHT
-     *     each of values is an array of block names (for left and right side columns)
-     */
-    public function get_default_blocks() {
-        return array(
-            BLOCK_POS_LEFT => array(),
-            BLOCK_POS_RIGHT => array('search_forums', 'news_items', 'calendar_upcoming', 'recent_activity'),
-
-            // SYNERGY LEARNING - add 'topiczero' block region.
-            'topiczero' => array('assessment_information'),
-
-        );
-    }
-
-    /**
-     * Definitions of the additional options that this course format uses for course
-     *
-     * Topics (QMUL) format uses the following options:
-     * - coursedisplay
-     * - numsections
-     * - hiddensections
-     *
-     * @param bool $foreditform
-     * @return array of options
-     */
-    public function course_format_options($foreditform = false) {
-        static $courseformatoptions = false;
-        if ($courseformatoptions === false) {
-            $courseconfig = get_config('moodlecourse');
-            $courseformatoptions = array(
-                'numsections' => array(
-                    'default' => $courseconfig->numsections,
-                    'type' => PARAM_INT,
-                ),
-                'hiddensections' => array(
-                    'default' => $courseconfig->hiddensections,
-                    'type' => PARAM_INT,
-                ),
-                'coursedisplay' => array(
-                    'default' => $courseconfig->coursedisplay,
-                    'type' => PARAM_INT,
-                ),
-            );
-        }
-        if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
-            $courseconfig = get_config('moodlecourse');
-            $max = $courseconfig->maxsections;
-            if (!isset($max) || !is_numeric($max)) {
-                $max = 52;
-            }
-            $sectionmenu = array();
-            for ($i = 0; $i <= $max; $i++) {
-                $sectionmenu[$i] = "$i";
-            }
-            $courseformatoptionsedit = array(
-                'numsections' => array(
-                    'label' => new lang_string('numberweeks'),
-                    'element_type' => 'select',
-                    'element_attributes' => array($sectionmenu),
-                ),
-                'hiddensections' => array(
-                    'label' => new lang_string('hiddensections'),
-                    'help' => 'hiddensections',
-                    'help_component' => 'moodle',
-                    'element_type' => 'select',
-                    'element_attributes' => array(
-                        array(
-                            0 => new lang_string('hiddensectionscollapsed'),
-                            1 => new lang_string('hiddensectionsinvisible')
-                        )
-                    ),
-                ),
-                'coursedisplay' => array(
-                    'label' => new lang_string('coursedisplay'),
-                    'element_type' => 'select',
-                    'element_attributes' => array(
-                        array(
-                            COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
-                            COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
-                        )
-                    ),
-                    'help' => 'coursedisplay',
-                    'help_component' => 'moodle',
-                )
-            );
-            $courseformatoptions = array_merge_recursive($courseformatoptions, $courseformatoptionsedit);
-        }
-        return $courseformatoptions;
-    }
-
-    /**
-     * Adds format options elements to the course/section edit form.
-     *
-     * This function is called from {@link course_edit_form::definition_after_data()}.
-     *
-     * @param MoodleQuickForm $mform form the elements are added to.
-     * @param bool $forsection 'true' if this is a section edit form, 'false' if this is course edit form.
-     * @return array array of references to the added form elements.
+     * @param MoodleQuickForm $mform form the elements are added to
+     * @param bool $forsection 'true' if this is a section edit form, 'false' if this is course edit form
+     * @return array array of references to the added form elements
      */
     public function create_edit_form_elements(&$mform, $forsection = false) {
+        global $CFG, $OUTPUT;
         $elements = parent::create_edit_form_elements($mform, $forsection);
+        if ($forsection == false) {
 
-        // Increase the number of sections combo box values if the user has increased the number of sections
-        // using the icon on the course page beyond course 'maxsections' or course 'maxsections' has been
-        // reduced below the number of sections already set for the course on the site administration course
-        // defaults page.  This is so that the number of sections is not reduced leaving unintended orphaned
-        // activities / resources.
-        if (!$forsection) {
-            $maxsections = get_config('moodlecourse', 'maxsections');
-            $numsections = $mform->getElementValue('numsections');
-            $numsections = $numsections[0];
-            if ($numsections > $maxsections) {
-                $element = $mform->getElement('numsections');
-                for ($i = $maxsections+1; $i <= $numsections; $i++) {
-                    $element->addOption("$i", $i);
-                }
-            }
+            // Assessment Information
+            $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
+            $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultc', '', true);
+
+            $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultc'));
+
+            $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
+
+            // Extra Tab 1
+            $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultc', 1));
+            $mform->addHelpButton('extratab1', 'extratab', 'format_qmultc', '', true);
+
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultc'));
+
+            $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultc'));
+
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultc'));
+
+            // Extra Tab 2
+            $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultc', 2));
+            $mform->addHelpButton('extratab2', 'extratab', 'format_qmultc', '', true);
+
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultc'));
+
+            $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultc'));
+
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultc'));
+
+            // Extra Tab 3
+            $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultc', 3));
+            $mform->addHelpButton('extratab3', 'extratab', 'format_qmultc', '', true);
+
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultc'));
+
+            $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultc'));
+
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultc'));
+
         }
+
         return $elements;
+    }
+
+    public function edit_form_validation($data, $files, $errors) {
+
+        $return = parent::edit_form_validation($data, $files, $errors);
+
+        if (isset($data['enable_extratab1'])) {
+            if (empty($data['title_extratab1'])) {
+                $return['title_extratab1'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+            }
+        } else {
+            $data['enabled_extratab1'] = 0;
+        }
+        if (isset($data['enable_extratab2'])) {
+            if (empty($data['title_extratab2'])) {
+                $return['title_extratab2'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+            }
+        } else {
+            $data['enabled_extratab1'] = 0;
+        }
+        if (isset($data['enable_extratab3'])) {
+            if (empty($data['title_extratab3'])) {
+                $return['title_extratab3'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+            }
+        } else {
+            $data['enabled_extratab1'] = 0;
+        }
+
+        return $return;
     }
 
     /**
      * Updates format options for a course
      *
-     * In case if course format was changed to 'qmultopics', we try to copy options
+     * In case if course format was changed to 'Collapsed Topics', we try to copy options
      * 'coursedisplay', 'numsections' and 'hiddensections' from the previous format.
      * If previous course format did not have 'numsections' option, we populate it with the
-     * current number of sections
+     * current number of sections.  The layout and colour defaults will come from 'course_format_options'.
      *
      * @param stdClass|array $data return value from {@link moodleform::get_data()} or array with data
      * @param stdClass $oldcourse if this function is called from {@link update_course()}
@@ -338,52 +138,134 @@ class format_qmultopics extends format_base {
      */
     public function update_course_format_options($data, $oldcourse = null) {
         global $DB;
-        $data = (array)$data;
-        if ($oldcourse !== null) {
-            $oldcourse = (array)$oldcourse;
-            $options = $this->course_format_options();
-            foreach ($options as $key => $unused) {
-                if (!array_key_exists($key, $data)) {
-                    if (array_key_exists($key, $oldcourse)) {
-                        $data[$key] = $oldcourse[$key];
-                    } else if ($key === 'numsections') {
-                        // If previous format does not have the field 'numsections'
-                        // and $data['numsections'] is not set,
-                        // we fill it with the maximum section number from the DB
-                        $maxsection = $DB->get_field_sql('SELECT max(section) from {course_sections}
-                            WHERE course = ?', array($this->courseid));
-                        if ($maxsection) {
-                            // If there are no sections, or just default 0-section, 'numsections' will be set to default
-                            $data['numsections'] = $maxsection;
-                        }
-                    }
+
+        $newdata = (array) $data;
+
+        $savedata = array();
+        if (isset($newdata['enable_assessmentinformation'])) {
+            $savedata['enable_assessmentinformation'] = $newdata['enable_assessmentinformation'];
+        } else {
+            $savedata['enable_assessmentinformation'] = 0;
+        }
+        if (isset($newdata['content_assessmentinformation'])) {
+            $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
+        }
+        if (isset($newdata['enable_extratab1'])) {
+            $savedata['enable_extratab1'] = $newdata['enable_extratab1'];
+        } else {
+            $savedata['enable_extratab1'] = 0;
+        }
+        if (isset($newdata['title_extratab1'])) {
+            $savedata['title_extratab1'] = $newdata['title_extratab1'];
+        }
+        if (isset($newdata['content_extratab1'])) {
+            $savedata['content_extratab1'] = $newdata['content_extratab1'];
+        }
+        if (isset($newdata['enable_extratab2'])) {
+            $savedata['enable_extratab2'] = $newdata['enable_extratab2'];
+        } else {
+            $savedata['enable_extratab2'] = 0;
+        }
+        if (isset($newdata['title_extratab2'])) {
+            $savedata['title_extratab2'] = $newdata['title_extratab2'];
+        }
+        if (isset($newdata['content_extratab2'])) {
+            $savedata['content_extratab2'] = $newdata['content_extratab2'];
+        }
+        if (isset($newdata['enable_extratab3'])) {
+            $savedata['enable_extratab3'] = $newdata['enable_extratab3'];
+        } else {
+            $savedata['enable_extratab3'] = 0;
+        }
+        if (isset($newdata['title_extratab3'])) {
+            $savedata['title_extratab3'] = $newdata['title_extratab3'];
+        }
+        if (isset($newdata['content_extratab3'])) {
+            $savedata['content_extratab3'] = $newdata['content_extratab3'];
+        }
+
+        $records = $DB->get_records('course_format_options',
+                array('courseid' => $this->courseid,
+                      'format' => $this->format,
+                      'sectionid' => 0
+                    ), '', 'name,id,value');
+
+        foreach ($savedata as $key => $value) {
+             if (isset($records[$key])) {
+                if (array_key_exists($key, $newdata) && $records[$key]->value !== $newdata[$key]) {
+                    $DB->set_field('course_format_options', 'value',
+                            $value, array('id' => $records[$key]->id));
+                    $changed = true;
+                } else {
+                    $DB->set_field('course_format_options', 'value',
+                            $value, array('id' => $records[$key]->id));
+                    $changed = true;
                 }
+            } else {
+                $DB->insert_record('course_format_options', array(
+                    'courseid' => $this->courseid,
+                    'format' => $this->format,
+                    'sectionid' => 0,
+                    'name' => $key,
+                    'value' => $value
+                ));
             }
         }
-        $changed = $this->update_format_options($data);
-        if ($changed && array_key_exists('numsections', $data)) {
-            // If the numsections was decreased, try to completely delete the orphaned sections (unless they are not empty).
-            $numsections = (int)$data['numsections'];
-            $maxsection = $DB->get_field_sql('SELECT max(section) from {course_sections}
-                        WHERE course = ?', array($this->courseid));
-            for ($sectionnum = $maxsection; $sectionnum > $numsections; $sectionnum--) {
-                if (!$this->delete_section($sectionnum, false)) {
-                    break;
-                }
-            }
-        }
-        return $changed;
+
+        $changes = parent::update_course_format_options($data, $oldcourse);
+
+        return $changes;
     }
 
     /**
-     * Whether this format allows to delete sections
+     * Returns the format options stored for this course or course section
      *
-     * Do not call this function directly, instead use {@link course_can_delete_section()}
+     * When overriding please note that this function is called from rebuild_course_cache()
+     * and section_info object, therefore using of get_fast_modinfo() and/or any function that
+     * accesses it may lead to recursion.
      *
-     * @param int|stdClass|section_info $section
-     * @return bool
+     * @param null|int|stdClass|section_info $section if null the course format options will be returned
+     *     otherwise options for specified section will be returned. This can be either
+     *     section object or relative section number (field course_sections.section)
+     * @return array
      */
-    public function can_delete_section($section) {
-        return true;
+    public function get_format_options($section = null) {
+        global $DB;
+
+        $options = parent::get_format_options($section);
+
+        if ($section === null) {
+            // course format options will be returned
+            $sectionid = 0;
+        } else if ($this->courseid && isset($section->id)) {
+            // course section format options will be returned
+            $sectionid = $section->id;
+        } else if ($this->courseid && is_int($section) &&
+                ($sectionobj = $DB->get_record('course_sections',
+                        array('section' => $section, 'course' => $this->courseid), 'id'))) {
+            // course section format options will be returned
+            $sectionid = $sectionobj->id;
+        } else {
+            // non-existing (yet) section was passed as an argument
+            // default format options for course section will be returned
+            $sectionid = -1;
+        }
+
+        if ($sectionid == 0) {
+            $alloptions = $DB->get_records('course_format_options',
+                        array('courseid'=>$this->courseid, 'format'=>'qmultopics',
+                            'sectionid'=>0));
+
+            foreach ($alloptions as $option) {
+                if (!isset($options[$option->name])) {
+                    $options[$option->name] = $option->value;
+                }
+            }
+
+            $this->formatoptions[$sectionid] = $options;
+        }
+
+        return $options;
     }
+
 }
