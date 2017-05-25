@@ -19,19 +19,19 @@
 }}
 {{#discussions}}
     <div class="head clearfix">
-        <div class="info"><b>{{subject}}</b></div>
-        <div class="info">{{{displaymessage}}}</div>
+        <div><h5 class="text-primary"><b>{{subject}}</b></h5></div>
+        <div>{{{displaymessage}}}</div>
         <div class="link">
-            <a class="btn btn-sm btn-primary" href="{{discussionlink}}">{{#str}}readfullpost, format_qmultopics{{/str}}</a>
+            <a class="btn btn-primary" href="{{discussionlink}}">{{#str}}readfullpost, format_qmultopics{{/str}}</a>
         </div>
-        <div class="info mt-1">
-            <span class="name"><i>{{fullname}}</i></span>
-            <span class="date"><i>{{date}}</i></span>
+        <div class="info mt-1 d-inline-block">
+            <span class="name">{{fullname}}</span> |
+            <span class="date">{{date}}</span>
         </div>
     </div>
 {{/discussions}}
 {{#morenewslink}}
-    <a href="{{morenewslink}}" class="btn btn-sm btn-info float-right">
+    <a href="{{morenewslink}}" class="btn btn-qmul float-right">
         {{#str}}morenews, format_qmultopics{{/str}}
     </a>
 {{/morenewslink}}
