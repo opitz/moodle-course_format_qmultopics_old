@@ -21,20 +21,20 @@
     <div class="head clearfix">
         <div><h5 class="text-primary"><b>{{subject}}</b></h5></div>
         <div>{{{displaymessage}}}</div>
-        <div class="link">
+        <div class="link d-inline-block">
             <a class="btn btn-primary" href="{{discussionlink}}">{{#str}}readfullpost, format_qmultopics{{/str}}</a>
         </div>
-        <div class="info mt-1 d-inline-block">
+        <div class="info d-inline-block">
             <span class="name">{{fullname}}</span> |
             <span class="date">{{date}}</span>
         </div>
+        {{#morenewslink}}
+            <a href="{{morenewslink}}" class="btn btn-qmul float-md-right mt-12 mt-md-0">
+                {{#str}}morenews, format_qmultopics{{/str}}
+            </a>
+        {{/morenewslink}}
     </div>
 {{/discussions}}
-{{#morenewslink}}
-    <a href="{{morenewslink}}" class="btn btn-qmul float-right">
-        {{#str}}morenews, format_qmultopics{{/str}}
-    </a>
-{{/morenewslink}}
 {{^discussions}}
 <p>{{#str}}nonews, forum{{/str}}</p>
 {{/discussions}}
