@@ -120,6 +120,8 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                 // 0-section is displayed a little different then the others
                 if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
                     echo $this->section_header($thissection, $course, false, 0);
+                    // added topic zero block
+                    echo $this->output->custom_block_region('topiczero');
                     echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
                     echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
                     echo $this->section_footer();
