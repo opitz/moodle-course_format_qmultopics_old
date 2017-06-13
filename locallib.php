@@ -126,7 +126,7 @@ function format_qmultopics_getnews($course) {
 
     //Links to older topics
     if (count($discussions)) {
-        $context->morenewslink = new moodle_url('mod/forum/view.php', array('f'=>$forum->id, 'showall'=>1));
+        $context->morenewslink = new moodle_url('/mod/forum/view.php', array('f'=>$forum->id, 'showall'=>1));
     }
 
     return $OUTPUT->render_from_template('format_qmultopics/news', $context);
