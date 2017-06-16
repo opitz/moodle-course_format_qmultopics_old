@@ -19,8 +19,10 @@
 }}
 {{#discussions}}
     <div class="head clearfix">
-        <div><h5 class="text-primary"><b>{{subject}}</b></h5></div>
-        <div>{{{displaymessage}}}</div>
+        <div class="news-content">
+            <div><h5 class="text-primary"><b>{{subject}}</b></h5></div>
+            <div>{{{displaymessage}}}</div>
+        </div>
         <div class="link d-inline-block">
             <a class="btn btn-primary" href="{{discussionlink}}">{{#str}}readfullpost, format_qmultopics{{/str}}</a>
         </div>
@@ -29,7 +31,7 @@
             <span class="date">{{date}}</span>
         </div>
         {{#morenewslink}}
-            <a href="{{morenewslink}}" class="btn btn-qmul float-md-right mt-12 mt-md-0">
+            <a href="{{morenewslink}}" class="btn btn-primary morenews-btn float-md-right ml-0 ml-sm-auto mr-0">
                 {{#str}}morenews, format_qmultopics{{/str}}
             </a>
         {{/morenewslink}}
