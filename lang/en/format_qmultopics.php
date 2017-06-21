@@ -26,14 +26,14 @@
 $string['alttext'] = 'Alt text';
 $string['currentimage'] = 'Current image';
 $string['deleteimage'] = 'Delete image';
-$string['displaynews'] = 'Do you want to display Module Announcements?';
+$string['displaynews'] = 'I want to display news and announcements from my module forum';
 $string['editnewssettings'] = 'Edit news display settings';
 $string['imagefile'] = 'News or General Image file';
 $string['morenews'] = 'More news & announcements';
 $string['newssettingsof'] = 'News Settings of {$a}';
 $string['readfullpost'] = 'Read full post';
-$string['shownewsfull'] = 'Show full news text (no truncation)';
-$string['statictext'] = 'Static text';
+$string['shownewsfull'] = 'I want to display a shortened version of news and announcements';
+$string['statictext'] = 'I want to display some static text';
 $string['usestatictext'] = 'Use static text instead of Module Announcements';
 $string['currentsection'] = 'This topic';
 $string['editsection'] = 'Edit topic';

@@ -21,7 +21,6 @@ class newssettings_form extends moodleform {
 
         $mform->addElement('checkbox', 'displaynews', get_string('displaynews', 'format_qmultopics'));
         $mform->setDefault('displaynews', false);
-
         $mform->addElement('checkbox', 'shownewsfull', get_string('shownewsfull', 'format_qmultopics'));
         $mform->setDefault('shownewsfull', false);
 
@@ -38,17 +37,7 @@ class newssettings_form extends moodleform {
         $filemanager_options['maxfiles'] = 1;
         $filemanager_options['mainfile'] = true;
 
-        if ($image) {
-            $mform->addElement('static', 'imagepreview', get_string('currentimage', 'format_qmultopics'), $image);
-        }
-        $mform->addElement('filepicker', 'image', get_string('imagefile', 'format_qmultopics'), null, $filemanager_options);
-        $mform->addElement('checkbox', 'deleteimage', get_string('deleteimage', 'format_qmultopics'));
-
-        $mform->addElement('text', 'alttext', get_string('alttext', 'format_qmultopics'));
-        $mform->setType('alttext', PARAM_TEXT);
-
         $mform->addElement('checkbox', 'usestatictext', get_string('usestatictext', 'format_qmultopics'));
-
         $mform->addElement('editor', 'statictext_editor', get_string('statictext', 'format_qmultopics'));
         $mform->setType('statictext_editor', PARAM_RAW);
         $mform->disabledIf('statictext', 'usestatictext', 'notchecked');

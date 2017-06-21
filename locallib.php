@@ -113,7 +113,7 @@ function format_qmultopics_getnews($course) {
 
         $discussion->subject = format_string($discussion->subject, true, $forum->course);
 
-        $discussion->displaymessage = $shownewsfull ? $discussion->message : format_qmultopics_truncatehtml($discussion->message, 500);
+        $discussion->displaymessage = !$shownewsfull ? $discussion->message : format_qmultopics_truncatehtml($discussion->message, 500);
 
         $discussion->discussionlink = new moodle_url('/mod/forum/discuss.php', array('d'=>$discussion->discussion));
 
