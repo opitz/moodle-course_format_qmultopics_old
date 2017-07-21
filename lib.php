@@ -140,48 +140,49 @@ class format_qmultopics extends format_topics {
         global $DB;
 
         $newdata = (array) $data;
-
         $savedata = array();
-        if (isset($newdata['enable_assessmentinformation'])) {
-            $savedata['enable_assessmentinformation'] = $newdata['enable_assessmentinformation'];
-        } else {
-            $savedata['enable_assessmentinformation'] = 0;
-        }
-        if (isset($newdata['content_assessmentinformation'])) {
-            $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
-        }
-        if (isset($newdata['enable_extratab1'])) {
-            $savedata['enable_extratab1'] = $newdata['enable_extratab1'];
-        } else {
-            $savedata['enable_extratab1'] = 0;
-        }
-        if (isset($newdata['title_extratab1'])) {
-            $savedata['title_extratab1'] = $newdata['title_extratab1'];
-        }
-        if (isset($newdata['content_extratab1'])) {
-            $savedata['content_extratab1'] = $newdata['content_extratab1'];
-        }
-        if (isset($newdata['enable_extratab2'])) {
-            $savedata['enable_extratab2'] = $newdata['enable_extratab2'];
-        } else {
-            $savedata['enable_extratab2'] = 0;
-        }
-        if (isset($newdata['title_extratab2'])) {
-            $savedata['title_extratab2'] = $newdata['title_extratab2'];
-        }
-        if (isset($newdata['content_extratab2'])) {
-            $savedata['content_extratab2'] = $newdata['content_extratab2'];
-        }
-        if (isset($newdata['enable_extratab3'])) {
-            $savedata['enable_extratab3'] = $newdata['enable_extratab3'];
-        } else {
-            $savedata['enable_extratab3'] = 0;
-        }
-        if (isset($newdata['title_extratab3'])) {
-            $savedata['title_extratab3'] = $newdata['title_extratab3'];
-        }
-        if (isset($newdata['content_extratab3'])) {
-            $savedata['content_extratab3'] = $newdata['content_extratab3'];
+        if (isset($newdata['fullname'])) {
+            if (isset($newdata['enable_assessmentinformation'])) {
+                $savedata['enable_assessmentinformation'] = $newdata['enable_assessmentinformation'];
+            } else {
+                $savedata['enable_assessmentinformation'] = 0;
+            }
+            if (isset($newdata['content_assessmentinformation'])) {
+                $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
+            }
+            if (isset($newdata['enable_extratab1'])) {
+                $savedata['enable_extratab1'] = $newdata['enable_extratab1'];
+            } else {
+                $savedata['enable_extratab1'] = 0;
+            }
+            if (isset($newdata['title_extratab1'])) {
+                $savedata['title_extratab1'] = $newdata['title_extratab1'];
+            }
+            if (isset($newdata['content_extratab1'])) {
+                $savedata['content_extratab1'] = $newdata['content_extratab1'];
+            }
+            if (isset($newdata['enable_extratab2'])) {
+                $savedata['enable_extratab2'] = $newdata['enable_extratab2'];
+            } else {
+                $savedata['enable_extratab2'] = 0;
+            }
+            if (isset($newdata['title_extratab2'])) {
+                $savedata['title_extratab2'] = $newdata['title_extratab2'];
+            }
+            if (isset($newdata['content_extratab2'])) {
+                $savedata['content_extratab2'] = $newdata['content_extratab2'];
+            }
+            if (isset($newdata['enable_extratab3'])) {
+                $savedata['enable_extratab3'] = $newdata['enable_extratab3'];
+            } else {
+                $savedata['enable_extratab3'] = 0;
+            }
+            if (isset($newdata['title_extratab3'])) {
+                $savedata['title_extratab3'] = $newdata['title_extratab3'];
+            }
+            if (isset($newdata['content_extratab3'])) {
+                $savedata['content_extratab3'] = $newdata['content_extratab3'];
+            }
         }
 
         $records = $DB->get_records('course_format_options',
