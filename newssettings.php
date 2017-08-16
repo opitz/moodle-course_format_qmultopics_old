@@ -54,8 +54,7 @@ if (!$newssettings = $DB->get_record('format_qmultopics_news', array('courseid' 
 $newssettings->statictextformat = FORMAT_HTML;
 $newssettings = file_prepare_standard_editor($newssettings, 'statictext', $editoroptions, $context, 'format_qmultopics');
 
-$image = format_qmultopics_getimage($course);
-$mform = new newssettings_form(null, array('course' => $course, 'image' => $image));
+$mform = new newssettings_form(null, array('course' => $course));
 $mform->set_data($newssettings); // set current value
 
 $redir = new moodle_url('/course/view.php', array('id' => $course->id));
@@ -63,20 +62,9 @@ $redir = new moodle_url('/course/view.php', array('id' => $course->id));
 if ($mform->is_cancelled()) {
     redirect($redir);
 } else if ($data = $mform->get_data()) {
-    if(isset($data->deleteimage) && $data->deleteimage) {
-        format_qmultopics_delete_icon($context, $section);
-        $data->alttext = '';
-    } else {
-        if ($iconfile = $mform->save_temp_file('image')) {
-            format_qmultopics_process_new_icon($context, $section, $iconfile);
-            // Delete the file that has now been processed
-            @unlink($iconfile);
-        }
-    }
     //Insert or update
     $dbobj = new stdClass();
     $dbobj->displaynews = isset($data->displaynews) ? $data->displaynews : 0;
-    $dbobj->alttext = isset($data->alttext) ? $data->alttext : '';
     $dbobj->usestatictext = isset($data->usestatictext) ? $data->usestatictext : 0;
     $dbobj->shownewsfull = isset($data->shownewsfull) ? $data->shownewsfull : 0;
     if(isset($data->statictext_editor)) {

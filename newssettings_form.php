@@ -9,11 +9,8 @@ require_once($CFG->libdir . '/formslib.php');
 class newssettings_form extends moodleform {
 
     function definition() {
-        global $CFG, $DB;
-
         $mform = $this->_form;
         $course = $this->_customdata['course'];
-        $image = $this->_customdata['image'];
 
         //Hidden elements:
         $mform->addElement('hidden', 'course', $course->id);
@@ -27,16 +24,6 @@ class newssettings_form extends moodleform {
         $mform->disabledIf('name', 'displaynews', 'checked');
 
         /// Prepare file upload
-        $filemanager_options = array();
-        // 3 == FILE_EXTERNAL & FILE_INTERNAL
-        // These two constant names are defined in repository/lib.php
-        $filemanager_options['return_types'] = 3;
-        $filemanager_options['accepted_types'] = 'jpg,jpeg,gif,png';
-        $filemanager_options['subdirs'] = 0;
-        $filemanager_options['maxbytes'] = 0;
-        $filemanager_options['maxfiles'] = 1;
-        $filemanager_options['mainfile'] = true;
-
         $mform->addElement('checkbox', 'usestatictext', get_string('usestatictext', 'format_qmultopics'));
         $mform->addElement('editor', 'statictext_editor', get_string('statictext', 'format_qmultopics'));
         $mform->setType('statictext_editor', PARAM_RAW);

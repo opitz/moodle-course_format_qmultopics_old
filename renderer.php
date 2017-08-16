@@ -243,7 +243,6 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                 } else {
                     $newstext = format_qmultopics_getnews($course);
                 }
-                $o .= format_qmultopics_getimage($course, $newssettings->alttext);
                 $o .= '<div class="static-text"><div class="static-padding">'.$newstext.'</div></div>';
                 $o .= '<p class="clearfix" />';
             }

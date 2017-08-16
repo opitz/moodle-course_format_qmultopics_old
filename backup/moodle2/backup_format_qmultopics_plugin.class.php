@@ -45,7 +45,7 @@ class backup_format_qmultopics_plugin extends backup_format_plugin {
 
         // Create one standard named plugin element (the visible container)
         $pluginwrapper = new backup_nested_element($this->get_recommended_name());
-        $plugindimension = new backup_nested_element('newssettings', array('id'), array('displaynews', 'alttext', 'usestatictext', 'statictext', 'statictextformat'));
+        $plugindimension = new backup_nested_element('newssettings', array('id'), array('displaynews', 'usestatictext', 'statictext', 'statictextformat'));
 
         // connect the visible container ASAP
         $plugin->add_child($pluginwrapper);
