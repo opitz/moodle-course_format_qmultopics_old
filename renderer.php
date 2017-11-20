@@ -102,6 +102,9 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
             echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item'));
             echo html_writer::tag('a', get_string('modulecontent', 'format_qmultc'), array('data-toggle'=>'tab', 'class'=>'qmultablink nav-link active modulecontentlink', 'href'=>'#modulecontent'));
             echo html_writer::end_tag('li');
+            if (function_exists('theme_qmul_add_pin_tab')) {
+                theme_qmul_add_pin_tab();
+            }
             foreach ($extratabs as $extratab) {
                 echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item'));
                 echo html_writer::tag('a', $extratab->title, array('data-toggle'=>'tab', 'class'=>"nav-link qmultablink {$extratab->name}", 'href'=>"#{$extratab->name}"));
