@@ -209,7 +209,7 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
 
         foreach ($extratabs as $extratab) {
             echo html_writer::start_tag('div', array('id'=>$extratab->name, 'class'=>'tab-pane col-12 '.$extratab->name));
-            echo html_writer::tag('div', $extratab->content, array('class'=>'p-1'));
+            echo html_writer::tag('div', $extratab->content, array('class'=>'p-3'));
             echo html_writer::end_tag('div');
         }
         echo html_writer::end_tag('div');
