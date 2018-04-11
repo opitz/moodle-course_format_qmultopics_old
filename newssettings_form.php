@@ -8,7 +8,7 @@ require_once($CFG->libdir . '/formslib.php');
 
 class newssettings_form extends moodleform {
 
-    function definition() {
+    public function definition() {
         $mform = $this->_form;
         $course = $this->_customdata['course'];
 
