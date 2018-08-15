@@ -45,3 +45,4 @@ $string['page-course-view-qmultopics'] = 'Any course main page in topics format 
 $string['page-course-view-qmultopics-x'] = 'Any course page in topics format (QMUL)';
 $string['hidefromothers'] = 'Hide topic';
 $string['showfromothers'] = 'Show topic';
+$string['addsections'] = 'Add Topics';
