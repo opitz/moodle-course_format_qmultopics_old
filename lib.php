@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
 require_once($CFG->dirroot. '/course/format/topics/lib.php');
-require_once($CFG->dirroot. '/course/format/topcoll/lib.php'); // For format_qmultc.
+require_once($CFG->dirroot. '/course/format/topcoll/lib.php'); // For format_qmultopics.
 
 /**
  * Main class for the Topics (QMUL) course format
@@ -52,42 +52,42 @@ class format_qmultopics extends format_topics {
         if ($forsection == false) {
 
             // Assessment Information
-            $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
-            $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultc', '', true);
+            $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
+            $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultopics', '', true);
 
-            $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultc'));
+            $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultopics'));
 
-            $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
+            $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
 
             // Extra Tab 1
-            $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultc', 1));
-            $mform->addHelpButton('extratab1', 'extratab', 'format_qmultc', '', true);
+            $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultopics', 1));
+            $mform->addHelpButton('extratab1', 'extratab', 'format_qmultopics', '', true);
 
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultc'));
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultopics'));
 
-            $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultc'));
+            $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultopics'));
 
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultc'));
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultopics'));
 
             // Extra Tab 2
-            $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultc', 2));
-            $mform->addHelpButton('extratab2', 'extratab', 'format_qmultc', '', true);
+            $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultopics', 2));
+            $mform->addHelpButton('extratab2', 'extratab', 'format_qmultopics', '', true);
 
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultc'));
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultopics'));
 
-            $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultc'));
+            $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultopics'));
 
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultc'));
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultopics'));
 
             // Extra Tab 3
-            $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultc', 3));
-            $mform->addHelpButton('extratab3', 'extratab', 'format_qmultc', '', true);
+            $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultopics', 3));
+            $mform->addHelpButton('extratab3', 'extratab', 'format_qmultopics', '', true);
 
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultc'));
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultopics'));
 
-            $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultc'));
+            $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultopics'));
 
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultc'));
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultopics'));
 
         }
 
@@ -100,21 +100,21 @@ class format_qmultopics extends format_topics {
 
         if (isset($data['enable_extratab1'])) {
             if (empty($data['title_extratab1'])) {
-                $return['title_extratab1'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+                $return['title_extratab1'] = get_string('titlerequiredwhenenabled', 'format_qmultopics');
             }
         } else {
             $data['enabled_extratab1'] = 0;
         }
         if (isset($data['enable_extratab2'])) {
             if (empty($data['title_extratab2'])) {
-                $return['title_extratab2'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+                $return['title_extratab2'] = get_string('titlerequiredwhenenabled', 'format_qmultopics');
             }
         } else {
             $data['enabled_extratab1'] = 0;
         }
         if (isset($data['enable_extratab3'])) {
             if (empty($data['title_extratab3'])) {
-                $return['title_extratab3'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+                $return['title_extratab3'] = get_string('titlerequiredwhenenabled', 'format_qmultopics');
             }
         } else {
             $data['enabled_extratab1'] = 0;
@@ -269,6 +269,254 @@ class format_qmultopics extends format_topics {
         return $options;
     }
 
+    public function course_format_options($foreditform = false) {
+        global $CFG;
+        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        static $courseformatoptions = false;
+
+        if ($courseformatoptions === false) {
+            $courseconfig = get_config('moodlecourse');
+            $courseformatoptions = array(
+                'hiddensections' => array(
+                    'default' => $courseconfig->hiddensections,
+                    'type' => PARAM_INT,
+                ),
+//                'coursedisplay' => array(
+//                    'default' => get_config('format_qmultabtc', 'defaultcoursedisplay'),
+//                    'type' => PARAM_INT,
+//                ),
+                'section0_ontop' => array(
+                    'default' => false,
+                    'type' => PARAM_BOOL,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+
+                'single_section_tabs' => array(
+                    'default' => get_config('format_qmultabtc', 'defaultsectionnameastabname'),
+                    'type' => PARAM_BOOL
+                ),
+
+                'assessment_info_tab' => array(
+                    'default' => get_config('format_qmultabtc', 'defaultshowassessmentinfotab'),
+                    'type' => PARAM_BOOL
+                ),
+
+                'displayinstructions' => array(
+                    'default' => get_config('format_qmultabtc', 'defaultdisplayinstructions'),
+                    'type' => PARAM_INT,
+                ),
+                'layoutelement' => array(
+                    'default' => get_config('format_qmultabtc', 'defaultlayoutelement'),
+                    'type' => PARAM_INT,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+                'layoutstructure' => array(
+                    'default' => get_config('format_qmultabtc', 'defaultlayoutstructure'),
+                    'type' => PARAM_INT,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+                'layoutcolumns' => array(
+                    'default' => get_config('format_qmultabtc', 'defaultlayoutcolumns'),
+                    'type' => PARAM_INT,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+                'layoutcolumnorientation' => array(
+                    'default' => get_config('format_qmultabtc', 'defaultlayoutcolumnorientation'),
+                    'type' => PARAM_INT,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+            );
+            // the sequence in which the tabs will be displayed
+            $courseformatoptions['tab_seq'] = array('default' => '','type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+            // now loop through the tabs but don't show them as we only need the DB records...
+            $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent', 'format_qmultabtc'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            $courseformatoptions['tab0'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            for ($i = 1; $i <= $max_tabs; $i++) {
+                $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i,'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i.'_sectionnums'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            }
+
+            // Allow to store a name for the Assessment Info tab
+            $courseformatoptions['tab_assessment_info_title'] = array('default' => get_string('tab_assessment_info_title', 'format_qmultabtc'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+        }
+        if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
+            $courseconfig = get_config('moodlecourse');
+            $sectionmenu = array();
+            for ($i = 0; $i <= $courseconfig->maxsections; $i++) {
+                $sectionmenu[$i] = "$i";
+            }
+            $courseformatoptionsedit = array(
+
+                'hiddensections' => array(
+                    'label' => new lang_string('hiddensections'),
+                    'help' => 'hiddensections',
+                    'help_component' => 'moodle',
+                    'element_type' => 'hidden',
+                    'element_attributes' => array(
+                        array(0 => new lang_string('hiddensectionscollapsed'),
+                            1 => new lang_string('hiddensectionsinvisible')
+                        )
+                    ),
+                ),
+
+                'displayinstructions' => array(
+                    'label' => new lang_string('displayinstructions', 'format_qmultabtc'),
+                    'help' => 'displayinstructions',
+                    'help_component' => 'format_qmultabtc',
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(1 => new lang_string('no'),
+                            2 => new lang_string('yes'))
+                    )
+                ),
+
+                'single_section_tabs' => array(
+                    'label' => get_string('single_section_tabs_label', 'format_qmultabtc'),
+                    'element_type' => 'advcheckbox',
+                    'help' => 'single_section_tabs',
+                    'help_component' => 'format_qmultabtc',
+                ),
+
+                'assessment_info_tab' => array(
+                    'label' => get_string('assessment_info_tab_label', 'format_qmultabtc'),
+                    'element_type' => 'advcheckbox',
+                    'help' => 'assessment_info_tab',
+                    'help_component' => 'format_qmultabtc',
+                ),
+            );
+
+            $courseformatoptions = array_merge_recursive($courseformatoptions, $courseformatoptionsedit);
+        }
+        return $courseformatoptions;
+    }
+
+    public function section_action($section, $action, $sr) {
+        global $PAGE;
+
+        $tcsettings = $this->get_format_options();
+        if ($section->section && ($action === 'setmarker' || $action === 'removemarker')) {
+            // Format 'tabtopics' allows to set and remove markers in addition to common section actions.
+            require_capability('moodle/course:setcurrentsection', context_course::instance($this->courseid));
+            course_set_marker($this->courseid, ($action === 'setmarker') ? $section->section : 0);
+            return null;
+        }
+
+        switch ($action) {
+            case 'movetotabzero':
+                return $this->move2tab(0, $section, $tcsettings);
+                break;
+            case 'movetotabone':
+                return $this->move2tab(1, $section, $tcsettings);
+                break;
+            case 'movetotabtwo':
+                return $this->move2tab(2, $section, $tcsettings);
+                break;
+            case 'movetotabthree':
+                return $this->move2tab(3, $section, $tcsettings);
+                break;
+            case 'movetotabfour':
+                return $this->move2tab(4, $section, $tcsettings);
+                break;
+            case 'movetotabfive':
+                return $this->move2tab(5, $section, $tcsettings);
+                break;
+            case 'movetotabsix':
+                return $this->move2tab(6, $section, $tcsettings);
+                break;
+            case 'movetotabseven':
+                return $this->move2tab(7, $section, $tcsettings);
+                break;
+            case 'movetotabeight':
+                return $this->move2tab(8, $section, $tcsettings);
+                break;
+            case 'movetotabnine':
+                return $this->move2tab(9, $section, $tcsettings);
+                break;
+            case 'movetotabten':
+                return $this->move2tab(10, $section, $tcsettings);
+                break;
+            case 'removefromtabs':
+                return $this->removefromtabs($PAGE->course, $section, $tcsettings);
+                break;
+            case 'sectionzeroontop':
+                return $this->sectionzeroswitch($tcsettings, true);
+                break;
+            case 'sectionzeroinline':
+                return $this->sectionzeroswitch($tcsettings, false);
+                break;
+        }
+
+        // For show/hide actions call the parent method and return the new content for .section_availability element.
+        $rv = parent::section_action($section, $action, $sr);
+        $renderer = $PAGE->get_renderer('format_tabtopics');
+        $rv['section_availability'] = $renderer->section_availability($this->get_section($section));
+        return $rv;
+    }
+
+// move section ID and section number to tab format settings of a given tab
+    public function move2tab($tabnum, $section2move, $settings) {
+        global $PAGE;
+
+        $course = $PAGE->course;
+
+        // remove section number from all tab format settings
+        $settings = $this->removefromtabs($course, $section2move, $settings);
+
+        // add section number to new tab format settings if not tab0
+        if($tabnum > 0){
+            $settings['tab'.$tabnum] .= ($settings['tab'.$tabnum] === '' ? '' : ',').$section2move->id;
+            $settings['tab'.$tabnum.'_sectionnums'] .= ($settings['tab'.$tabnum.'_sectionnums'] === '' ? '' : ',').$section2move->section;
+            $this->update_course_format_options($settings);
+        }
+        return $settings;
+    }
+
+// remove section id from all tab format settings
+    public function removefromtabs($course, $section2remove, $settings) {
+        global $CFG;
+
+        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+
+        for($i = 0; $i <= $max_tabs; $i++) {
+            if(strstr($settings['tab'.$i], $section2remove->id) > -1) {
+                $sections = explode(',', $settings['tab'.$i]);
+                $new_sections = array();
+                foreach($sections as $section) {
+                    if($section != $section2remove->id) {
+                        $new_sections[] = $section;
+                    }
+                }
+                $settings['tab'.$i] = implode(',', $new_sections);
+
+                $section_nums = explode(',', $settings['tab'.$i.'_sectionnums']);
+                $new_section_nums = array();
+                foreach($section_nums as $section_num) {
+                    if($section_num != $section2remove->section) {
+                        $new_section_nums[] = $section_num;
+                    }
+                }
+                $settings['tab'.$i.'_sectionnums'] = implode(',', $new_section_nums);
+                $this->update_course_format_options($settings);
+            }
+        }
+        return $settings;
+    }
+
+// switch to show section0 always on top of the tabs
+    public function sectionzeroswitch($settings, $value) {
+        $settings['section0_ontop'] = $value;
+        $this->update_course_format_options($settings);
+
+        return $settings;
+    }
 }
 
 /**
@@ -280,6 +528,47 @@ class format_qmultopics extends format_topics {
  * @return \core\output\inplace_editable
  */
 function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/lib.php');
+
+    // deal with inplace changes of a section name
+    if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
+        global $DB;
+        $section = $DB->get_record_sql(
+            'SELECT s.* FROM {course_sections} s JOIN {course} c ON s.course = c.id WHERE s.id = ? AND c.format = ?',
+            array($itemid, 'qmultc'), MUST_EXIST);
+        $result = course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
+        return $result;
+    }
+
+    // deal with inplace changes of a tab name
+    if ($itemtype === 'tabname') {
+        global $DB, $PAGE;
+        $courseid = key($_SESSION['USER']->currentcourseaccess);
+        // the $itemid is actually the name of the record so use it to get the id
+
+        // update the database with the new value given
+        // Must call validate_context for either system, or course or course module context.
+        // This will both check access and set current context.
+        \external_api::validate_context(context_system::instance());
+        // Check permission of the user to update this item.
+//        require_capability('moodle/course:update', context_system::instance());
+        // Clean input and update the record.
+        $newvalue = clean_param($newvalue, PARAM_NOTAGS);
+        $record = $DB->get_record('course_format_options', array('id' => $itemid), '*', MUST_EXIST);
+//        $record['value'] = $newvalue;
+        $DB->update_record('course_format_options', array('id' => $record->id, 'value' => $newvalue));
+
+        // Prepare the element for the output ():
+        $output = new \core\output\inplace_editable('format_qmultopics', 'tabname', $record->id,
+            true,
+            format_string($newvalue), $newvalue, 'Edit tab name',  'New value for ' . format_string($newvalue));
+
+        return $output;
+    }
+}
+
+function format_qmultopics_inplace_editable0($itemtype, $itemid, $newvalue) {
     global $CFG;
     require_once($CFG->dirroot . '/course/lib.php');
     if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
