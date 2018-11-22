@@ -981,7 +981,20 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
 
         foreach ($modinfo->get_section_info_all() as $section => $thissection) {
             if ($section == 0) {
+
+
                 // 0-section is displayed a little different then the others
+                echo html_writer::start_tag('div', array('id' => 'inline_area'));
+                if (($thissection->summary or !empty($modinfo->sections[0]) or $this->userisediting) && $format_options['section0_ontop'] != true) {
+                    echo $this->section_header($thissection, $course, false, 0);
+                    // added topic zero block
+                    echo $this->output->custom_block_region('topiczero');
+                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
+                    echo $this->courserenderer->course_section_add_cm_control($course, $thissection->section, 0, 0);
+                    echo $this->section_footer();
+                }
+                echo html_writer::end_tag('div');
+/*
                 if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
                     echo $this->section_header($thissection, $course, false, 0);
                     // added topic zero block
@@ -990,6 +1003,7 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                     echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
                     echo $this->section_footer();
                 }
+*/
                 continue;
             }
             if ($section > $numsections) {
@@ -1259,6 +1273,18 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         }
         $url->param('sesskey', sesskey());
 
+        if(isset($course->tab_seq) && $course->tab_seq != '') {
+            $tab_seq = str_replace('tab','',$course->tab_seq);
+            $tab_seq = str_replace(',_assessment_info','',$tab_seq); // Remove the assessment info tab as a target if present
+            $tab_seq = str_replace('_assessment_info','',$tab_seq); // Remove a single assessment_info tab as a target if present
+        } else {
+            $tab_seq = '0';
+            for($i = 1; $i <= $max_tabs; $i++) {
+                $tab_seq .= ','.$i;
+            }
+
+        }
+
         $controls = array();
 
         // add move to/from top for section0 only
@@ -1290,7 +1316,24 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         // Insert tab moving menu items
         $itemtitle = "Move to Tab ";
         $actions = array('movetotabzero', 'movetotabone', 'movetotabtwo','movetotabthree','movetotabfour','movetotabfive','movetotabsix','movetotabseven','movetotabeight','movetotabnine','movetotabten', 'sectionzeroontop', 'sectionzeroinline');
-        for($i = 0; $i <= $max_tabs; $i++) {
+        $controls['no_tab'] = array(
+            "icon" => 't/left',
+            'name' => 'Remove from Tabs',
+
+            'attr' => array(
+                'tabnr' => 0,
+                'class' => 'tab_mover',
+                'title' => 'Remove from Tabs',
+                'data-action' => 'removefromtabs'
+            )
+        );
+
+//        for($i = 1; $i <= $max_tabs; $i++) {
+        foreach(explode(',',$tab_seq) as $i) { // Show tab options in edit menu in the same order as the tabs shown
+            if ($i == '0') {
+                continue;
+            }
+
             $tabname = 'tab'.$i.'_title';
             $itemname = 'To Tab "'.($course->$tabname ? $course->$tabname : $i).'"';
 
@@ -1306,18 +1349,6 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                 )
             );
         }
-
-        $controls['no_tab'] = array(
-            "icon" => 't/left',
-            'name' => 'Remove from Tabs',
-
-            'attr' => array(
-                'tabnr' => 0,
-                'class' => 'tab_mover',
-                'title' => 'Remove from Tabs',
-                'data-action' => 'removefromtabs'
-            )
-        );
 
         if ($section->section && has_capability('moodle/course:setcurrentsection', $coursecontext)) {
             if ($course->marker == $section->section) {  // Show the "light globe" on/off.
@@ -1361,127 +1392,6 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
             return array_merge($controls, $parentcontrols);
         }
     }
-    protected function section_edit_control_items0($course, $section, $onsectionpage = false) {
-        global $CFG;
-        if (!$this->userisediting) {
-            return array();
-        }
-        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
-        $max_tabs = ($max_tabs < 10 ? $max_tabs : 9 ); // Restrict tabs to 10 max (0...9)
-        $coursecontext = context_course::instance($course->id);
-        $sectionreturn = $onsectionpage ? $section->section : null;
-
-        $url = course_get_url($course, $sectionreturn);
-        $url->param('sesskey', sesskey());
-
-        if (empty($this->tcsettings)) {
-            $this->tcsettings = $this->courseformat->get_settings();
-        }
-        $controls = array();
-
-        $url->param('marker', $section->section);
-
-        // add move to/from top for section0 only
-        if ($section->section === 0) {
-            $controls['ontop'] = array(
-                "icon" => 't/up',
-                'name' => 'Show always on top',
-
-                'attr' => array(
-                    'tabnr' => 0,
-                    'class' => 'ontop_mover',
-                    'title' => 'Show always on top',
-                    'data-action' => 'sectionzeroontop'
-                )
-            );
-            $controls['inline'] = array(
-                "icon" => 't/down',
-                'name' => 'Show inline',
-
-                'attr' => array(
-                    'tabnr' => 0,
-                    'class' => 'inline_mover',
-                    'title' => 'Show inline',
-                    'data-action' => 'sectionzeroinline'
-                )
-            );
-        }
-
-        // Insert tab moving menu items
-        $itemtitle = "Move to Tab ";
-        $actions = array('movetotabzero', 'movetotabone', 'movetotabtwo','movetotabthree','movetotabfour','movetotabfive','movetotabsix','movetotabseven','movetotabeight','movetotabnine','movetotabten', 'sectionzeroontop', 'sectionzeroinline');
-        for($i = 1; $i <= $max_tabs; $i++) {
-            $tabname = 'tab'.$i.'_title';
-            $itemname = 'To Tab "'.($course->$tabname ? $course->$tabname : $i).'"';
-
-            $controls['to_tab'.$i] = array(
-                "icon" => 't/right',
-                'name' => $itemname,
-
-                'attr' => array(
-                    'tabnr' => $i,
-                    'class' => 'tab_mover',
-                    'title' => 'tab_mover',
-                    'data-action' => $actions[$i]
-                )
-            );
-        }
-
-        $controls['no_tab'] = array(
-            "icon" => 't/left',
-            'name' => 'Remove from Tabs',
-
-            'attr' => array(
-                'tabnr' => 0,
-                'class' => 'tab_mover',
-                'title' => 'Remove from Tabs',
-                'data-action' => 'removefromtabs'
-            )
-        );
-
-        if ((($this->tcsettings['layoutstructure'] == 1) || ($this->tcsettings['layoutstructure'] == 4)) &&
-            $section->section && has_capability('moodle/course:setcurrentsection', $coursecontext)) {
-            if ($course->marker == $section->section) {  // Show the "light globe" on/off.
-                $url->param('marker', 0);
-                $markedthissection = get_string('markedthissection', 'format_topcoll');
-                $highlightoff = get_string('highlightoff');
-                $controls['highlight'] = array('url' => $url, "icon" => 'i/marked',
-                    'name' => $highlightoff,
-                    'pixattr' => array('class' => '', 'alt' => $markedthissection),
-                    'attr' => array('class' => 'editing_highlight', 'title' => $markedthissection,
-                        'data-action' => 'removemarker'));
-            } else {
-                $url->param('marker', $section->section);
-                $markthissection = get_string('markthissection', 'format_topcoll');
-                $highlight = get_string('highlight');
-                $controls['highlight'] = array('url' => $url, "icon" => 'i/marker',
-                    'name' => $highlight,
-                    'pixattr' => array('class' => '', 'alt' => $markthissection),
-                    'attr' => array('class' => 'editing_highlight', 'title' => $markthissection,
-                        'data-action' => 'setmarker'));
-            }
-        }
-
-        $parentcontrols = parent::section_edit_control_items($course, $section, $onsectionpage);
-
-        // If the edit key exists, we are going to insert our controls after it.
-        if (array_key_exists("edit", $parentcontrols)) {
-            $merged = array();
-            // We can't use splice because we are using associative arrays.
-            // Step through the array and merge the arrays.
-            foreach ($parentcontrols as $key => $action) {
-                $merged[$key] = $action;
-                if ($key == "edit") {
-                    // If we have come to the edit key, merge these controls here.
-                    $merged = array_merge($merged, $controls);
-                }
-            }
-
-            return $merged;
-        } else {
-            return array_merge($controls, $parentcontrols);
-        }
-    }
 
     /**
      * Generate the display of the header part of a section before
@@ -1493,271 +1403,6 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
      * @param int $sectionreturn The section to return to after an action
      * @return string HTML to output.
      */
-    protected function section_header1($section, $course, $onsectionpage, $sectionreturn = null)
-    {
-        $o = '';
-
-        $sectionstyle = '';
-        $rightcurrent = '';
-        $context = context_course::instance($course->id);
-        $format_options = $this->courseformat->get_format_options();
-
-        if ($section->section != 0) {
-            // Only in the non-general sections.
-            if (!$section->visible && ($section->name == '' || $section->name == 'Section 52')) {
-                $sectionstyle = ' hidden stealth';
-            }
-            else if (!$section->visible) {
-                $sectionstyle = ' hidden';
-            }
-            if ($section->section == $this->currentsection) {
-                $sectionstyle = ' current';
-            }
-        }
-
-        if($this->tcsettings['single_section_tabs'] ) {
-            $sectionstyle .= ' single_section_tab';
-        }
-        if ($section->section != 0 || $format_options['section0_ontop'] != true || 1) {
-            $liattributes = array(
-                'id' => 'section-' . $section->section,
-                'class' => 'section main row' . $sectionstyle,
-                'role' => 'region',
-                'aria-label' => get_section_name($course, $section),
-                'section-id' => $section->id
-            );
-        } else {
-            // if section0 is shown above the tabs slightly change it's class
-            $liattributes = array(
-                'id' => 'section-' . $section->section,
-                'class' => 'section0 main row' . $sectionstyle,
-                'role' => 'region',
-                'aria-label' => get_section_name($course, $section),
-                'section-id' => $section->id
-            );
-        }
-        if (($this->formatresponsive) && ($this->tcsettings['layoutcolumnorientation'] == 2)) { // Horizontal column layout.
-            $liattributes['style'] = 'width: ' . $this->tccolumnwidth . '%;';
-        }
-        $o .= html_writer::start_tag('li', $liattributes);
-
-        if ($this->userisediting) {
-            $leftcontent = $this->section_left_content($section, $course, $onsectionpage);
-            $rightcontent = '';
-            /* No edit cog wheel
-                        if (($section->section != 0) && $this->userisediting && has_capability('moodle/course:update', $context)) {
-                            $url = new moodle_url('/course/editsection.php', array('id' => $section->id, 'sr' => $sectionreturn));
-
-                            $rightcontent .= html_writer::link($url,
-                                $this->output->pix_icon('t/edit', get_string('edit')),
-                                array('title' => get_string('editsection', 'format_topcoll'), 'class' => 'tceditsection'));
-                        }
-            */
-            $rightcontent .= $this->section_right_content($section, $course, $onsectionpage);
-//            if ($section->section != 0) {
-//                $o .= html_writer::tag('div', $leftcontent . $rightcontent, array('class' => 'left right side col-md-1 order-2'));
-//            }
-            $o .= html_writer::tag('div', $leftcontent . $rightcontent, array('class' => 'left right side col-md-1 order-2'));
-        }
-
-        $class = 'col-md-12';
-        if ($this->userisediting && (!$format_options['section0_ontop'] || $section->section > 0)) {
-            if ($section->section != -1) {
-                $class = 'col-md-11 order-1';
-            }
-        }
-        $o .= html_writer::start_tag('div', array('class' => 'content ' . $class));
-
-        if (empty($this->tcsettings)) {
-            $this->tcsettings = $this->courseformat->get_settings();
-        }
-        if (!isset($this->tcsettings['toggleiconset'])) {
-            $this->tcsettings['toggleiconset'] = 'switch';
-        }
-
-        if (($onsectionpage == false) && ($section->section != 0)) {
-            $o .= html_writer::start_tag('div',
-                array('class' => 'sectionhead toggle toggle-' . $this->tcsettings['toggleiconset'],
-                    'id' => 'toggle-' . $section->section)
-            );
-
-            if ((!($section->toggle === null)) && ($section->toggle == true)) {
-                $toggleclass = 'toggle_open';
-                $ariapressed = 'true';
-                $sectionclass = ' sectionopen';
-            } else {
-                $toggleclass = 'toggle_closed';
-                $ariapressed = 'false';
-                $sectionclass = '';
-            }
-            $toggleclass .= ' the_toggle ' . $this->tctoggleiconsize;
-            $o .= html_writer::start_tag('span',
-                array('class' => $toggleclass, 'role' => 'button', 'aria-pressed' => $ariapressed)
-            );
-
-            $title = get_section_name($course, $section);
-/*
-            if ($this->userisediting) {
-                $title = $this->section_title($section, $course);
-            } else {
-//                $title = $this->courseformat->get_topcoll_section_name($course, $section, true);
-                $title = $this->section_title($section, $course);
-            }
-*/
-            $availabilityinfo = $this->section_availability($section);
-            if ($availabilityinfo && $availabilityinfo != '<div class="section_availability"></div>') {
-                $modal = new stdClass();
-                $modal->title = get_string('availability');
-                $modal->id = uniqid();
-                $modal->btnclasses = 'btn-sm btn-secondary noarrow float-right ml-3';
-                $modal->btntext = get_string('availability') . ' <i class="fa fa-info"></i>';
-                $modal->content = $availabilityinfo;
-                $o .= $this->output->render_from_template('theme_qmul/modal', $modal);
-            }
-
-            if ((($this->mobiletheme === false) && ($this->tablettheme === false)) || ($this->userisediting)) {
-                $o .= $this->output->heading($title, 3, 'sectionname');
-            } else {
-                $o .= html_writer::tag('h3', $title); // Moodle H3's look bad on mobile / tablet with CT so use plain.
-            }
-
-            $o .= html_writer::end_tag('span');
-            $o .= html_writer::end_tag('div');
-
-            if ($this->tcsettings['showsectionsummary'] == 2) {
-                $o .= $this->section_summary_container($section);
-            }
-
-            $o .= html_writer::start_tag('div',
-                array('class' => 'sectionbody toggledsection' . $sectionclass,
-                    'id' => 'toggledsection-' . $section->section)
-            );
-            /* No edit cog wheel
-                        if ($this->userisediting && has_capability('moodle/course:update', $context)) {
-                            $url = new moodle_url('/course/editsection.php', array('id' => $section->id, 'sr' => $sectionreturn));
-                            $o .= html_writer::link($url,
-                                $this->output->pix_icon('t/edit', get_string('edit')),
-                                array('title' => get_string('editsection', 'format_topcoll'))
-                            );
-                        }
-            */
-            if ($this->tcsettings['showsectionsummary'] == 1) {
-                $o .= $this->section_summary_container($section);
-            }
-        } else {
-            // When on a section page, we only display the general section title, if title is not the default one.
-            $hasnamesecpg = ($section->section == 0 && (string)$section->name !== '');
-
-            if ($hasnamesecpg) {
-                $o .= $this->output->heading($this->section_title($section, $course), 3, 'section-title');
-            }
-            $availabilityinfo = $this->section_availability($section);
-            if ($availabilityinfo && $availabilityinfo != '<div class="section_availability"></div>') {
-                $modal = new stdClass();
-                $modal->title = get_string('availability');
-                $modal->id = uniqid();
-                $modal->btnclasses = 'btn-sm btn-secondary noarrow';
-                $modal->btntext = get_string('availability') . ' <i class="fa fa-info"></i>';
-                $modal->content = $availabilityinfo;
-                $o .= $this->output->render_from_template('theme_qmul/modal', $modal);
-            }
-
-            $o .= html_writer::start_tag('div', array('class' => 'summary'));
-            $o .= $this->format_summary_text($section);
-            /* No edit cog wheel
-                        if ($this->userisediting && has_capability('moodle/course:update', $context)) {
-                            $url = new moodle_url('/course/editsection.php', array('id' => $section->id, 'sr' => $sectionreturn));
-                            $o .= html_writer::link($url,
-                                $this->output->pix_icon('t/edit', get_string('edit')),
-                                array('title' => get_string('editsection', 'format_topcoll'))
-                            );
-                        }
-                        $o .= html_writer::end_tag('div');
-            */
-        }
-        return $o;
-    }
-    protected function section_headerxxx($section, $course, $onsectionpage, $sectionreturn=null) {
-        global $PAGE;
-
-        $o = '';
-        $currenttext = '';
-        $sectionstyle = '';
-
-        if ($section->section != 0) {
-            // Only in the non-general sections.
-            if (!$section->visible && ($section->name == '' || $section->name == 'Section 52')) {
-                $sectionstyle = ' hidden stealth';
-            }
-            else if (!$section->visible) {
-                $sectionstyle = ' hidden';
-            }
-            if (course_get_format($course)->is_section_current($section)) {
-                $sectionstyle = ' current';
-            }
-        }
-
-        if($this->tcsettings['single_section_tabs'] ) {
-            $sectionstyle .= ' single_section_tab';
-        }
-
-        $liattributes = array(
-            'id' => 'section-' . $section->section,
-            'class' => 'section py-3 main row' . $sectionstyle,
-            'role' => 'region',
-            'aria-label' => get_section_name($course, $section),
-            'section-id' => $section->id
-        );
-
-//        $o .= html_writer::start_tag('li', $liattributes);
-        $o.= html_writer::start_tag('li', array('id' => 'section-'.$section->section,
-            'class' => 'section py-3 main row'.$sectionstyle, 'role'=>'region',
-            'aria-label'=> get_section_name($course, $section)));
-
-        // Create a span that contains the section title to be used to create the keyboard section move menu.
-        $o .= html_writer::tag('span', get_section_name($course, $section), array('class' => 'hidden sectionname'));
-
-        $leftcontent = $this->section_left_content($section, $course, $onsectionpage);
-        $rightcontent = $this->section_right_content($section, $course, $onsectionpage);
-        $o.= html_writer::tag('div', $leftcontent.$rightcontent, array('class' => 'left right side col-lg-2 order-2'));
-
-        $class = 'col-lg-12';
-        if ($PAGE->user_is_editing()) {
-            $class = 'col-lg-10 order-1';
-        }
-        $o .= html_writer::start_tag('li', $liattributes);
-
-        // When not on a section page, we display the section titles except the general section if null
-        $hasnamenotsecpg = (!$onsectionpage && ($section->section != 0 || !is_null($section->name)));
-
-        // When on a section page, we only display the general section title, if title is not the default one
-        $hasnamesecpg = ($onsectionpage && ($section->section == 0 && !is_null($section->name)));
-
-        $classes = ' accesshide';
-        if ($hasnamenotsecpg || $hasnamesecpg) {
-            $classes = '';
-        }
-        $o.= $this->output->heading($this->section_title($section, $course), 3, 'sectionname' . $classes);
-
-        $availabilityinfo = $this->section_availability($section);
-        if($availabilityinfo && $availabilityinfo != '<div class="section_availability"></div>') {
-            $modal = new stdClass();
-            $modal->title = get_string('availability');
-            $modal->id = uniqid();
-            $modal->btnclasses = 'btn-sm btn-secondary noarrow';
-            $modal->btntext = get_string('availability').' <i class="fa fa-info"></i>';
-            $modal->content = $availabilityinfo;
-            $o .= $this->output->render_from_template('theme_qmul/modal', $modal);
-        }
-
-        $o .= html_writer::start_tag('div', array('class' => 'summary'));
-        $o .= $this->format_summary_text($section);
-        $o .= html_writer::end_tag('div');
-
-        $context = context_course::instance($course->id);
-
-        return $o;
-    }
     protected function section_header($section, $course, $onsectionpage, $sectionreturn=null) {
         global $PAGE;
 
@@ -1774,75 +1419,13 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                 $sectionstyle = ' current';
             }
         }
+        if($this->tcsettings['single_section_tabs'] ) {
+            $sectionstyle .= ' single_section_tab';
+        }
 
         $o.= html_writer::start_tag('li', array('id' => 'section-'.$section->section,
             'class' => 'section py-3 main row'.$sectionstyle, 'role'=>'region',
             'aria-label'=> get_section_name($course, $section),'section-id' => $section->id));
-
-        // Create a span that contains the section title to be used to create the keyboard section move menu.
-        $o .= html_writer::tag('span', get_section_name($course, $section), array('class' => 'hidden sectionname'));
-
-        $leftcontent = $this->section_left_content($section, $course, $onsectionpage);
-        $rightcontent = $this->section_right_content($section, $course, $onsectionpage);
-        $o.= html_writer::tag('div', $leftcontent.$rightcontent, array('class' => 'left right side col-lg-2 order-2'));
-
-        $class = 'col-lg-12';
-        if ($PAGE->user_is_editing()) {
-            $class = 'col-lg-10 order-1';
-        }
-        $o.= html_writer::start_tag('div', array('class' => 'content '.$class));
-
-        // When not on a section page, we display the section titles except the general section if null
-        $hasnamenotsecpg = (!$onsectionpage && ($section->section != 0 || !is_null($section->name)));
-
-        // When on a section page, we only display the general section title, if title is not the default one
-        $hasnamesecpg = ($onsectionpage && ($section->section == 0 && !is_null($section->name)));
-
-        $classes = ' accesshide';
-        if ($hasnamenotsecpg || $hasnamesecpg) {
-            $classes = '';
-        }
-        $o.= $this->output->heading($this->section_title($section, $course), 3, 'sectionname' . $classes);
-
-        $availabilityinfo = $this->section_availability($section);
-        if($availabilityinfo && $availabilityinfo != '<div class="section_availability"></div>') {
-            $modal = new stdClass();
-            $modal->title = get_string('availability');
-            $modal->id = uniqid();
-            $modal->btnclasses = 'btn-sm btn-secondary noarrow';
-            $modal->btntext = get_string('availability').' <i class="fa fa-info"></i>';
-            $modal->content = $availabilityinfo;
-            $o .= $this->output->render_from_template('theme_qmul/modal', $modal);
-        }
-
-        $o .= html_writer::start_tag('div', array('class' => 'summary'));
-        $o .= $this->format_summary_text($section);
-        $o .= html_writer::end_tag('div');
-
-        $context = context_course::instance($course->id);
-
-        return $o;
-    }
-    protected function section_header0($section, $course, $onsectionpage, $sectionreturn=null) {
-        global $PAGE;
-
-        $o = '';
-        $currenttext = '';
-        $sectionstyle = '';
-
-        if ($section->section != 0) {
-            // Only in the non-general sections.
-            if (!$section->visible) {
-                $sectionstyle = ' hidden';
-            }
-            if (course_get_format($course)->is_section_current($section)) {
-                $sectionstyle = ' current';
-            }
-        }
-
-        $o.= html_writer::start_tag('li', array('id' => 'section-'.$section->section,
-            'class' => 'section py-3 main row'.$sectionstyle, 'role'=>'region',
-            'aria-label'=> get_section_name($course, $section)));
 
         // Create a span that contains the section title to be used to create the keyboard section move menu.
         $o .= html_writer::tag('span', get_section_name($course, $section), array('class' => 'hidden sectionname'));

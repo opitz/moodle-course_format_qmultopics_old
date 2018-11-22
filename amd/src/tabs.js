@@ -38,15 +38,6 @@ define(['jquery', 'jqueryui'], function($) {
             });
 
 // ---------------------------------------------------------------------------------------------------------------------
-            // a section name is updated...
-            $(".sectionnamexxx").on('updated', function(){
-                var new_sectionname = $(this).find('.inplaceeditable').attr('data-value');
-//                $('.hidden.sectionname').html(new_sectionname);
-                $('.hidden.sectionname').html(new_sectionname);
-                $('.tablink.active').click();
-            });
-
-// ---------------------------------------------------------------------------------------------------------------------
             // restore the tab name
             var restore_tab = function(tab) {
                 // restore the tab name from the backup
@@ -56,11 +47,11 @@ define(['jquery', 'jqueryui'], function($) {
                 the_backup.remove();
 
                 // reveal the original sectionname
-                $('.sectionname').removeClass('edit_only');
-                $('.sectionname').show();
-                $('.sectionhead').show();
-                $('.hidden.sectionname').show();
-                $('.section-handle').show();
+//                $('.sectionname').removeClass('edit_only');
+//                $('.sectionname').show();
+//                $('.sectionhead').show();
+//                $('.hidden.sectionname').show();
+//                $('.section-handle').show();
 
                 console.log('--> restoring section headline ');
             };
@@ -173,9 +164,6 @@ define(['jquery', 'jqueryui'], function($) {
                         });
                     });
 
-//                    if($('#not-shown-hint-'+tabid).length === 0) {
-//                        $(this).append('<i id="not-shown-hint-'+tabid+'" class="fa fa-info" title="'+hint_text+'"></i>');
-//                    }
                 } else {
                     $(this).removeClass('tab-not-shown');
                     $('#not-shown-hint-'+tabid).remove();
@@ -334,26 +322,27 @@ define(['jquery', 'jqueryui'], function($) {
                     var tabname = '';
                     var trackname = $(this).attr('tab_title');
                     var tabid = $(this).attr('id').substr(3);
+
                     if ($(this).hasClass('tabsectionname')) {
                         tabname = $(this).html();
                     } else {
-//                        tabname = $(this).attr('tab_title');
                         tabname = $(this).find('.inplaceeditable').attr('data-value');
                     }
+
                     if($.inArray(trackname,tracknames) < 0) {
                         tabArray[tabid] = tabname;
                         tracknames.push(trackname);
                     }
                 });
 
-                // Updating menu options with current tab names
+                // Updating menu options with current tab names as seen on screen
                 console.log('--> Updating menu options with current tab names');
                 $(this).parent().find('.tab_mover').each(function() {
                     var tabnr = $(this).attr('tabnr');
                     $(this).find('.menu-action-text').html('To Tab "' + tabArray[tabnr] + '"');
                 });
 
-                if(sectionid !== 'section-0' && typeof $('.tablink.active').attr('id') !== 'undefined') {
+                if(typeof $('.tablink.active').attr('id') !== 'undefined') { // If a tab is active exclude it from the menu
                     var tabnum = $('.tablink.active').attr('id').substring(3);
                     $('#'+sectionid+' .tab_mover').show(); // 1st show all options
                     $('#'+sectionid+' .tab_mover[tabnr="'+tabnum+'"]').hide(); // then hide the one not needed
@@ -494,11 +483,13 @@ define(['jquery', 'jqueryui'], function($) {
                     $( "[sections=block_assessment_information]").parent().show();
                     $('#modulecontent').append($('.block_assessment_information').addClass('assessment_info_content').hide());
                     $('.assessment_info_content').removeClass('d-flex');
+                    $('.assessment_info_content').find('.card-body').removeClass('p-3').removeClass('card-body');
+                    $('.assessment_info_content').find('.block-inner').removeClass('card');
+                    $('.assessment_info_content').find('.show-content').hide();
                     if($('.tablink .fa-pencil').length == 0) { // if NOT in edit mode hide the block header
                         $('.assessment_info_content').find('.card-header').removeClass('d-flex').hide();
                     }
                 }
-                console.log('==========================> ' + $(".topictab:visible").length);
                 $('#tab0').click();
                 $('.tablink').click();
                 // if there is no visible tab show/click the module content tab
