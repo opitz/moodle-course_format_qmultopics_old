@@ -580,3 +580,183 @@ function format_qmultopics_inplace_editable0($itemtype, $itemid, $newvalue) {
     }
 }
 
+function qmultopics_format_get_assessmentinformation($content) {
+    global $CFG, $DB, $COURSE, $OUTPUT, $USER;
+
+    $output = html_writer::tag('div', format_text($content), array('class'=>'assessmentinfo col-12 mb-3'));
+
+    $assignments = qmultopics_format_get_assignments();
+
+    $assignoutput = html_writer::tag('div', get_string('assignmentsdue', 'format_qmultc'), array('class'=>'card-header h5'));
+    $assignoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
+    $assignsubmittedoutput = html_writer::tag('div', get_string('assignmentssubmitted', 'format_qmultc'), array('class'=>'card-header h5'));
+    $assignsubmittedoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
+
+    $modinfo = get_fast_modinfo($COURSE);
+
+    $submitted = 0;
+    $due = 0;
+    foreach ($assignments as $assignment) {
+
+        $context = context_module::instance($assignment->cmid);
+        $canviewhidden = has_capability('moodle/course:viewhiddenactivities', $context);
+
+        $hidden = '';
+        if (!$assignment->visible) {
+            $hidden = ' notvisible';
+        }
+
+        $cminfo = $modinfo->get_cm($assignment->cmid);
+
+        $conditionalhidden = false;
+        if (!empty($CFG->enableavailability)) {
+            $info = new \core_availability\info_module($cminfo);
+            if (!$info->is_available_for_all()) {
+                $information = '';
+                if ($info->is_available($information)) {
+                    $hidden = ' conditionalhidden';
+                    $conditionalhidden = false;
+                } else {
+                    $hidden = ' notvisible conditionalhidden';
+                    $conditionalhidden = true;
+                }
+            }
+        }
+
+        $accessiblebutdim = (!$assignment->visible || $conditionalhidden) && $canviewhidden;
+
+        if ((!$assignment->visible || $conditionalhidden) && !$canviewhidden) {
+            continue;
+        }
+
+        // Check overrides for new duedate
+
+        $sql = "SELECT
+                    module.id,
+                    module.allowsubmissionsfromdate AS timeopen,
+                    module.duedate AS timeclose";
+        $groups = groups_get_user_groups($COURSE->id);
+        $groupbysql = '';
+        $params = array();
+        if ($groups[0]) {
+            list ($groupsql, $params) = $DB->get_in_or_equal($groups[0]);
+            $sql .= ", CASE WHEN ovrd1.allowsubmissionsfromdate IS NULL THEN MIN(ovrd2.allowsubmissionsfromdate) ELSE ovrd1.allowsubmissionsfromdate END AS timeopenover,
+                    CASE WHEN ovrd1.duedate IS NULL THEN MAX(ovrd2.duedate) ELSE ovrd1.duedate END AS timecloseover
+                    FROM {assign} module
+                    LEFT JOIN {assign_overrides} ovrd1 ON module.id=ovrd1.assignid AND $USER->id=ovrd1.userid
+                    LEFT JOIN {assign_overrides} ovrd2 ON module.id=ovrd2.assignid AND ovrd2.groupid $groupsql";
+            $groupbysql = " GROUP BY module.id, timeopen, timeclose, ovrd1.allowsubmissionsfromdate, ovrd1.duedate";
+        } else {
+            $sql .= ", ovrd1.allowsubmissionsfromdate AS timeopenover, ovrd1.duedate AS timecloseover
+                     FROM {assign} module
+                     LEFT JOIN {assign_overrides} ovrd1
+                     ON module.id=ovrd1.assignid AND $USER->id=ovrd1.userid";
+        }
+        $sql .= " WHERE module.course = ?";
+        $sql .= " AND module.id = ?";
+        $sql .= $groupbysql;
+        $params[] = $COURSE->id;
+        $params[] = $assignment->id;
+        $overrides = $DB->get_records_sql($sql, $params);
+        $overrides = reset($overrides);
+        if (!empty($overrides->timecloseover)) {
+            $assignment->duedate = $overrides->timecloseover;
+            if ($overrides->timeopenover) {
+                $assignment->open = $overrides->open;
+            }
+        }
+
+        $out = '';
+        $url = new moodle_url('/mod/assign/view.php', array('id' => $assignment->cmid));
+        if ($assignment->status == 'submitted') {
+            $duestatus = get_string('submitted', 'widgettype_assignments');
+            $statusclass = 'success';
+        } else if ($assignment->status == 'draft') {
+            $duestatus = get_string('draft', 'widgettype_assignments');
+            $statusclass = 'info';
+        } else if ($assignment->duedate > 0 && $assignment->duedate < time()) {
+            $duestatus = get_string('overdue', 'widgettype_assignments');
+            $statusclass = 'danger';
+        } else if ($assignment->duedate > 0 && $assignment->duedate < (time() + 14 * DAYSECS)) {
+            $duestatus = get_string('duesoon', 'widgettype_assignments');
+            $statusclass = 'warning';
+        } else {
+            $duestatus = '';
+            $statusclass = 'info';
+        }
+
+        $duedate = date('d/m/Y', $assignment->duedate);
+
+        $out .= html_writer::start_tag('div', array('class'=>'list-group-item assignment'.$hidden));
+
+        $out .= html_writer::start_tag('div', array('class'=>'d-flex flex-wrap align-items-center mb-2'));
+        $out .= $OUTPUT->pix_icon('icon', 'assign', 'mod_assign', ['class'=>'mr-2']);
+        $out .= html_writer::link($url, $assignment->name, array('class'=>'name col p-0'));
+
+        if ($assignment->duedate > 0) {
+            $out .= html_writer::tag('div', $duedate, array('class'=>'due-date ml-auto badge badge-'.$statusclass,
+                'data-toggle'=>'tooltip', 'data-placement'=>'top', 'title'=>$duestatus));
+        }
+        $out .= html_writer::end_tag('div');
+
+        if ($assignment->showdescription) {
+            $out .= html_writer::tag('div', format_text($assignment->intro), array('class'=>"summary pl-4"));
+        }
+        $out .= html_writer::end_tag('div');
+
+        if ($assignment->status == 'submitted') {
+            $submitted++;
+            $assignsubmittedoutput .= $out;
+        } else {
+            $due++;
+            $assignoutput .= $out;
+        }
+    }
+    if ($submitted == 0) {
+        $assignsubmittedoutput .= html_writer::tag('div', get_string('noassignmentssubmitted', 'format_qmultc'), array('class'=>'card-body'));
+    }
+    if ($due == 0) {
+        $assignoutput .= html_writer::tag('div', get_string('noassignmentsdue', 'format_qmultc'), array('class'=>'card-body'));
+    }
+    $assignoutput .= html_writer::end_tag('div');
+    $assignsubmittedoutput .= html_writer::end_tag('div');
+    $assignoutput = html_writer::tag('div', $assignoutput, array('class'=>'card'));
+    $assignsubmittedoutput = html_writer::tag('div', $assignsubmittedoutput, array('class'=>'card'));
+
+    $output .= html_writer::tag('div', $assignoutput, array('class'=>'col-12 col-md-6 mb-1'));
+    $output .= html_writer::tag('div', $assignsubmittedoutput, array('class'=>'col-12 col-md-6 mb-1'));
+
+    return html_writer::tag('div', $output, array('class'=>'row'));
+}
+
+function qmultopics_format_get_assignments() {
+    global $DB, $COURSE, $USER;
+    $sql = "
+       SELECT a.id, cm.id AS cmid, cm.visible, cm.showdescription, a.name, a.duedate, s.status, a.intro, g.grade, gi.gradepass,
+              gi.hidden As gradehidden, a.markingworkflow, uf.workflowstate
+         FROM {assign} a
+         JOIN {course_modules} cm ON cm.instance = a.id
+         JOIN {modules} m ON m.id = cm.module AND m.name = 'assign'
+         JOIN (SELECT DISTINCT e.courseid
+                          FROM {enrol} e
+                          JOIN {user_enrolments} ue ON ue.enrolid = e.id AND ue.userid = :userid1
+                         WHERE e.status = :enabled AND ue.status = :active
+                           AND ue.timestart < :now1 AND (ue.timeend = 0 OR ue.timeend > :now2)
+              ) en ON (en.courseid = a.course)
+         LEFT JOIN {assign_submission} s ON s.assignment = a.id AND s.userid = :userid2 AND s.latest = 1
+         LEFT JOIN {assign_grades} g ON g.assignment = a.id AND g.userid = :userid3 AND g.attemptnumber = s.attemptnumber
+         LEFT JOIN {grade_items} gi ON gi.iteminstance = a.id AND itemmodule = 'assign'
+         LEFT JOIN {assign_user_flags} uf ON uf.assignment = a.id AND uf.userid = s.userid
+        WHERE a.course = :courseid
+        ORDER BY a.duedate
+    ";
+    $params = [
+        'userid1' => $USER->id, 'userid2' => $USER->id, 'userid3' => $USER->id,
+        'now1' => time(), 'now2' => time(),
+        'active' => ENROL_USER_ACTIVE, 'enabled' => ENROL_INSTANCE_ENABLED,
+        'courseid' => $COURSE->id
+    ];
+
+    $assignments = $DB->get_recordset_sql($sql, $params);
+    return $assignments;
+}

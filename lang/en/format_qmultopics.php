@@ -376,9 +376,9 @@ $string['single_section_tabs_label'] = 'Use section name as tab name for single 
 $string['single_section_tabs_help'] = 'When checked tabs with a single section will use the section name as tab name.';
 
 $string['tab_assessment_info_title'] = 'Assessment Info';
-$string['assessment_info_tab'] = 'Show "Assessment Info" block under a tab';
-$string['assessment_info_tab_label'] = 'Show "Assessment Info" block under a tab if installed';
-$string['assessment_info_tab_help'] = 'When checked the "Assessment Info" block is shown under a tab if it is installed.';
+$string['assessment_info_tab'] = 'Show "Assessment Info" under a tab';
+$string['assessment_info_tab_label'] = 'Show "Assessment Info" under a tab.';
+$string['assessment_info_tab_help'] = 'When checked the "Assessment Info" is shown as a new tab. Additionally all Information from the "Assessment Info" block is shown as well if it is installed.';
 
 $string['tabtitle_edithint'] = 'Edit tab name';
 $string['tabtitle_editlabel'] = 'New value for {a}';

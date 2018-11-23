@@ -165,7 +165,8 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
             $tab->id = "tab_assessment_info";
             $tab->name = 'assessment_info';
             $tab->title = $format_options['tab_assessment_info_title'];
-            $tab->content = "Lorem Ipsum...";
+            // Get the synergy assessment info and store the result as content for this tab
+            $tab->content = qmultc_format_get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
             $tab->sections = "block_assessment_information";
             $tab_section_nums = "";
             $tabs[$tab->id] = $tab;
@@ -856,7 +857,8 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
             $tab->id = "tab_assessment_info";
             $tab->name = 'assessment_info';
             $tab->title = $format_options['tab_assessment_info_title'];
-            $tab->content = "Lorem Ipsum...";
+            // Get the synergy assessment info and store the result as content for this tab
+            $tab->content = qmultopics_format_get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
             $tab->sections = "block_assessment_information";
             $tab_section_nums = "";
             $tabs[$tab->id] = $tab;
@@ -873,9 +875,9 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         $extratabnames = array('extratab1', 'extratab2', 'extratab3');
         $extratabs = array();
 
-        // the old 'Assessment Information' tab
+        // the old 'Assessment Information' tab - but only if it has not been merged into the new assessment info tab
         if (isset($this->tcsettings['enable_assessmentinformation']) &&
-            $this->tcsettings['enable_assessmentinformation'] == 1) {
+            $this->tcsettings['enable_assessmentinformation'] == 1 ) {
             $tab = new stdClass();
             $tab->name = 'assessmentinformation';
             $tab->title = get_string('assessmentinformation', 'format_qmultopics');
@@ -994,16 +996,17 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                     echo $this->section_footer();
                 }
                 echo html_writer::end_tag('div');
-/*
-                if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
-                    echo $this->section_header($thissection, $course, false, 0);
-                    // added topic zero block
-                    echo $this->output->custom_block_region('topiczero');
-                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
-                    echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
-                    echo $this->section_footer();
+
+                // Put the Synergy Assessment Information into a hidden div if the option is set
+                if ($format_options['assessment_info_tab']) {
+                    echo html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'class' => 'merge_assessment_info', 'style' => 'display: none;'));
+                    echo $tabs['tab_assessment_info']->content;
+                    echo html_writer::end_tag('div');
+                } else {
+                    echo html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'style' => 'display: none;'));
+                    echo html_writer::end_tag('div');
                 }
-*/
+
                 continue;
             }
             if ($section > $numsections) {

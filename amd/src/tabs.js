@@ -82,6 +82,7 @@ define(['jquery', 'jqueryui'], function($) {
                 $(".active").removeClass("active");
                 $(".modulecontent").addClass("active");
 
+                $('#content_assessmentinformation_area').hide();
                 if(tabid === 'tab_all') { // Show all sections
                     $("li.section").show();
                 } else if(tabid === 'tab0') { // Show all sections - then hide each section shown in other tabs
@@ -109,6 +110,7 @@ define(['jquery', 'jqueryui'], function($) {
                     $("li.section.hiding").removeClass("hidden");
 
                     $('.assessment_info_content').show();
+                    $('#content_assessmentinformation_area').append('darn...').show();
                 } else { // Hide all sections - then show those found in section_array
                     $("#changenumsections").show();
                     $("li.section").hide();
@@ -133,9 +135,11 @@ define(['jquery', 'jqueryui'], function($) {
 
                 var visible_sections=$('li.section:visible').length;
                 var visible_stealth_sections=$('li.section.stealth:visible').length;
+                var visible_blocks = $('#modulecontent').find('.block:visible');
+                var visibleAssessmentInfo = $('#content_assessmentinformation_area:visible').length;
+
                 var visible_hidden_sections=$('li.section.hidden:visible').length;
                 var visible_hiding_sections=$('li.section.hiding:visible').length;
-                var visible_blocks = $('#modulecontent').find('.block:visible');
                 var no_student_sections = visible_hiding_sections + visible_hidden_sections;
 
                 // if section0 is shown on top do not count it as visible section for the clicked tab
@@ -145,12 +149,13 @@ define(['jquery', 'jqueryui'], function($) {
                 }
 
                 console.log('number of visible sections: '+visible_sections);
+                console.log('number of visible blocks: '+visible_blocks.length);
+                console.log('Assessment Info visible: '+visibleAssessmentInfo);
                 console.log('number of stealth sections: '+visible_stealth_sections);
                 console.log('number of hidden/hiding sections: '+visible_hidden_sections+' / '+visible_hiding_sections);
-                console.log('number of visible blocks: '+visible_blocks.length);
                 console.log('no student sections: '+no_student_sections);
 
-                if(visible_sections <= no_student_sections && visible_blocks.length === 0) {
+                if(visible_sections <= no_student_sections && visible_blocks.length === 0 && visibleAssessmentInfo === 0) {
                     console.log("This tab contains only hidden sections and will not be shown to students");
                     $(this).addClass('tab-not-shown');
 
@@ -169,7 +174,7 @@ define(['jquery', 'jqueryui'], function($) {
                     $('#not-shown-hint-'+tabid).remove();
                 }
 
-                if(visible_sections < 1 && visible_blocks.length === 0) {
+                if(visible_sections < 1 && visible_blocks.length === 0 && visibleAssessmentInfo === 0) {
                     console.log('tab with no visible sections or blocks - hiding it');
                     $(this).parent().hide();
                     // Now click the 1st visible tab
@@ -480,6 +485,10 @@ define(['jquery', 'jqueryui'], function($) {
 
                 // if the assessment info tab is shown hide the assessment information block and show assessment info tab
                 if($('#tab_assessment_info').length > 0) {
+                    $('#content_assessmentinformation_area').hide(); // Hide the new Assessment Info area initially
+                    if ($('.merge_assessment_info').length > 0) {
+                        $('.assessmentinformation').hide(); // Hide the old Assessment Info tab if present
+                    }
                     $( "[sections=block_assessment_information]").parent().show();
                     $('#modulecontent').append($('.block_assessment_information').addClass('assessment_info_content').hide());
                     $('.assessment_info_content').removeClass('d-flex');
