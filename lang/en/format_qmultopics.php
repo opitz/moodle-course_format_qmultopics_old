@@ -390,3 +390,7 @@ $string['defaultshowassessmentinfotab'] = 'Show "Assessment Information" tab by 
 $string['defaultshowassessmentinfotab_desc'] = 'When installed show the "Assessment Information" block under a separate tab by default';
 
 $string['hidden_tab_hint'] = 'This tab contains only hidden sections and will not be shown to students';
+
+// News strings
+$string['readfullpost'] = 'Read full post';
+$string['morenews'] = 'More news';
