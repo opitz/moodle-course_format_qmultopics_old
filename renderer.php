@@ -173,9 +173,9 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         if (isset($this->tcsettings['enable_assessmentinformation']) &&
             $this->tcsettings['enable_assessmentinformation'] == 1) {
             $tab = new stdClass();
-            $tab->id = "tab_assessment_info";
+            $tab->id = "tab_assessment_information";
             $tab->name = 'assessment_info';
-            $tab->title = $format_options['tab_assessment_info_title'];
+            $tab->title = $format_options['tab_assessment_information_title'];
             // Get the synergy assessment info and store the result as content for this tab
             $tab->content = qmultopics_format_get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
             $tab->sections = "assessment_information";
@@ -321,7 +321,7 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                 // Put the Synergy Assessment Information into a hidden div if the option is set - waiting for the tab to be clicked
                 if ($format_options['enable_assessmentinformation']) {
                     echo html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'class' => 'merge_assessment_info', 'style' => 'display: none;'));
-                    echo $tabs['tab_assessment_info']->content;
+                    echo $tabs['tab_assessment_information']->content;
                     echo html_writer::end_tag('div');
                 }
 

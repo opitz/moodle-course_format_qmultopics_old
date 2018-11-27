@@ -376,6 +376,7 @@ $string['single_section_tabs_label'] = 'Use section name as tab name for single 
 $string['single_section_tabs_help'] = 'When checked tabs with a single section will use the section name as tab name.';
 
 $string['tab_assessment_info_title'] = 'Assessment Information';
+$string['tab_assessment_information_title'] = 'Assessment Information';
 
 $string['tab_assessment_info_block_title'] = 'Assessment Info Block';
 $string['assessment_info_block_tab'] = 'Show "Assessment Info" block under a tab';

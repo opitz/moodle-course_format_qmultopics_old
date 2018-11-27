@@ -102,7 +102,7 @@ define(['jquery', 'jqueryui'], function($) {
                             });
                         }
                     });
-                } else if(tabid === 'tab_assessment_info') { // Show the Assessment Info tab in new clothing on the main stage
+                } else if(tabid === 'tab_assessment_information') { // Show the Assessment Information as new tab
                     console.log('Assessment Info tab clicked!');
                     $("li.section").hide();
 //                    $("#changenumsections").hide();
