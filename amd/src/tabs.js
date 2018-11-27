@@ -77,7 +77,7 @@ define(['jquery', 'jqueryui'], function($) {
                 console.log('Clicked tab "'+clicked_tab_name+'":');
 
                 // hide the content of the assessment info block tab
-                $('.assessment_info_content').hide();
+                $('.assessment_info_block_content').hide();
 
                 $(".active").removeClass("active");
                 $(".modulecontent").addClass("active");
@@ -86,7 +86,7 @@ define(['jquery', 'jqueryui'], function($) {
                 if(tabid === 'tab_all') { // Show all sections
                     $("li.section").show();
                 } else if(tabid === 'tab0') { // Show all sections - then hide each section shown in other tabs
-                    $("#changenumsections").show();
+//                    $("#changenumsections").show();
                     $("li.section").show();
                     $(".topictab").each(function(){
                         if($(this).attr('sections').length > 0) {
@@ -102,15 +102,24 @@ define(['jquery', 'jqueryui'], function($) {
                             });
                         }
                     });
-                } else if(tabid === 'tab_assessment_info') { // Show the Assessment Info Block on the main stage
+                } else if(tabid === 'tab_assessment_info') { // Show the Assessment Info tab in new clothing on the main stage
                     console.log('Assessment Info tab clicked!');
+                    $("li.section").hide();
+//                    $("#changenumsections").hide();
+                    $("li.section.hidden").addClass("hiding");
+                    $("li.section.hiding").removeClass("hidden");
+
+//                    $('.assessment_info_block_content').show();
+                    $('#content_assessmentinformation_area').show();
+                } else if(tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
+                    console.log('Assessment Info Block tab clicked!');
                     $("li.section").hide();
                     $("#changenumsections").hide();
                     $("li.section.hidden").addClass("hiding");
                     $("li.section.hiding").removeClass("hidden");
 
-                    $('.assessment_info_content').show();
-                    $('#content_assessmentinformation_area').append('darn...').show();
+                    $('.assessment_info_block_content').show();
+//                    $('#content_assessmentinformation_area').show();
                 } else { // Hide all sections - then show those found in section_array
                     $("#changenumsections").show();
                     $("li.section").hide();
@@ -118,7 +127,7 @@ define(['jquery', 'jqueryui'], function($) {
                     // from hiding (don't ask...)
                     $("li.section.hidden").addClass("hiding");
                     $("li.section.hiding").removeClass("hidden");
-                    $.each(section_array, function(index, value){
+                    $.each(section_array, function(index, value){ // Now show all sections in the array
                         var target = $(".section[section-id='"+value+"']");
                         target.show();
                         if (target.hasClass("hiding")) { // Return the "hidden" class if it was "hiding"
@@ -427,7 +436,7 @@ define(['jquery', 'jqueryui'], function($) {
             // Show all sections when the "Module Content" tab is clicked
             $(".modulecontentlink").click(function(){
                 // hide the content of the assessment info block tab
-                $('.assessment_info_content').hide();
+                $('.assessment_info_block_content').hide();
                 $("li.section").show();
                 $("li.section.hiding").addClass("hidden");
                 $("li.section.hidden").removeClass("hiding");
@@ -459,6 +468,8 @@ define(['jquery', 'jqueryui'], function($) {
 
 // ---------------------------------------------------------------------------------------------------------------------
             $(document).ready(function() {
+                console.log('--------------------------------------');
+                console.log('Beginning document tab initialization');
                 initFunctions();
 
                 // Force to show the edit menu for section-0
@@ -483,20 +494,21 @@ define(['jquery', 'jqueryui'], function($) {
                     });
                 }
 
-                // if the assessment info tab is shown hide the assessment information block and show assessment info tab
-                if($('#tab_assessment_info').length > 0) {
+                // if the assessment info block tab is shown hide the assessment information block and show assessment info tab
+                if($('#tab_assessment_info_block').length > 0) {
+                    console.log('===> Assessment Info Block tab present - showing the content_assessmentinformation_area');
                     $('#content_assessmentinformation_area').hide(); // Hide the new Assessment Info area initially
-                    if ($('.merge_assessment_info').length > 0) {
-                        $('.assessmentinformation').hide(); // Hide the old Assessment Info tab if present
-                    }
+//                    if ($('.merge_assessment_info').length > 0) {
+//                        $('.assessmentinformation').hide(); // Hide the old Assessment Info tab if present
+//                    }
                     $( "[sections=block_assessment_information]").parent().show();
-                    $('#modulecontent').append($('.block_assessment_information').addClass('assessment_info_content').hide());
-                    $('.assessment_info_content').removeClass('d-flex');
-                    $('.assessment_info_content').find('.card-body').removeClass('p-3').removeClass('card-body');
-                    $('.assessment_info_content').find('.block-inner').removeClass('card');
-                    $('.assessment_info_content').find('.show-content').hide();
+                    $('#modulecontent').append($('.block_assessment_information').addClass('assessment_info_block_content').hide());
+                    $('.assessment_info_block_content').removeClass('d-flex');
+                    $('.assessment_info_block_content').find('.card-body').removeClass('p-3').removeClass('card-body');
+                    $('.assessment_info_block_content').find('.block-inner').removeClass('card');
+                    $('.assessment_info_block_content').find('.show-content').hide();
                     if($('.tablink .fa-pencil').length == 0) { // if NOT in edit mode hide the block header
-                        $('.assessment_info_content').find('.card-header').removeClass('d-flex').hide();
+                        $('.assessment_info_block_content').find('.card-header').removeClass('d-flex').hide();
                     }
                 }
                 $('#tab0').click();

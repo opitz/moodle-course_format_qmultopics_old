@@ -282,7 +282,7 @@ class format_qmultopics extends format_topics {
                     'type' => PARAM_INT,
                 ),
 //                'coursedisplay' => array(
-//                    'default' => get_config('format_qmultabtc', 'defaultcoursedisplay'),
+//                    'default' => get_config('format_qmultopics', 'defaultcoursedisplay'),
 //                    'type' => PARAM_INT,
 //                ),
                 'section0_ontop' => array(
@@ -293,39 +293,39 @@ class format_qmultopics extends format_topics {
                 ),
 
                 'single_section_tabs' => array(
-                    'default' => get_config('format_qmultabtc', 'defaultsectionnameastabname'),
+                    'default' => get_config('format_qmultopics', 'defaultsectionnameastabname'),
                     'type' => PARAM_BOOL
                 ),
 
-                'assessment_info_tab' => array(
-                    'default' => get_config('format_qmultabtc', 'defaultshowassessmentinfotab'),
+                'assessment_info_block_tab' => array(
+                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
                     'type' => PARAM_BOOL
                 ),
 
                 'displayinstructions' => array(
-                    'default' => get_config('format_qmultabtc', 'defaultdisplayinstructions'),
+                    'default' => get_config('format_qmultopics', 'defaultdisplayinstructions'),
                     'type' => PARAM_INT,
                 ),
                 'layoutelement' => array(
-                    'default' => get_config('format_qmultabtc', 'defaultlayoutelement'),
+                    'default' => get_config('format_qmultopics', 'defaultlayoutelement'),
                     'type' => PARAM_INT,
                     'label' => '',
                     'element_type' => 'hidden',
                 ),
                 'layoutstructure' => array(
-                    'default' => get_config('format_qmultabtc', 'defaultlayoutstructure'),
+                    'default' => get_config('format_qmultopics', 'defaultlayoutstructure'),
                     'type' => PARAM_INT,
                     'label' => '',
                     'element_type' => 'hidden',
                 ),
                 'layoutcolumns' => array(
-                    'default' => get_config('format_qmultabtc', 'defaultlayoutcolumns'),
+                    'default' => get_config('format_qmultopics', 'defaultlayoutcolumns'),
                     'type' => PARAM_INT,
                     'label' => '',
                     'element_type' => 'hidden',
                 ),
                 'layoutcolumnorientation' => array(
-                    'default' => get_config('format_qmultabtc', 'defaultlayoutcolumnorientation'),
+                    'default' => get_config('format_qmultopics', 'defaultlayoutcolumnorientation'),
                     'type' => PARAM_INT,
                     'label' => '',
                     'element_type' => 'hidden',
@@ -335,7 +335,7 @@ class format_qmultopics extends format_topics {
             $courseformatoptions['tab_seq'] = array('default' => '','type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
 
             // now loop through the tabs but don't show them as we only need the DB records...
-            $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent', 'format_qmultabtc'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
             $courseformatoptions['tab0'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
             for ($i = 1; $i <= $max_tabs; $i++) {
                 $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i,'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
@@ -344,7 +344,10 @@ class format_qmultopics extends format_topics {
             }
 
             // Allow to store a name for the Assessment Info tab
-            $courseformatoptions['tab_assessment_info_title'] = array('default' => get_string('tab_assessment_info_title', 'format_qmultabtc'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            $courseformatoptions['tab_assessment_info_title'] = array('default' => get_string('tab_assessment_info_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+            // Allow to store a name for the Assessment Info Block tab
+            $courseformatoptions['tab_assessment_info_block_title'] = array('default' => get_string('tab_assessment_info_block_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
 
         }
         if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
@@ -368,9 +371,9 @@ class format_qmultopics extends format_topics {
                 ),
 
                 'displayinstructions' => array(
-                    'label' => new lang_string('displayinstructions', 'format_qmultabtc'),
+                    'label' => new lang_string('displayinstructions', 'format_qmultopics'),
                     'help' => 'displayinstructions',
-                    'help_component' => 'format_qmultabtc',
+                    'help_component' => 'format_qmultopics',
                     'element_type' => 'select',
                     'element_attributes' => array(
                         array(1 => new lang_string('no'),
@@ -379,17 +382,17 @@ class format_qmultopics extends format_topics {
                 ),
 
                 'single_section_tabs' => array(
-                    'label' => get_string('single_section_tabs_label', 'format_qmultabtc'),
+                    'label' => get_string('single_section_tabs_label', 'format_qmultopics'),
                     'element_type' => 'advcheckbox',
                     'help' => 'single_section_tabs',
-                    'help_component' => 'format_qmultabtc',
+                    'help_component' => 'format_qmultopics',
                 ),
 
-                'assessment_info_tab' => array(
-                    'label' => get_string('assessment_info_tab_label', 'format_qmultabtc'),
+                'assessment_info_block_tab' => array(
+                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
                     'element_type' => 'advcheckbox',
-                    'help' => 'assessment_info_tab',
-                    'help_component' => 'format_qmultabtc',
+                    'help' => 'assessment_info_block_tab',
+                    'help_component' => 'format_qmultopics',
                 ),
             );
 

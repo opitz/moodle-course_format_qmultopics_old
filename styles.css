@@ -17,3 +17,10 @@
     cursor: pointer;
 }
 
+.assessment_info_block_content {
+    padding-top: 10px;
+}
+
+#content_assessmentinformation_area {
+    padding-top: 10px;
+}
