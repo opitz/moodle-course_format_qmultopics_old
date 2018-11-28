@@ -297,9 +297,15 @@ class format_qmultopics extends format_topics {
                     'type' => PARAM_BOOL
                 ),
 
+/*
                 'assessment_info_block_tab' => array(
                     'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
                     'type' => PARAM_BOOL
+                ),
+*/
+                'assessment_info_block_tab' => array(
+                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
+                    'type' => PARAM_INT,
                 ),
 
                 'displayinstructions' => array(
@@ -388,11 +394,24 @@ class format_qmultopics extends format_topics {
                     'help_component' => 'format_qmultopics',
                 ),
 
+/*
                 'assessment_info_block_tab' => array(
                     'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
                     'element_type' => 'advcheckbox',
                     'help' => 'assessment_info_block_tab',
                     'help_component' => 'format_qmultopics',
+                ),
+*/
+                'assessment_info_block_tab' => array(
+                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
+                    'help' => 'assessment_info_block_tab',
+                    'help_component' => 'format_qmultopics',
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(0 => get_string('assessment_info_block_tab_option0', 'format_qmultopics'),
+                            1 => get_string('assessment_info_block_tab_option1', 'format_qmultopics'),
+                            2 => get_string('assessment_info_block_tab_option2', 'format_qmultopics'))
+                    )
                 ),
             );
 
@@ -539,7 +558,7 @@ function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
         global $DB;
         $section = $DB->get_record_sql(
             'SELECT s.* FROM {course_sections} s JOIN {course} c ON s.course = c.id WHERE s.id = ? AND c.format = ?',
-            array($itemid, 'qmultc'), MUST_EXIST);
+            array($itemid, 'qmultopics'), MUST_EXIST);
         $result = course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
         return $result;
     }
@@ -590,9 +609,9 @@ function qmultopics_format_get_assessmentinformation($content) {
 
     $assignments = qmultopics_format_get_assignments();
 
-    $assignoutput = html_writer::tag('div', get_string('assignmentsdue', 'format_qmultc'), array('class'=>'card-header h5'));
+    $assignoutput = html_writer::tag('div', get_string('assignmentsdue', 'format_qmultopics'), array('class'=>'card-header h5'));
     $assignoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
-    $assignsubmittedoutput = html_writer::tag('div', get_string('assignmentssubmitted', 'format_qmultc'), array('class'=>'card-header h5'));
+    $assignsubmittedoutput = html_writer::tag('div', get_string('assignmentssubmitted', 'format_qmultopics'), array('class'=>'card-header h5'));
     $assignsubmittedoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
 
     $modinfo = get_fast_modinfo($COURSE);
@@ -716,10 +735,10 @@ function qmultopics_format_get_assessmentinformation($content) {
         }
     }
     if ($submitted == 0) {
-        $assignsubmittedoutput .= html_writer::tag('div', get_string('noassignmentssubmitted', 'format_qmultc'), array('class'=>'card-body'));
+        $assignsubmittedoutput .= html_writer::tag('div', get_string('noassignmentssubmitted', 'format_qmultopics'), array('class'=>'card-body'));
     }
     if ($due == 0) {
-        $assignoutput .= html_writer::tag('div', get_string('noassignmentsdue', 'format_qmultc'), array('class'=>'card-body'));
+        $assignoutput .= html_writer::tag('div', get_string('noassignmentsdue', 'format_qmultopics'), array('class'=>'card-body'));
     }
     $assignoutput .= html_writer::end_tag('div');
     $assignsubmittedoutput .= html_writer::end_tag('div');

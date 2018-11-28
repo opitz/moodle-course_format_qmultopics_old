@@ -109,8 +109,11 @@ define(['jquery', 'jqueryui'], function($) {
                     $("li.section.hidden").addClass("hiding");
                     $("li.section.hiding").removeClass("hidden");
 
-//                    $('.assessment_info_block_content').show();
                     $('#content_assessmentinformation_area').show();
+                    if ($('.merge_assessment_info').length > 0) {
+                        console.log('merging Assessment Info Block');
+                        $('.assessment_info_block_content').show();
+                    }
                 } else if(tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
                     console.log('Assessment Info Block tab clicked!');
                     $("li.section").hide();
@@ -494,13 +497,10 @@ define(['jquery', 'jqueryui'], function($) {
                     });
                 }
 
-                // if the assessment info block tab is shown hide the assessment information block and show assessment info tab
-                if($('#tab_assessment_info_block').length > 0) {
+                // Move the Assessment Info Block into it's area on the main stage but hide it for now
+                if ($('#tab_assessment_info_block').length > 0 || $('.merge_assessment_info').length > 0) {
                     console.log('===> Assessment Info Block tab present - showing the content_assessmentinformation_area');
                     $('#content_assessmentinformation_area').hide(); // Hide the new Assessment Info area initially
-//                    if ($('.merge_assessment_info').length > 0) {
-//                        $('.assessmentinformation').hide(); // Hide the old Assessment Info tab if present
-//                    }
                     $( "[sections=block_assessment_information]").parent().show();
                     $('#modulecontent').append($('.block_assessment_information').addClass('assessment_info_block_content').hide());
                     $('.assessment_info_block_content').removeClass('d-flex');

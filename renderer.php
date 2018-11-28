@@ -320,7 +320,12 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
 
                 // Put the Synergy Assessment Information into a hidden div if the option is set - waiting for the tab to be clicked
                 if ($format_options['enable_assessmentinformation']) {
-                    echo html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'class' => 'merge_assessment_info', 'style' => 'display: none;'));
+                    // If the option to merge assessment information add a specific class as indicator for JS
+                    if ($format_options['assessment_info_block_tab'] == '2') {
+                        echo html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'class' => 'section merge_assessment_info', 'style' => 'display: none;'));
+                    } else {
+                        echo html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'class' => 'section', 'style' => 'display: none;'));
+                    }
                     echo $tabs['tab_assessment_information']->content;
                     echo html_writer::end_tag('div');
                 }
@@ -725,6 +730,76 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
      * @return string HTML to output.
      */
     protected function section_header($section, $course, $onsectionpage, $sectionreturn=null) {
+        global $PAGE;
+
+        $o = '';
+        $currenttext = '';
+        $sectionstyle = '';
+
+        if ($section->section != 0) {
+            // Only in the non-general sections.
+            if (!$section->visible) {
+                $sectionstyle = ' hidden';
+            }
+            if (course_get_format($course)->is_section_current($section)) {
+                $sectionstyle = ' current';
+            }
+        }
+        if($this->tcsettings['single_section_tabs'] ) {
+            $sectionstyle .= ' single_section_tab';
+        }
+
+        $o.= html_writer::start_tag('li', array('id' => 'section-'.$section->section,
+            'class' => 'section py-3 main row'.$sectionstyle, 'role'=>'region',
+            'aria-label'=> get_section_name($course, $section),'section-id' => $section->id));
+
+        // Create a span that contains the section title to be used to create the keyboard section move menu.
+        $o .= html_writer::tag('span', get_section_name($course, $section), array('class' => 'hidden sectionname'));
+
+        $leftcontent = $this->section_left_content($section, $course, $onsectionpage);
+        $rightcontent = $this->section_right_content($section, $course, $onsectionpage);
+        $o.= html_writer::tag('div', $leftcontent.$rightcontent, array('class' => 'left right side col-lg-2 order-2'));
+
+        $class = 'col-lg-12';
+        if ($PAGE->user_is_editing()) {
+            $class = 'col-lg-10 order-1';
+        }
+        $o.= html_writer::start_tag('div', array('class' => 'content '.$class));
+
+        // When not on a section page, we display the section titles except the general section if null
+        $hasnamenotsecpg = (!$onsectionpage && ($section->section != 0 || !is_null($section->name)));
+
+        // When on a section page, we only display the general section title, if title is not the default one
+        $hasnamesecpg = ($onsectionpage && ($section->section == 0 && !is_null($section->name)));
+
+        $classes = ' accesshide';
+        if ($hasnamenotsecpg || $hasnamesecpg) {
+            $classes = '';
+        }
+        if ($section->section >0 || $section->name != '') {
+            $o.= $this->output->heading($this->section_title($section, $course), 3, 'sectionname' . $classes);
+        }
+
+        $availabilityinfo = $this->section_availability($section);
+        if($availabilityinfo && $availabilityinfo != '<div class="section_availability"></div>') {
+            $modal = new stdClass();
+            $modal->title = get_string('availability');
+            $modal->id = uniqid();
+            $modal->btnclasses = 'btn-sm btn-secondary noarrow';
+            $modal->btntext = get_string('availability').' <i class="fa fa-info"></i>';
+            $modal->content = $availabilityinfo;
+            $o .= $this->output->render_from_template('theme_qmul/modal', $modal);
+        }
+
+        $o .= html_writer::start_tag('div', array('class' => 'summary'));
+        $o .= $this->format_summary_text($section);
+        $o .= html_writer::end_tag('div');
+
+        $context = context_course::instance($course->id);
+
+        return $o;
+    }
+    protected function section_header0($section, $course, $onsectionpage, $sectionreturn=null) {
         global $PAGE;
 
         $o = '';
