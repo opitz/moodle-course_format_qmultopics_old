@@ -277,11 +277,11 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         if(sizeof($tab_seq) > 0) {
             foreach ($tab_seq as $tabid) {
                 $tab = $tabs[$tabid];
-                render_tab($tab);
+                $this->render_tab($tab);
             }
         } else {
             foreach ($tabs as $tab) {
-                render_tab($tab);
+                $this->render_tab($tab);
             }
 
         }
@@ -330,146 +330,6 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                     echo html_writer::end_tag('div');
                 }
 
-                continue;
-            }
-            if ($section > $numsections) {
-                // activities inside this section are 'orphaned', this section will be printed as 'stealth' below
-                continue;
-            }
-            // Show the section if the user is permitted to access it, OR if it's not available
-            // but there is some available info text which explains the reason & should display.
-            $showsection = $thissection->uservisible ||
-                ($thissection->visible && !$thissection->available &&
-                    !empty($thissection->availableinfo));
-            if (!$showsection) {
-                // If the hiddensections option is set to 'show hidden sections in collapsed
-                // form', then display the hidden section message - UNLESS the section is
-                // hidden by the availability system, which is set to hide the reason.
-                if (!$course->hiddensections && $thissection->available) {
-                    echo $this->section_hidden($section, $course->id);
-                }
-
-                continue;
-            }
-
-            if (!$PAGE->user_is_editing() && $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
-                // Display section summary only.
-                echo $this->section_summary($thissection, $course, null);
-            } else {
-                echo $this->section_header($thissection, $course, false, 0);
-                if ($thissection->uservisible) {
-                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
-                    echo $this->courserenderer->course_section_add_cm_control($course, $section, 0);
-                }
-                echo $this->section_footer();
-            }
-        }
-
-        if ($PAGE->user_is_editing() and has_capability('moodle/course:update', $context)) {
-            // Print stealth sections if present.
-            foreach ($modinfo->get_section_info_all() as $section => $thissection) {
-                if ($section <= $numsections or empty($modinfo->sections[$section])) {
-                    // this is not stealth section or it is empty
-                    continue;
-                }
-                echo $this->stealth_section_header($section);
-                echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
-                echo $this->stealth_section_footer();
-            }
-
-            echo $this->end_section_list();
-
-            echo $this->change_number_sections($course, 0);
-        } else {
-            echo $this->end_section_list();
-        }
-
-        echo html_writer::end_tag('div');
-
-        foreach ($extratabs as $extratab) {
-            echo html_writer::start_tag('div', array('id'=>$extratab->name, 'class'=>'tab-pane col-12 '.$extratab->name));
-            echo html_writer::tag('div', $extratab->content, array('class'=>'p-3'));
-            echo html_writer::end_tag('div');
-        }
-        echo html_writer::end_tag('div');
-
-    }
-    public function print_multiple_section_page0($course, $sections, $mods, $modnames, $modnamesused) {
-        global $PAGE;
-
-        $modinfo = get_fast_modinfo($course);
-        $course = course_get_format($course)->get_course();
-
-        $context = context_course::instance($course->id);
-        // Title with completion help icon.
-        $completioninfo = new completion_info($course);
-        echo $completioninfo->display_help_icon();
-        echo $this->output->heading($this->page_title(), 2, 'accesshide');
-
-        // Copy activity clipboard..
-        echo $this->course_activity_clipboard($course, 0);
-
-        if (empty($this->tcsettings)) {
-            $this->tcsettings = $this->courseformat->get_format_options();
-        }
-
-        $extratabnames = array('extratab1', 'extratab2', 'extratab3');
-        $extratabs = array();
-        if (isset($this->tcsettings['enable_assessmentinformation']) &&
-            $this->tcsettings['enable_assessmentinformation'] == 1) {
-            $tab = new stdClass();
-            $tab->name = 'assessmentinformation';
-            $tab->title = get_string('assessmentinformation', 'format_qmultopics');
-            $tab->content = qmul_format_get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
-            $extratabs[] = $tab;
-        }
-
-        foreach ($extratabnames as $extratabname) {
-            if (isset($this->tcsettings["enable_{$extratabname}"]) &&
-                $this->tcsettings["enable_{$extratabname}"] == 1) {
-                $tab = new stdClass();
-                $tab->name = $extratabname;
-                $tab->title = format_text($this->tcsettings["title_{$extratabname}"]);
-                $tab->content = format_text($this->tcsettings["content_{$extratabname}"], FORMAT_HTML, array('trusted'=>true, 'noclean'=>true));
-                $extratabs[] = $tab;
-            }
-        }
-
-
-        // Add tab navigation
-        echo html_writer::start_tag('ul', array('class'=>'qmultabs nav nav-tabs row'));
-        echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item'));
-        echo html_writer::tag('a', get_string('modulecontent', 'format_qmultopics'), array('data-toggle'=>'tab', 'class'=>'qmultablink nav-link active modulecontentlink', 'href'=>'#modulecontent'));
-        echo html_writer::end_tag('li');
-        if (function_exists('theme_qmul_add_pin_tab')) {
-            theme_qmul_add_pin_tab();
-        }
-        foreach ($extratabs as $extratab) {
-            echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item'));
-            echo html_writer::tag('a', $extratab->title, array('data-toggle'=>'tab', 'class'=>"nav-link qmultablink {$extratab->name}", 'href'=>"#{$extratab->name}"));
-            echo html_writer::end_tag('li');
-        }
-        echo html_writer::end_tag('ul');
-
-
-        echo html_writer::start_tag('div', array('class'=>'qmultabcontent tab-content row bg-white'));
-        echo html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'col-12 tab-pane qmultab modulecontent active'));
-        // Now the list of sections..
-        echo $this->start_section_list();
-
-        $numsections = course_get_format($course)->get_last_section_number();
-
-        foreach ($modinfo->get_section_info_all() as $section => $thissection) {
-            if ($section == 0) {
-                // 0-section is displayed a little different then the others
-                if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
-                    echo $this->section_header($thissection, $course, false, 0);
-                    // added topic zero block
-                    echo $this->output->custom_block_region('topiczero');
-                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
-                    echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
-                    echo $this->section_footer();
-                }
                 continue;
             }
             if ($section > $numsections) {
@@ -599,10 +459,21 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         }
         $url->param('sesskey', sesskey());
 
+        $tab_seq = '';
         if(isset($course->tab_seq) && $course->tab_seq != '') {
+            foreach(explode(',',str_replace('tab','',$course->tab_seq)) as $tab_id) {
+                if(is_int((int) $tab_id)){ // Use only integers - we can only move to normal tabs
+                    if ($tab_seq != '') {
+                        $tab_seq .= ',';
+                    }
+                    $tab_seq .= $tab_id;
+                }
+            }
+/*
             $tab_seq = str_replace('tab','',$course->tab_seq);
             $tab_seq = str_replace(',_assessment_info','',$tab_seq); // Remove the assessment info tab as a target if present
             $tab_seq = str_replace('_assessment_info','',$tab_seq); // Remove a single assessment_info tab as a target if present
+*/
         } else {
             $tab_seq = '0';
             for($i = 1; $i <= $max_tabs; $i++) {
@@ -799,134 +670,66 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
 
         return $o;
     }
-    protected function section_header0($section, $course, $onsectionpage, $sectionreturn=null) {
-        global $PAGE;
 
-        $o = '';
-        $currenttext = '';
-        $sectionstyle = '';
-
-        if ($section->section != 0) {
-            // Only in the non-general sections.
-            if (!$section->visible) {
-                $sectionstyle = ' hidden';
-            }
-            if (course_get_format($course)->is_section_current($section)) {
-                $sectionstyle = ' current';
-            }
-        }
-        if($this->tcsettings['single_section_tabs'] ) {
-            $sectionstyle .= ' single_section_tab';
+    public function render_tab($tab) {
+        global $DB, $PAGE, $OUTPUT;
+        if($tab->sections == '') {
+            echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item', 'style' => 'display:none;'));
+        } else {
+            echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item'));
         }
 
-        $o.= html_writer::start_tag('li', array('id' => 'section-'.$section->section,
-            'class' => 'section py-3 main row'.$sectionstyle, 'role'=>'region',
-            'aria-label'=> get_section_name($course, $section),'section-id' => $section->id));
-
-        // Create a span that contains the section title to be used to create the keyboard section move menu.
-        $o .= html_writer::tag('span', get_section_name($course, $section), array('class' => 'hidden sectionname'));
-
-        $leftcontent = $this->section_left_content($section, $course, $onsectionpage);
-        $rightcontent = $this->section_right_content($section, $course, $onsectionpage);
-        $o.= html_writer::tag('div', $leftcontent.$rightcontent, array('class' => 'left right side col-lg-2 order-2'));
-
-        $class = 'col-lg-12';
-        if ($PAGE->user_is_editing()) {
-            $class = 'col-lg-10 order-1';
-        }
-        $o.= html_writer::start_tag('div', array('class' => 'content '.$class));
-
-        // When not on a section page, we display the section titles except the general section if null
-        $hasnamenotsecpg = (!$onsectionpage && ($section->section != 0 || !is_null($section->name)));
-
-        // When on a section page, we only display the general section title, if title is not the default one
-        $hasnamesecpg = ($onsectionpage && ($section->section == 0 && !is_null($section->name)));
-
-        $classes = ' accesshide';
-        if ($hasnamenotsecpg || $hasnamesecpg) {
-            $classes = '';
-        }
-        $o.= $this->output->heading($this->section_title($section, $course), 3, 'sectionname' . $classes);
-
-        $availabilityinfo = $this->section_availability($section);
-        if($availabilityinfo && $availabilityinfo != '<div class="section_availability"></div>') {
-            $modal = new stdClass();
-            $modal->title = get_string('availability');
-            $modal->id = uniqid();
-            $modal->btnclasses = 'btn-sm btn-secondary noarrow';
-            $modal->btntext = get_string('availability').' <i class="fa fa-info"></i>';
-            $modal->content = $availabilityinfo;
-            $o .= $this->output->render_from_template('theme_qmul/modal', $modal);
-        }
-
-        $o .= html_writer::start_tag('div', array('class' => 'summary'));
-        $o .= $this->format_summary_text($section);
-        $o .= html_writer::end_tag('div');
-
-        $context = context_course::instance($course->id);
-
-        return $o;
-    }
-
-}
-
-function render_tab($tab) {
-    global $DB, $PAGE, $OUTPUT;
-    if($tab->sections == '') {
-        echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item', 'style' => 'display:none;'));
-    } else {
-        echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item'));
-    }
-
-    if ($tab->id == 'tab_all') {
-        echo html_writer::tag('a', $tab->title,
-            array('data-toggle' => 'tab', 'id' => $tab->id, 'sections' => $tab->sections, 'section_nums' => $tab->section_nums, 'class' => "tablinkx nav-link qmultablink {$tab->name}", 'href' => '#')
-        );
-    } else {
-        $sections_array = explode(',', str_replace(' ', '', $tab->sections));
-        if($sections_array[0]) {
-            while ($sections_array[0] == "0") { // remove any occurences of section-0
-                array_shift($sections_array);
-            }
-        }
-
-        if($PAGE->user_is_editing()) {
-            // get the format option record for the given tab - we need the id
-            // if the record does not exist, create it first
-            if(!$DB->record_exists('course_format_options', array('courseid' => $PAGE->course->id, 'name' => $tab->id.'_title'))) {
-                if($tab->id === 'tab0') {
-                    $newvalue = get_string('modulecontent', 'format_qmultopics');
-                } else {
-//                    $newvalue = 'Tab '.substr($tab->id,3);
-                    $newvalue = $tab->title;
+        if ($tab->id == 'tab_all') {
+            echo html_writer::tag('a', $tab->title,
+                array('data-toggle' => 'tab', 'id' => $tab->id, 'sections' => $tab->sections, 'section_nums' => $tab->section_nums, 'class' => "tablinkx nav-link qmultablink {$tab->name}", 'href' => '#')
+            );
+        } else {
+            $sections_array = explode(',', str_replace(' ', '', $tab->sections));
+            if($sections_array[0]) {
+                while ($sections_array[0] == "0") { // remove any occurences of section-0
+                    array_shift($sections_array);
                 }
-                $record = new stdClass();
-                $record->courseid = $PAGE->course->id;
-                $record->format = 'qmultopics';
-                $record->section = 0;
-                $record->name = $tab->id.'_title';
-//                $record->value = $newvalue;
-                $record->value = $tab->title;
-                $DB->insert_record('course_format_options', $record);
             }
 
-            $format_option_tab = $DB->get_record('course_format_options', array('courseid' => $PAGE->course->id, 'name' => $tab->id.'_title'));
-            $itemid = $format_option_tab->id;
-        } else {
-            $itemid = false;
-        }
+            if($PAGE->user_is_editing()) {
+                // get the format option record for the given tab - we need the id
+                // if the record does not exist, create it first
+                if(!$DB->record_exists('course_format_options', array('courseid' => $PAGE->course->id, 'name' => $tab->id.'_title'))) {
+                    if($tab->id === 'tab0') {
+                        $newvalue = get_string('modulecontent', 'format_qmultopics');
+                    } else {
+//                    $newvalue = 'Tab '.substr($tab->id,3);
+                        $newvalue = $tab->title;
+                    }
+                    $record = new stdClass();
+                    $record->courseid = $PAGE->course->id;
+                    $record->format = 'qmultopics';
+                    $record->section = 0;
+                    $record->name = $tab->id.'_title';
+//                $record->value = $newvalue;
+                    $record->value = $tab->title;
+                    $DB->insert_record('course_format_options', $record);
+                }
 
-        if ($tab->id == 'tab0') {
-            echo '<span data-toggle="tab" id="'.$tab->id.'" sections="'.$tab->sections.'" section_nums="'.$tab->section_nums.'" class="tablink nav-link qmultablink " tab_title="'.$tab->title.'">';
-        } else {
-            echo '<span data-toggle="tab" id="'.$tab->id.'" sections="'.$tab->sections.'" section_nums="'.$tab->section_nums.'" class="tablink topictab nav-link qmultablink " tab_title="'.$tab->title.'" style="'.($PAGE->user_is_editing() ? 'cursor: move;' : '').'">';
+                $format_option_tab = $DB->get_record('course_format_options', array('courseid' => $PAGE->course->id, 'name' => $tab->id.'_title'));
+                $itemid = $format_option_tab->id;
+            } else {
+                $itemid = false;
+            }
+
+            if ($tab->id == 'tab0') {
+                echo '<span data-toggle="tab" id="'.$tab->id.'" sections="'.$tab->sections.'" section_nums="'.$tab->section_nums.'" class="tablink nav-link qmultablink " tab_title="'.$tab->title.'">';
+            } else {
+                echo '<span data-toggle="tab" id="'.$tab->id.'" sections="'.$tab->sections.'" section_nums="'.$tab->section_nums.'" class="tablink topictab nav-link qmultablink " tab_title="'.$tab->title.'" style="'.($PAGE->user_is_editing() ? 'cursor: move;' : '').'">';
+            }
+            // render the tab name as inplace_editable
+            $tmpl = new \core\output\inplace_editable('format_qmultopics', 'tabname', $itemid,
+                $PAGE->user_is_editing(),
+                format_string($tab->title), $tab->title, get_string('tabtitle_edithint', 'format_qmultopics'),  get_string('tabtitle_editlabel', 'format_qmultopics', format_string($tab->title)));
+            echo $OUTPUT->render($tmpl);
+            echo "</span>";
         }
-        // render the tab name as inplace_editable
-        $tmpl = new \core\output\inplace_editable('format_qmultopics', 'tabname', $itemid,
-            $PAGE->user_is_editing(),
-            format_string($tab->title), $tab->title, get_string('tabtitle_edithint', 'format_qmultopics'),  get_string('tabtitle_editlabel', 'format_qmultopics', format_string($tab->title)));
-        echo $OUTPUT->render($tmpl);
-        echo "</span>";
+        echo html_writer::end_tag('li');
     }
-    echo html_writer::end_tag('li');
 }
+
