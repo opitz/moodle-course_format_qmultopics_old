@@ -460,26 +460,22 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         $url->param('sesskey', sesskey());
 
         $tab_seq = '';
+        // If the tab sequence is saved use it
         if(isset($course->tab_seq) && $course->tab_seq != '') {
-            foreach(explode(',',str_replace('tab','',$course->tab_seq)) as $tab_id) {
-                if(is_int((int) $tab_id)){ // Use only integers - we can only move to normal tabs
+            // Ignore other than normal tabs (which have integers as IDs)
+            foreach(explode(',',str_replace('tab','',$this->tcsettings['tab_seq'])) as $tab_id) {
+                if(is_numeric($tab_id)){
                     if ($tab_seq != '') {
                         $tab_seq .= ',';
                     }
                     $tab_seq .= $tab_id;
                 }
             }
-/*
-            $tab_seq = str_replace('tab','',$course->tab_seq);
-            $tab_seq = str_replace(',_assessment_info','',$tab_seq); // Remove the assessment info tab as a target if present
-            $tab_seq = str_replace('_assessment_info','',$tab_seq); // Remove a single assessment_info tab as a target if present
-*/
-        } else {
+        } else { // Show the tabs in default order
             $tab_seq = '0';
             for($i = 1; $i <= $max_tabs; $i++) {
                 $tab_seq .= ','.$i;
             }
-
         }
 
         $controls = array();

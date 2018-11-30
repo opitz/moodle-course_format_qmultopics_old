@@ -334,10 +334,9 @@ define(['jquery', 'jqueryui'], function($) {
                 // Replace all tabnames with the actual names shown in tabs
                 // Get the current tab names
                 var tabArray = [];
-                var tracknames = []; // Tracking the tab names so to use each only once
+                var trackIds = []; // tracking the tab IDs so to use each only once
                 $('.tablink').each(function() {
                     var tabname = '';
-                    var trackname = $(this).attr('tab_title');
                     var tabid = $(this).attr('id').substr(3);
 
                     if ($(this).hasClass('tabsectionname')) {
@@ -346,9 +345,9 @@ define(['jquery', 'jqueryui'], function($) {
                         tabname = $(this).find('.inplaceeditable').attr('data-value');
                     }
 
-                    if($.inArray(trackname,tracknames) < 0) {
+                    if($.inArray(tabid,trackIds) < 0) {
                         tabArray[tabid] = tabname;
-                        tracknames.push(trackname);
+                        trackIds.push(tabid);
                     }
                 });
 
