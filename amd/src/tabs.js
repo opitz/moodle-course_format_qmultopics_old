@@ -342,21 +342,23 @@ define(['jquery', 'jqueryui'], function($) {
                     var tabArray = [];
                     var trackIds = []; // tracking the tab IDs so to use each only once
                     $('.tablink').each(function() {
-                        var tabname = '';
-                        var tabid = $(this).attr('id').substr(3);
-                        if ($(this).hasClass('tabsectionname')) {
-                            tabname = $(this).html();
-                        } else {
-                            tabname = $(this).find('.inplaceeditable').attr('data-value');
-                        }
-                        if ($.inArray(tabid,trackIds) < 0) {
-                            if ($(this).hasClass('hidden-tab')) { // If this is a hidden tab remove all garnish from the name
-                                tabname = $(this).find('a').clone();
-                                tabname.find('span.quickediticon').remove();
-                                tabname = $.trim(tabname.html());
+                        if (typeof $(this).attr('id') !== 'undefined') {
+                            var tabname = '';
+                            var tabid = $(this).attr('id').substr(3);
+                            if ($(this).hasClass('tabsectionname')) {
+                                tabname = $(this).html();
+                            } else {
+                                tabname = $(this).find('.inplaceeditable').attr('data-value');
                             }
-                            tabArray[tabid] = tabname;
-                            trackIds.push(tabid);
+                            if ($.inArray(tabid,trackIds) < 0) {
+                                if ($(this).hasClass('hidden-tab')) { // If this is a hidden tab remove all garnish from the name
+                                    tabname = $(this).find('a').clone();
+                                    tabname.find('span.quickediticon').remove();
+                                    tabname = $.trim(tabname.html());
+                                }
+                                tabArray[tabid] = tabname;
+                                trackIds.push(tabid);
+                            }
                         }
                     });
 
