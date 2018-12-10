@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/theme/qmul/classes/output/format_tabbedtopics_ren
  * @copyright 2012 Dan Poltawski
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_qmultopics_renderer extends theme_qmul_format_tabbedtopics_renderer {
+class format_qmultopics_renderer extends format_tabbedtopics_renderer {
 
     private $courseformat = null;
     private $tcsettings;

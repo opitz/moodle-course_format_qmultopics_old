@@ -46,3 +46,31 @@ $string['page-course-view-qmultopics-x'] = 'Any course page in topics format (QM
 $string['hidefromothers'] = 'Hide topic';
 $string['showfromothers'] = 'Show topic';
 $string['addsections'] = 'Add Topics';
+
+// Instructions.
+$string['instructions'] = 'Instructions: Clicking on the section name will show / hide the section.';
+$string['displayinstructions'] = 'Display instructions';
+$string['displayinstructions_help'] = 'States that the instructions should be displayed to the user or not.';
+$string['defaultdisplayinstructions'] = 'Display instructions to users';
+$string['defaultdisplayinstructions_desc'] = "Display instructions to users informing them how to use the toggles.  Can be yes or no.";
+$string['resetdisplayinstructions'] = 'Display instructions';
+$string['resetalldisplayinstructions'] = 'Display instructions';
+$string['resetdisplayinstructions_help'] = 'Resets the display instructions to the default value so it will be the same as a course the first time it is in the Collapsed Topics format.';
+$string['resetalldisplayinstructions_help'] = 'Resets the display instructions to the default value for all courses so it will be the same as a course the first time it is in the Collapsed Topics format.';
+
+// Tab related
+$string['single_section_tabs'] = 'Use section name as tab name for single sections';
+$string['single_section_tabs_label'] = 'Use section name as tab name for single sections';
+$string['single_section_tabs_help'] = 'When checked tabs with a single section will use the section name as tab name.';
+
+$string['tab_assessment_info_title'] = 'Assessment Information';
+$string['tab_assessment_information_title'] = 'Assessment Information';
+
+$string['tab_assessment_info_block_title'] = 'Assessment Info Block';
+$string['assessment_info_block_tab'] = 'How to show Assessment Info block when installed';
+$string['assessment_info_block_tab_label'] = 'How to show the "Assessment Info" block when installed';
+$string['assessment_info_block_tab_help'] = 'When installed the "Assessment Info" block may be shown in one of 3 ways: <UL><LI>as a regular block (default)</LI><LI>under a separate tab or</LI><LI>merged with the "Assessment Information" tab.</LI></UL> <B>Please note</B> that when set to "merged" but the "Assessment Information" tab is deactivated, the "Assessment Info" Block is shown as a normal block again!';
+$string['assessment_info_block_tab_option0'] = 'Show as Block';
+$string['assessment_info_block_tab_option1'] = 'Show as Tab';
+$string['assessment_info_block_tab_option2'] = 'Merge with "Assessment Information" Tab';
+
