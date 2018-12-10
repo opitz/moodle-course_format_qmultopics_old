@@ -27,7 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/course/format/renderer.php');
 require_once($CFG->dirroot.'/course/format/qmultc/lib.php');
-require_once($CFG->dirroot . '/theme/qmul/classes/output/format_topics_renderer.php');
+require_once($CFG->dirroot . '/theme/qmul/classes/output/format_tabbedtopics_renderer.php');
 
 /**
  * Basic renderer for qmultopics format.
@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/theme/qmul/classes/output/format_topics_renderer.
  * @copyright 2012 Dan Poltawski
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
+class format_qmultopics_renderer extends theme_qmul_format_tabbedtopics_renderer {
 
     private $courseformat = null;
     private $tcsettings;
@@ -55,7 +55,7 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
      * @param array $modnames (argument not used)
      * @param array $modnamesused (argument not used)
      */
-    public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
+    public function print_multiple_section_page0($course, $sections, $mods, $modnames, $modnamesused) {
         global $PAGE;
 
         $modinfo = get_fast_modinfo($course);

@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
-require_once($CFG->dirroot. '/course/format/topics/lib.php');
+require_once($CFG->dirroot. '/course/format/tabbedtopics/lib.php');
 require_once($CFG->dirroot. '/course/format/topcoll/lib.php'); // For format_qmultc.
 
 /**
@@ -35,7 +35,7 @@ require_once($CFG->dirroot. '/course/format/topcoll/lib.php'); // For format_qmu
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_qmultopics extends format_topics {
+class format_qmultopics extends format_tabbedtopics {
 
     /**
      * Adds format options elements to the course/section edit form
