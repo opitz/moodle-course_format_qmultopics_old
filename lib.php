@@ -123,6 +123,157 @@ class format_qmultopics extends format_tabbedtopics {
         return $return;
     }
 
+    public function course_format_options($foreditform = false) {
+        global $CFG;
+        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        static $courseformatoptions = false;
+
+        if ($courseformatoptions === false) {
+            $courseconfig = get_config('moodlecourse');
+            $courseformatoptions = array(
+                'hiddensections' => array(
+                    'default' => $courseconfig->hiddensections,
+                    'type' => PARAM_INT,
+                ),
+//                'coursedisplay' => array(
+//                    'default' => get_config('format_qmultopics', 'defaultcoursedisplay'),
+//                    'type' => PARAM_INT,
+//                ),
+                'section0_ontop' => array(
+                    'default' => false,
+                    'type' => PARAM_BOOL,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+
+                'single_section_tabs' => array(
+                    'default' => get_config('format_qmultopics', 'defaultsectionnameastabname'),
+                    'type' => PARAM_BOOL
+                ),
+
+                /*
+                                'assessment_info_block_tab' => array(
+                                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
+                                    'type' => PARAM_BOOL
+                                ),
+                */
+                'assessment_info_block_tab' => array(
+                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
+                    'type' => PARAM_INT,
+                ),
+
+                'displayinstructions' => array(
+                    'default' => get_config('format_qmultopics', 'defaultdisplayinstructions'),
+                    'type' => PARAM_INT,
+                ),
+                'layoutelement' => array(
+                    'default' => get_config('format_qmultopics', 'defaultlayoutelement'),
+                    'type' => PARAM_INT,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+                'layoutstructure' => array(
+                    'default' => get_config('format_qmultopics', 'defaultlayoutstructure'),
+                    'type' => PARAM_INT,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+                'layoutcolumns' => array(
+                    'default' => get_config('format_qmultopics', 'defaultlayoutcolumns'),
+                    'type' => PARAM_INT,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+                'layoutcolumnorientation' => array(
+                    'default' => get_config('format_qmultopics', 'defaultlayoutcolumnorientation'),
+                    'type' => PARAM_INT,
+                    'label' => '',
+                    'element_type' => 'hidden',
+                ),
+            );
+            // the sequence in which the tabs will be displayed
+            $courseformatoptions['tab_seq'] = array('default' => '','type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+            // now loop through the tabs but don't show them as we only need the DB records...
+            $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            $courseformatoptions['tab0'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            for ($i = 1; $i <= $max_tabs; $i++) {
+                $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i,'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i.'_sectionnums'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            }
+
+            // Allow to store a name for the Assessment Info tab
+            $courseformatoptions['tab_assessment_information_title'] = array('default' => get_string('tab_assessment_information_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+            // Allow to store a name for the Assessment Info Block tab
+            $courseformatoptions['tab_assessment_info_block_title'] = array('default' => get_string('tab_assessment_info_block_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+        }
+        if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
+            $courseconfig = get_config('moodlecourse');
+            $sectionmenu = array();
+            for ($i = 0; $i <= $courseconfig->maxsections; $i++) {
+                $sectionmenu[$i] = "$i";
+            }
+            $courseformatoptionsedit = array(
+
+                'hiddensections' => array(
+                    'label' => new lang_string('hiddensections'),
+                    'help' => 'hiddensections',
+                    'help_component' => 'moodle',
+                    'element_type' => 'hidden',
+                    'element_attributes' => array(
+                        array(0 => new lang_string('hiddensectionscollapsed'),
+                            1 => new lang_string('hiddensectionsinvisible')
+                        )
+                    ),
+                ),
+
+                'displayinstructions' => array(
+                    'label' => new lang_string('displayinstructions', 'format_qmultopics'),
+                    'help' => 'displayinstructions',
+                    'help_component' => 'format_qmultopics',
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(1 => new lang_string('no'),
+                            2 => new lang_string('yes'))
+                    )
+                ),
+
+                'single_section_tabs' => array(
+                    'label' => get_string('single_section_tabs_label', 'format_qmultopics'),
+                    'element_type' => 'advcheckbox',
+                    'help' => 'single_section_tabs',
+                    'help_component' => 'format_qmultopics',
+                ),
+
+                /*
+                                'assessment_info_block_tab' => array(
+                                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
+                                    'element_type' => 'advcheckbox',
+                                    'help' => 'assessment_info_block_tab',
+                                    'help_component' => 'format_qmultopics',
+                                ),
+                */
+                'assessment_info_block_tab' => array(
+                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
+                    'help' => 'assessment_info_block_tab',
+                    'help_component' => 'format_qmultopics',
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(0 => get_string('assessment_info_block_tab_option0', 'format_qmultopics'),
+                            1 => get_string('assessment_info_block_tab_option1', 'format_qmultopics'),
+                            2 => get_string('assessment_info_block_tab_option2', 'format_qmultopics'))
+                    )
+                ),
+            );
+
+            $courseformatoptions = array_merge_recursive($courseformatoptions, $courseformatoptionsedit);
+        }
+        return $courseformatoptions;
+    }
+
     /**
      * Updates format options for a course
      *
@@ -137,6 +288,87 @@ class format_qmultopics extends format_tabbedtopics {
      * @return bool whether there were any changes to the options values
      */
     public function update_course_format_options($data, $oldcourse = null) {
+        global $DB;
+
+        $newdata = (array) $data;
+        $savedata = array();
+        if (isset($newdata['fullname'])) {
+            if (isset($newdata['enable_assessmentinformation'])) {
+                $savedata['enable_assessmentinformation'] = $newdata['enable_assessmentinformation'];
+            } else {
+                $savedata['enable_assessmentinformation'] = 0;
+            }
+            if (isset($newdata['content_assessmentinformation'])) {
+                $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
+            }
+            if (isset($newdata['enable_extratab1'])) {
+                $savedata['enable_extratab1'] = $newdata['enable_extratab1'];
+            } else {
+                $savedata['enable_extratab1'] = 0;
+            }
+            if (isset($newdata['title_extratab1'])) {
+                $savedata['title_extratab1'] = $newdata['title_extratab1'];
+            }
+            if (isset($newdata['content_extratab1'])) {
+                $savedata['content_extratab1'] = $newdata['content_extratab1'];
+            }
+            if (isset($newdata['enable_extratab2'])) {
+                $savedata['enable_extratab2'] = $newdata['enable_extratab2'];
+            } else {
+                $savedata['enable_extratab2'] = 0;
+            }
+            if (isset($newdata['title_extratab2'])) {
+                $savedata['title_extratab2'] = $newdata['title_extratab2'];
+            }
+            if (isset($newdata['content_extratab2'])) {
+                $savedata['content_extratab2'] = $newdata['content_extratab2'];
+            }
+            if (isset($newdata['enable_extratab3'])) {
+                $savedata['enable_extratab3'] = $newdata['enable_extratab3'];
+            } else {
+                $savedata['enable_extratab3'] = 0;
+            }
+            if (isset($newdata['title_extratab3'])) {
+                $savedata['title_extratab3'] = $newdata['title_extratab3'];
+            }
+            if (isset($newdata['content_extratab3'])) {
+                $savedata['content_extratab3'] = $newdata['content_extratab3'];
+            }
+        }
+
+        $records = $DB->get_records('course_format_options',
+            array('courseid' => $this->courseid,
+                'format' => $this->format,
+                'sectionid' => 0
+            ), '', 'name,id,value');
+
+        foreach ($savedata as $key => $value) {
+            if (isset($records[$key])) {
+                if (array_key_exists($key, $newdata) && $records[$key]->value !== $newdata[$key]) {
+                    $DB->set_field('course_format_options', 'value',
+                        $value, array('id' => $records[$key]->id));
+                    $changed = true;
+                } else {
+                    $DB->set_field('course_format_options', 'value',
+                        $value, array('id' => $records[$key]->id));
+                    $changed = true;
+                }
+            } else {
+                $DB->insert_record('course_format_options', array(
+                    'courseid' => $this->courseid,
+                    'format' => $this->format,
+                    'sectionid' => 0,
+                    'name' => $key,
+                    'value' => $value
+                ));
+            }
+        }
+
+        $changes = parent::update_course_format_options($data, $oldcourse);
+
+        return $changes;
+    }
+    public function update_course_format_options0($data, $oldcourse = null) {
         global $DB;
 
         $newdata = (array) $data;
@@ -280,6 +512,46 @@ class format_qmultopics extends format_tabbedtopics {
  * @return \core\output\inplace_editable
  */
 function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/lib.php');
+
+    // deal with inplace changes of a section name
+    if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
+        global $DB;
+        $section = $DB->get_record_sql(
+            'SELECT s.* FROM {course_sections} s JOIN {course} c ON s.course = c.id WHERE s.id = ? AND c.format = ?',
+            array($itemid, 'qmultopics'), MUST_EXIST);
+        $result = course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
+        return $result;
+    }
+
+    // deal with inplace changes of a tab name
+    if ($itemtype === 'tabname') {
+        global $DB, $PAGE;
+        $courseid = key($_SESSION['USER']->currentcourseaccess);
+        // the $itemid is actually the name of the record so use it to get the id
+
+        // update the database with the new value given
+        // Must call validate_context for either system, or course or course module context.
+        // This will both check access and set current context.
+        \external_api::validate_context(context_system::instance());
+        // Check permission of the user to update this item.
+//        require_capability('moodle/course:update', context_system::instance());
+        // Clean input and update the record.
+        $newvalue = clean_param($newvalue, PARAM_NOTAGS);
+        $record = $DB->get_record('course_format_options', array('id' => $itemid), '*', MUST_EXIST);
+//        $record['value'] = $newvalue;
+        $DB->update_record('course_format_options', array('id' => $record->id, 'value' => $newvalue));
+
+        // Prepare the element for the output ():
+        $output = new \core\output\inplace_editable('format_qmultopics', 'tabname', $record->id,
+            true,
+            format_string($newvalue), $newvalue, 'Edit tab name',  'New value for ' . format_string($newvalue));
+
+        return $output;
+    }
+}
+function format_qmultopics_inplace_editable0($itemtype, $itemid, $newvalue) {
     global $CFG;
     require_once($CFG->dirroot . '/course/lib.php');
     if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
