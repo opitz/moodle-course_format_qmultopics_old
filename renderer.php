@@ -352,7 +352,7 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                 continue;
             }
 
-            if (!$PAGE->user_is_editing() && $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+            if (!$PAGE->user_is_editing() && isset($course->coursedisplay) && $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
                 // Display section summary only.
                 echo $this->section_summary($thissection, $course, null);
             } else {
