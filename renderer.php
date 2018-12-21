@@ -66,6 +66,7 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         $tabs = array();
         $modinfo = get_fast_modinfo($course);
         $course = course_get_format($course)->get_course();
+        $sections = $DB->get_records('course_sections', array('course' => $course->id));
         $format_options = $this->courseformat->get_format_options();
 
         $context = context_course::instance($course->id);
@@ -83,12 +84,15 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
 
         // preparing the tabs
         $count_tabs = 0;
-        for ($i = 0; $i <= $max_tabs; $i++) {
-            $tab_sections = str_replace(' ', '', $format_options['tab' . $i]);
-            $tab_section_nums = str_replace(' ', '', $format_options['tab' . $i. '_sectionnums']);
+        $tab_sections = '';
+        $tab_section_nums = '';
 
+        for ($i = 0; $i <= $max_tabs; $i++) {
             // check section IDs and section numbers for tabs other than tab0
             if($i > 0) {
+                $tab_sections = str_replace(' ', '', $format_options['tab' . $i]);
+                $tab_section_nums = str_replace(' ', '', $format_options['tab' . $i. '_sectionnums']);
+
                 $section_ids = explode(',', $tab_sections);
                 $section_nums = explode(',', $tab_section_nums);
 
@@ -97,8 +101,9 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
                 $ids_have_changed = false;
                 $new_section_nums = array();
                 foreach($section_ids as $index => $section_id) {
-                    $section = $sections[$section_id];
-                    $new_section_nums[] = $section->section;
+                    if($section = $sections[$section_id]) {
+                        $new_section_nums[] = $section->section;
+                    }
                     if($section_id && !($section)) {
                         $section = $DB->get_record('course_sections', array('course' => $course->id, 'section' => $section_nums[$index]));
                         $tab_sections = str_replace($section_id, $section->id, $tab_sections);
@@ -160,7 +165,7 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
             // Get the synergy assessment info and store the result as content for this tab
             $tab->content = ''; // not required - we are only interested in the tab
             $tab->sections = "block_assessment_information";
-            $tab_section_nums = "";
+            $tab->section_nums = "";
             $tabs[$tab->id] = $tab;
             // in case the assment info tab is not present but should be in the tab sequence when used fix this
             if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
@@ -179,7 +184,7 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
             // Get the synergy assessment info and store the result as content for this tab
             $tab->content = qmultopics_format_get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
             $tab->sections = "assessment_information";
-            $tab_section_nums = "";
+            $tab->section_nums = "";
             $tabs[$tab->id] = $tab;
             // in case the assment info tab is not present but should be in the tab sequence when used fix this
             if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {

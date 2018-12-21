@@ -345,6 +345,7 @@ $string['noassignmentssubmitted'] = 'No Assignments Submitted';
 $string['tabtitle'] = 'Tab Title';
 $string['tabcontent'] = 'Tab Content';
 $string['titlerequiredwhenenabled'] = 'Tab is required to have a title when enabled';
+$string['editnewssettings'] = 'Edit news display settings';
 
 // strings for tabs
 $string['extratabname'] = 'All';
