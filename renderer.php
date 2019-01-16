@@ -224,6 +224,11 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
 
         $sections = $modinfo->get_section_info_all();
 
+
+        // add an invisible div that carries the course ID to be used by JS
+        echo html_writer::start_tag('div', array('id' => 'courseid', 'courseid' => $course->id));
+        echo html_writer::end_tag('div');
+
         // if section 0 is to be shown before the tabs
         if ($format_options['section0_ontop']) {
             echo html_writer::start_tag('div', array('id' => 'ontop_area', 'class' => 'section0_ontop'));

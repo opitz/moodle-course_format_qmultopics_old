@@ -145,29 +145,29 @@ define(['jquery', 'jqueryui'], function($) {
 //                $('.section0_ontop #section-0').show();
                 $('#ontop_area #section-0').show();
 
-                var visible_sections=$('li.section:visible').length;
-                var visible_stealth_sections=$('li.section.stealth:visible').length;
-                var visible_blocks = $('#modulecontent').find('.block:visible');
+                var visibleSections=$('li.section:visible').length;
+                var visibleStealthSections=$('li.section.stealth:visible').length;
+                var visibleBlocks = $('#modulecontent').find('.block:visible');
                 var visibleAssessmentInfo = $('#content_assessmentinformation_area:visible').length;
 
-                var visible_hidden_sections=$('li.section.hidden:visible').length;
-                var visible_hiding_sections=$('li.section.hiding:visible').length;
-                var no_student_sections = visible_hiding_sections + visible_hidden_sections;
+                var visibleHiddenSections=$('li.section.hidden:visible').length;
+                var visibleHidingSections=$('li.section.hiding:visible').length;
+                var noStudentsSections = visibleHidingSections + visibleHiddenSections;
 
                 // If section0 is shown on top do not count it as visible section for the clicked tab
                 if ($('.section0_ontop').length > 0) {
                     console.log('section0 is on top - so reducing the number of visible sections for this tab by 1');
-                    visible_sections--;
+                    visibleSections--;
                 }
 
-                console.log('number of visible sections: '+visible_sections);
-                console.log('number of visible blocks: '+visible_blocks.length);
+                console.log('number of visible sections: '+visibleSections);
+                console.log('number of visible blocks: '+visibleBlocks.length);
                 console.log('Assessment Info visible: '+visibleAssessmentInfo);
-                console.log('number of stealth sections: '+visible_stealth_sections);
-                console.log('number of hidden/hiding sections: '+visible_hidden_sections+' / '+visible_hiding_sections);
-                console.log('no student sections: '+no_student_sections);
+                console.log('number of stealth sections: '+visibleStealthSections);
+                console.log('number of hidden/hiding sections: '+visibleHiddenSections+' / '+visibleHidingSections);
+                console.log('no student sections: '+noStudentsSections);
 
-                if (visible_sections <= no_student_sections && visible_blocks.length === 0 && visibleAssessmentInfo === 0) {
+                if (visibleSections <= noStudentsSections && visibleBlocks.length === 0 && visibleAssessmentInfo === 0) {
                     console.log("This tab contains only hidden sections and will not be shown to students");
                     $(this).addClass('hidden-tab');
 
@@ -191,11 +191,30 @@ define(['jquery', 'jqueryui'], function($) {
                     $('#not-shown-hint-'+tabid).remove();
                 }
 
-                if (visible_sections < 1 && visible_blocks.length === 0 && visibleAssessmentInfo === 0) {
-                    console.log('tab with no visible sections or blocks - hiding it');
+                // Hide a tab w/o any sections and reset name to generic one.
+                if (visibleSections < 1 && visibleBlocks.length === 0 && visibleAssessmentInfo === 0) {
+                    console.log('tab with no visible sections or blocks - hiding and resetting it');
                     $(this).parent().hide();
-                    // Now click the 1st visible tab
-//                    $('.tablink:visible').first().click();
+
+                    // restoring generic tab name
+                    var courseid = $('#courseid').attr('courseid');
+//                    var courseid = 10562;
+                    var tabnr = $(this).attr('id').substring(3);
+                    $.ajax({
+                        url: "format/qmultc/ajax/update_tab_name.php",
+                        //url: "format/qmultc/ajax/dummy2.php",
+                        type: "POST",
+                        data: {'courseid': courseid, 'tabid': tabid, 'tab_name': 'Tab '+tabnr},
+                        success: function(result) {
+                            if(result !== '') {
+                                console.log('Reset name of tab ID ' + tabid + ' to "' + result + '"');
+                                $('[data-itemid=' + result + ']').attr('data-value', 'Tab ' +
+                                    tabnr).find('.quickeditlink').html('Tab ' + tabnr);
+                                // Re-instantiate the just added DOM elements
+//                                initFunctions();
+                            }
+                        }
+                    });
                 } else {
                     console.log('tab with visible sections or blocks - showing it');
                     $(this).parent().show();
@@ -213,7 +232,7 @@ define(['jquery', 'jqueryui'], function($) {
                 var first_section_id = target.attr('id');
 
                 if ($('.single_section_tab').length  > limit) {
-                    if (visible_sections === 1 && first_section_id !== 'section-0' && typeof first_section_id !== 'undefined' &&
+                    if (visibleSections === 1 && first_section_id !== 'section-0' && typeof first_section_id !== 'undefined' &&
                         //                        !$('li.section:visible').first().hasClass('hidden')&&
                         //                        !$('li.section:visible').first().hasClass('stealth')&&
                         $(this).find('.sectionname').html() !== '') {
@@ -368,7 +387,8 @@ define(['jquery', 'jqueryui'], function($) {
                         var tabnr = $(this).attr('tabnr');
                         // X var tabtext = $(this).find('.menu-action-text').html();
                         // X console.log(tabnr + ' --> ' + tabtext + ' ==> ' + tabArray[tabnr]);
-                        $(this).find('.menu-action-text').html('To Tab "' + tabArray[tabnr] + '"');
+                        $(this).find('.menu-action-text').html('To Tab "' + tabArray[tabnr] +
+                            ( (tabArray[tabnr] === 'Tab ' + tabnr || tabnr === '0') ? '"' : '" (Tab ' + tabnr + ')'));
                     });
 
                     if (sectionid === 'section-0') {
