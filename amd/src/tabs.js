@@ -201,7 +201,7 @@ define(['jquery', 'jqueryui'], function($) {
 //                    var courseid = 10562;
                     var tabnr = $(this).attr('id').substring(3);
                     $.ajax({
-                        url: "format/qmultc/ajax/update_tab_name.php",
+                        url: "format/qmultopics/ajax/update_tab_name.php",
                         //url: "format/qmultc/ajax/dummy2.php",
                         type: "POST",
                         data: {'courseid': courseid, 'tabid': tabid, 'tab_name': 'Tab '+tabnr},

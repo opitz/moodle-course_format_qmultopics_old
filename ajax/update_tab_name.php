@@ -2,7 +2,7 @@
 /**
  * Created by PhpStorm.
  * User: opitz
- * Date: 2018-01-16
+ * Date: 2019-01-16
  *
  * Updating the course format options with a new sequence in which the tabs are displayed
  */
