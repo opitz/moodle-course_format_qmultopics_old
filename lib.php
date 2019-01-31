@@ -54,41 +54,29 @@ class format_qmultopics extends format_tabbedtopics {
             // Assessment Information
             $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
             $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultc', '', true);
-
             $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultc'));
-
             $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
 
             // Extra Tab 1
             $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultc', 1));
             $mform->addHelpButton('extratab1', 'extratab', 'format_qmultc', '', true);
-
             $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultc'));
-
             $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultc'));
-
             $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultc'));
 
             // Extra Tab 2
             $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultc', 2));
             $mform->addHelpButton('extratab2', 'extratab', 'format_qmultc', '', true);
-
             $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultc'));
-
             $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultc'));
-
             $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultc'));
 
             // Extra Tab 3
             $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultc', 3));
             $mform->addHelpButton('extratab3', 'extratab', 'format_qmultc', '', true);
-
             $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultc'));
-
             $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultc'));
-
             $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultc'));
-
         }
 
         return $elements;
@@ -299,7 +287,11 @@ class format_qmultopics extends format_tabbedtopics {
                 $savedata['enable_assessmentinformation'] = 0;
             }
             if (isset($newdata['content_assessmentinformation'])) {
-                $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
+                if (is_array($newdata['content_assessmentinformation'])){ // from 3.6 on HTML editor will return an array
+                    $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation']['text'];
+                } else {
+                    $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
+                }
             }
             if (isset($newdata['enable_extratab1'])) {
                 $savedata['enable_extratab1'] = $newdata['enable_extratab1'];
@@ -310,7 +302,11 @@ class format_qmultopics extends format_tabbedtopics {
                 $savedata['title_extratab1'] = $newdata['title_extratab1'];
             }
             if (isset($newdata['content_extratab1'])) {
-                $savedata['content_extratab1'] = $newdata['content_extratab1'];
+                if(is_array($newdata['content_extratab1'])) { // from 3.6 on HTML editor will return an array
+                    $savedata['content_extratab1'] = $newdata['content_extratab1']['text'];
+                } else {
+                    $savedata['content_extratab1'] = $newdata['content_extratab1'];
+                }
             }
             if (isset($newdata['enable_extratab2'])) {
                 $savedata['enable_extratab2'] = $newdata['enable_extratab2'];
@@ -321,7 +317,11 @@ class format_qmultopics extends format_tabbedtopics {
                 $savedata['title_extratab2'] = $newdata['title_extratab2'];
             }
             if (isset($newdata['content_extratab2'])) {
-                $savedata['content_extratab2'] = $newdata['content_extratab2'];
+                if(is_array($newdata['content_extratab2'])) { // from 3.6 on HTML editor will return an array
+                    $savedata['content_extratab2'] = $newdata['content_extratab2']['text'];
+                } else {
+                    $savedata['content_extratab2'] = $newdata['content_extratab2'];
+                }
             }
             if (isset($newdata['enable_extratab3'])) {
                 $savedata['enable_extratab3'] = $newdata['enable_extratab3'];
@@ -332,7 +332,11 @@ class format_qmultopics extends format_tabbedtopics {
                 $savedata['title_extratab3'] = $newdata['title_extratab3'];
             }
             if (isset($newdata['content_extratab3'])) {
-                $savedata['content_extratab3'] = $newdata['content_extratab3'];
+                if(is_array($newdata['content_extratab3'])) { // from 3.6 on HTML editor will return an array
+                    $savedata['content_extratab3'] = $newdata['content_extratab3']['text'];
+                } else {
+                    $savedata['content_extratab3'] = $newdata['content_extratab3'];
+                }
             }
         }
 
