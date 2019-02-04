@@ -148,11 +148,7 @@ class format_qmultopics extends format_topics {
                 $savedata['enable_assessmentinformation'] = 0;
             }
             if (isset($newdata['content_assessmentinformation'])) {
-                if (is_array($newdata['content_assessmentinformation'])){ // from 3.6 on HTML editor will return an array
-                    $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation']['text'];
-                } else {
-                    $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
-                }
+                $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
             }
             if (isset($newdata['enable_extratab1'])) {
                 $savedata['enable_extratab1'] = $newdata['enable_extratab1'];
@@ -163,11 +159,7 @@ class format_qmultopics extends format_topics {
                 $savedata['title_extratab1'] = $newdata['title_extratab1'];
             }
             if (isset($newdata['content_extratab1'])) {
-                if(is_array($newdata['content_extratab1'])) { // from 3.6 on HTML editor will return an array
-                    $savedata['content_extratab1'] = $newdata['content_extratab1']['text'];
-                } else {
-                    $savedata['content_extratab1'] = $newdata['content_extratab1'];
-                }
+                $savedata['content_extratab1'] = $newdata['content_extratab1'];
             }
             if (isset($newdata['enable_extratab2'])) {
                 $savedata['enable_extratab2'] = $newdata['enable_extratab2'];
@@ -178,11 +170,7 @@ class format_qmultopics extends format_topics {
                 $savedata['title_extratab2'] = $newdata['title_extratab2'];
             }
             if (isset($newdata['content_extratab2'])) {
-                if(is_array($newdata['content_extratab2'])) { // from 3.6 on HTML editor will return an array
-                    $savedata['content_extratab2'] = $newdata['content_extratab2']['text'];
-                } else {
-                    $savedata['content_extratab2'] = $newdata['content_extratab2'];
-                }
+                $savedata['content_extratab2'] = $newdata['content_extratab2'];
             }
             if (isset($newdata['enable_extratab3'])) {
                 $savedata['enable_extratab3'] = $newdata['enable_extratab3'];
@@ -193,11 +181,7 @@ class format_qmultopics extends format_topics {
                 $savedata['title_extratab3'] = $newdata['title_extratab3'];
             }
             if (isset($newdata['content_extratab3'])) {
-                if(is_array($newdata['content_extratab3'])) { // from 3.6 on HTML editor will return an array
-                    $savedata['content_extratab3'] = $newdata['content_extratab3']['text'];
-                } else {
-                    $savedata['content_extratab3'] = $newdata['content_extratab3'];
-                }
+                $savedata['content_extratab3'] = $newdata['content_extratab3'];
             }
         }
 
@@ -208,7 +192,11 @@ class format_qmultopics extends format_topics {
                     ), '', 'name,id,value');
 
         foreach ($savedata as $key => $value) {
-             if (isset($records[$key])) {
+            // from 3.6 on HTML editor will return an array - if so just get the txt to store
+            if(gettype($value) == 'array' && isset($value['text'])){
+                $value = $value['text'];
+            }
+            if (isset($records[$key])) {
                 if (array_key_exists($key, $newdata) && $records[$key]->value !== $newdata[$key]) {
                     $DB->set_field('course_format_options', 'value',
                             $value, array('id' => $records[$key]->id));
