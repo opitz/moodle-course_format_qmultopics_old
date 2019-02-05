@@ -58,6 +58,21 @@ $string['resetalldisplayinstructions'] = 'Display instructions';
 $string['resetdisplayinstructions_help'] = 'Resets the display instructions to the default value so it will be the same as a course the first time it is in the Collapsed Topics format.';
 $string['resetalldisplayinstructions_help'] = 'Resets the display instructions to the default value for all courses so it will be the same as a course the first time it is in the Collapsed Topics format.';
 
+// QMUL related
+$string['assessmentinformation'] = 'Assessment Information';
+$string['assessmentinformation_help'] = 'Add assessment information here';
+$string['assignmentsdue'] = 'Assignments Due';
+$string['assignmentssubmitted'] = 'Assignments Submitted';
+$string['enabletab'] = 'Enable Tab';
+$string['extratab'] = 'Extra Tab {$a}';
+$string['extratab_help'] = 'Here you can add additional information for your course';
+$string['modulecontent'] = 'Module Content';
+$string['noassignmentsdue'] = 'No Assignments Due';
+$string['noassignmentssubmitted'] = 'No Assignments Submitted';
+$string['tabtitle'] = 'Tab Title';
+$string['tabcontent'] = 'Tab Content';
+$string['titlerequiredwhenenabled'] = 'Tab is required to have a title when enabled';
+
 // Tab related
 $string['single_section_tabs'] = 'Use section name as tab name for single sections';
 $string['single_section_tabs_label'] = 'Use section name as tab name for single sections';
