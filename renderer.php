@@ -25,9 +25,9 @@
 
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot.'/course/format/renderer.php');
-require_once($CFG->dirroot.'/course/format/qmultc/lib.php');
-require_once($CFG->dirroot . '/theme/qmul/classes/output/format_tabbedtopics_renderer.php');
+require_once($CFG->dirroot . '/course/format/renderer.php');
+require_once($CFG->dirroot . '/course/format/qmultopics/lib.php');
+require_once($CFG->dirroot . '/course/format/tabbedtopics/renderer.php');
 
 /**
  * Basic renderer for qmultopics format.
@@ -130,14 +130,10 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
     public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
         global $DB, $CFG, $PAGE, $OUTPUT;
 
-        // allow up to 5 user tabs if nothing else is set in the config file
-        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
-
 //        $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
-//        $this->page->requires->js_call_amd('format_tabbedtopics/tabs', 'init', array());
-        $this->page->requires->js_call_amd('theme_qmul/tabs', 'init', array());
+        $this->page->requires->js_call_amd('format_tabbedtopics/tabs', 'init', array());
+//        $this->page->requires->js_call_amd('theme_qmul/tabs', 'init', array());
 
-        $tabs = array();
         $modinfo = get_fast_modinfo($course);
         $course = course_get_format($course)->get_course();
         $format_options = $this->courseformat->get_format_options();
@@ -156,63 +152,67 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         }
 
         // preparing the tabs
-        $count_tabs = 0;
-        for ($i = 0; $i <= $max_tabs; $i++) {
-            $tab_sections = str_replace(' ', '', $format_options['tab' . $i]);
-            $tab_section_nums = str_replace(' ', '', $format_options['tab' . $i. '_sectionnums']);
+        $result = $this->prepare_tabs($course, $format_options, $sections);
+        $tabs = $result['tabs'];
 
-            // check section IDs and section numbers for tabs other than tab0
-            if($i > 0) {
-                $section_ids = explode(',', $tab_sections);
-                $section_nums = explode(',', $tab_section_nums);
+        /*
+                $count_tabs = 0;
+                for ($i = 0; $i <= $max_tabs; $i++) {
+                    $tab_sections = str_replace(' ', '', $format_options['tab' . $i]);
+                    $tab_section_nums = str_replace(' ', '', $format_options['tab' . $i. '_sectionnums']);
 
-                // check section IDs are valid for this course - and repair them using section numbers if they are not
-                $tab_format_record = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'tab'.$i));
-                $ids_have_changed = false;
-                $new_section_nums = array();
-                foreach($section_ids as $index => $section_id) {
-                    $section = $sections[$section_id];
-                    $new_section_nums[] = $section->section;
-                    if($section_id && !($section)) {
-                        $section = $DB->get_record('course_sections', array('course' => $course->id, 'section' => $section_nums[$index]));
-                        $tab_sections = str_replace($section_id, $section->id, $tab_sections);
-                        $ids_have_changed = true;
-                    }
-                }
-                if($ids_have_changed) {
-                    $DB->update_record('course_format_options', array('id' => $tab_format_record->id, 'value' => $tab_sections));
-                }
-                else { // all IDs are good - so check stored section numbers and restore them with the real numbers in case they have changed
-                    $new_sectionnums = implode(',', $new_section_nums);
-                    if($tab_section_nums !== $new_sectionnums) { // the stored section numbers seems to be different
-                        if($DB->record_exists('course_format_options', array('courseid' => $course->id, 'name' => 'tab'.$i.'_sectionnums'))) {
-                            $tab_format_record = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'tab'.$i.'_sectionnums'));
-                            $DB->update_record('course_format_options', array('id' => $tab_format_record->id, 'value' => $new_sectionnums));
-                        } else {
-                            $new_tab_format_record = new \stdClass();
-                            $new_tab_format_record->courseid = $course->id;
-                            $new_tab_format_record->format = 'qmultopics';
-                            $new_tab_format_record->sectionid = 0;
-                            $new_tab_format_record->name = 'tab'.$i.'_sectionnums';
-                            $new_tab_format_record->value = $new_sectionnums;
-                            $DB->insert_record('course_format_options', $new_tab_format_record);
+                    // check section IDs and section numbers for tabs other than tab0
+                    if($i > 0) {
+                        $section_ids = explode(',', $tab_sections);
+                        $section_nums = explode(',', $tab_section_nums);
+
+                        // check section IDs are valid for this course - and repair them using section numbers if they are not
+                        $tab_format_record = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'tab'.$i));
+                        $ids_have_changed = false;
+                        $new_section_nums = array();
+                        foreach($section_ids as $index => $section_id) {
+                            $section = $sections[$section_id];
+                            $new_section_nums[] = $section->section;
+                            if($section_id && !($section)) {
+                                $section = $DB->get_record('course_sections', array('course' => $course->id, 'section' => $section_nums[$index]));
+                                $tab_sections = str_replace($section_id, $section->id, $tab_sections);
+                                $ids_have_changed = true;
+                            }
+                        }
+                        if($ids_have_changed) {
+                            $DB->update_record('course_format_options', array('id' => $tab_format_record->id, 'value' => $tab_sections));
+                        }
+                        else { // all IDs are good - so check stored section numbers and restore them with the real numbers in case they have changed
+                            $new_sectionnums = implode(',', $new_section_nums);
+                            if($tab_section_nums !== $new_sectionnums) { // the stored section numbers seems to be different
+                                if($DB->record_exists('course_format_options', array('courseid' => $course->id, 'name' => 'tab'.$i.'_sectionnums'))) {
+                                    $tab_format_record = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'tab'.$i.'_sectionnums'));
+                                    $DB->update_record('course_format_options', array('id' => $tab_format_record->id, 'value' => $new_sectionnums));
+                                } else {
+                                    $new_tab_format_record = new \stdClass();
+                                    $new_tab_format_record->courseid = $course->id;
+                                    $new_tab_format_record->format = 'qmultopics';
+                                    $new_tab_format_record->sectionid = 0;
+                                    $new_tab_format_record->name = 'tab'.$i.'_sectionnums';
+                                    $new_tab_format_record->value = $new_sectionnums;
+                                    $DB->insert_record('course_format_options', $new_tab_format_record);
+                                }
+                            }
                         }
                     }
+
+                    $tab = new stdClass();
+                    $tab->id = "tab" . $i;
+                    $tab->name = "tab" . $i;
+                    $tab->title = $format_options['tab' . $i . '_title'];
+                    $tab->sections = $tab_sections;
+                    $tab->section_nums = $tab_section_nums;
+                    $tabs[$tab->id] = $tab;
+                    if ($tab_sections != null) {
+                        $count_tabs++;
+                    }
                 }
-            }
-
-            $tab = new stdClass();
-            $tab->id = "tab" . $i;
-            $tab->name = "tab" . $i;
-            $tab->title = $format_options['tab' . $i . '_title'];
-            $tab->sections = $tab_sections;
-            $tab->section_nums = $tab_section_nums;
-            $tabs[$tab->id] = $tab;
-            if ($tab_sections != null) {
-                $count_tabs++;
-            }
-        }
-
+        */
         // get the installed blocks and check if the assessment info block is one of them
         $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
         $installed_blocks = $DB->get_records_sql($sql, array());
@@ -251,8 +251,7 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
             $tab->name = 'assessment_info';
             $tab->title = $format_options['tab_assessment_information_title'];
             // Get the synergy assessment info and store the result as content for this tab
-//            $tab->content = qmultopics_format_get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
-            $tab->content = qmul_format_get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
+            $tab->content = $this->get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
             $tab->sections = "assessment_information";
             $tab_section_nums = "";
             $tabs[$tab->id] = $tab;
@@ -568,5 +567,186 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
             echo "</span>";
         }
         echo html_writer::end_tag('li');
+    }
+
+    public function get_assessmentinformation($content) {
+        global $CFG, $DB, $COURSE, $OUTPUT, $USER;
+
+        $output = html_writer::tag('div', format_text($content), array('class'=>'assessmentinfo col-12 mb-3'));
+
+        $assignments = $this->get_assignments();
+
+        $assignoutput = html_writer::tag('div', get_string('assignmentsdue', 'format_qmultc'), array('class'=>'card-header h5'));
+        $assignoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
+        $assignsubmittedoutput = html_writer::tag('div', get_string('assignmentssubmitted', 'format_qmultc'), array('class'=>'card-header h5'));
+        $assignsubmittedoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
+
+        $modinfo = get_fast_modinfo($COURSE);
+
+        $submitted = 0;
+        $due = 0;
+        foreach ($assignments as $assignment) {
+
+            $context = context_module::instance($assignment->cmid);
+            $canviewhidden = has_capability('moodle/course:viewhiddenactivities', $context);
+
+            $hidden = '';
+            if (!$assignment->visible) {
+                $hidden = ' notvisible';
+            }
+
+            $cminfo = $modinfo->get_cm($assignment->cmid);
+
+            $conditionalhidden = false;
+            if (!empty($CFG->enableavailability)) {
+                $info = new \core_availability\info_module($cminfo);
+                if (!$info->is_available_for_all()) {
+                    $information = '';
+                    if ($info->is_available($information)) {
+                        $hidden = ' conditionalhidden';
+                        $conditionalhidden = false;
+                    } else {
+                        $hidden = ' notvisible conditionalhidden';
+                        $conditionalhidden = true;
+                    }
+                }
+            }
+
+            $accessiblebutdim = (!$assignment->visible || $conditionalhidden) && $canviewhidden;
+
+            if ((!$assignment->visible || $conditionalhidden) && !$canviewhidden) {
+                continue;
+            }
+
+            // Check overrides for new duedate
+
+            $sql = "SELECT
+                    module.id,
+                    module.allowsubmissionsfromdate AS timeopen,
+                    module.duedate AS timeclose";
+            $groups = groups_get_user_groups($COURSE->id);
+            $groupbysql = '';
+            $params = array();
+            if ($groups[0]) {
+                list ($groupsql, $params) = $DB->get_in_or_equal($groups[0]);
+                $sql .= ", CASE WHEN ovrd1.allowsubmissionsfromdate IS NULL THEN MIN(ovrd2.allowsubmissionsfromdate) ELSE ovrd1.allowsubmissionsfromdate END AS timeopenover,
+                    CASE WHEN ovrd1.duedate IS NULL THEN MAX(ovrd2.duedate) ELSE ovrd1.duedate END AS timecloseover
+                    FROM {assign} module
+                    LEFT JOIN {assign_overrides} ovrd1 ON module.id=ovrd1.assignid AND $USER->id=ovrd1.userid
+                    LEFT JOIN {assign_overrides} ovrd2 ON module.id=ovrd2.assignid AND ovrd2.groupid $groupsql";
+                $groupbysql = " GROUP BY module.id, timeopen, timeclose, ovrd1.allowsubmissionsfromdate, ovrd1.duedate";
+            } else {
+                $sql .= ", ovrd1.allowsubmissionsfromdate AS timeopenover, ovrd1.duedate AS timecloseover
+                     FROM {assign} module
+                     LEFT JOIN {assign_overrides} ovrd1
+                     ON module.id=ovrd1.assignid AND $USER->id=ovrd1.userid";
+            }
+            $sql .= " WHERE module.course = ?";
+            $sql .= " AND module.id = ?";
+            $sql .= $groupbysql;
+            $params[] = $COURSE->id;
+            $params[] = $assignment->id;
+            $overrides = $DB->get_records_sql($sql, $params);
+            $overrides = reset($overrides);
+            if (!empty($overrides->timecloseover)) {
+                $assignment->duedate = $overrides->timecloseover;
+                if ($overrides->timeopenover) {
+                    $assignment->open = $overrides->open;
+                }
+            }
+
+            $out = '';
+            $url = new moodle_url('/mod/assign/view.php', array('id' => $assignment->cmid));
+            if ($assignment->status == 'submitted') {
+                $duestatus = get_string('submitted', 'widgettype_assignments');
+                $statusclass = 'success';
+            } else if ($assignment->status == 'draft') {
+                $duestatus = get_string('draft', 'widgettype_assignments');
+                $statusclass = 'info';
+            } else if ($assignment->duedate > 0 && $assignment->duedate < time()) {
+                $duestatus = get_string('overdue', 'widgettype_assignments');
+                $statusclass = 'danger';
+            } else if ($assignment->duedate > 0 && $assignment->duedate < (time() + 14 * DAYSECS)) {
+                $duestatus = get_string('duesoon', 'widgettype_assignments');
+                $statusclass = 'warning';
+            } else {
+                $duestatus = '';
+                $statusclass = 'info';
+            }
+
+            $duedate = date('d/m/Y', $assignment->duedate);
+
+            $out .= html_writer::start_tag('div', array('class'=>'list-group-item assignment'.$hidden));
+
+            $out .= html_writer::start_tag('div', array('class'=>'d-flex flex-wrap align-items-center mb-2'));
+            $out .= $OUTPUT->pix_icon('icon', 'assign', 'mod_assign', ['class'=>'mr-2']);
+            $out .= html_writer::link($url, $assignment->name, array('class'=>'name col p-0'));
+
+            if ($assignment->duedate > 0) {
+                $out .= html_writer::tag('div', $duedate, array('class'=>'due-date ml-auto badge badge-'.$statusclass,
+                    'data-toggle'=>'tooltip', 'data-placement'=>'top', 'title'=>$duestatus));
+            }
+            $out .= html_writer::end_tag('div');
+
+            if ($assignment->showdescription) {
+                $out .= html_writer::tag('div', format_text($assignment->intro), array('class'=>"summary pl-4"));
+            }
+            $out .= html_writer::end_tag('div');
+
+            if ($assignment->status == 'submitted') {
+                $submitted++;
+                $assignsubmittedoutput .= $out;
+            } else {
+                $due++;
+                $assignoutput .= $out;
+            }
+        }
+        if ($submitted == 0) {
+            $assignsubmittedoutput .= html_writer::tag('div', get_string('noassignmentssubmitted', 'format_qmultc'), array('class'=>'card-body'));
+        }
+        if ($due == 0) {
+            $assignoutput .= html_writer::tag('div', get_string('noassignmentsdue', 'format_qmultc'), array('class'=>'card-body'));
+        }
+        $assignoutput .= html_writer::end_tag('div');
+        $assignsubmittedoutput .= html_writer::end_tag('div');
+        $assignoutput = html_writer::tag('div', $assignoutput, array('class'=>'card'));
+        $assignsubmittedoutput = html_writer::tag('div', $assignsubmittedoutput, array('class'=>'card'));
+
+        $output .= html_writer::tag('div', $assignoutput, array('class'=>'col-12 col-md-6 mb-1'));
+        $output .= html_writer::tag('div', $assignsubmittedoutput, array('class'=>'col-12 col-md-6 mb-1'));
+
+        return html_writer::tag('div', $output, array('class'=>'row'));
+    }
+
+    public function get_assignments() {
+        global $DB, $COURSE, $USER;
+        $sql = "
+       SELECT a.id, cm.id AS cmid, cm.visible, cm.showdescription, a.name, a.duedate, s.status, a.intro, g.grade, gi.gradepass,
+              gi.hidden As gradehidden, a.markingworkflow, uf.workflowstate
+         FROM {assign} a
+         JOIN {course_modules} cm ON cm.instance = a.id
+         JOIN {modules} m ON m.id = cm.module AND m.name = 'assign'
+         JOIN (SELECT DISTINCT e.courseid
+                          FROM {enrol} e
+                          JOIN {user_enrolments} ue ON ue.enrolid = e.id AND ue.userid = :userid1
+                         WHERE e.status = :enabled AND ue.status = :active
+                           AND ue.timestart < :now1 AND (ue.timeend = 0 OR ue.timeend > :now2)
+              ) en ON (en.courseid = a.course)
+         LEFT JOIN {assign_submission} s ON s.assignment = a.id AND s.userid = :userid2 AND s.latest = 1
+         LEFT JOIN {assign_grades} g ON g.assignment = a.id AND g.userid = :userid3 AND g.attemptnumber = s.attemptnumber
+         LEFT JOIN {grade_items} gi ON gi.iteminstance = a.id AND itemmodule = 'assign'
+         LEFT JOIN {assign_user_flags} uf ON uf.assignment = a.id AND uf.userid = s.userid
+        WHERE a.course = :courseid
+        ORDER BY a.duedate
+    ";
+        $params = [
+            'userid1' => $USER->id, 'userid2' => $USER->id, 'userid3' => $USER->id,
+            'now1' => time(), 'now2' => time(),
+            'active' => ENROL_USER_ACTIVE, 'enabled' => ENROL_INSTANCE_ENABLED,
+            'courseid' => $COURSE->id
+        ];
+
+        $assignments = $DB->get_recordset_sql($sql, $params);
+        return $assignments;
     }
 }

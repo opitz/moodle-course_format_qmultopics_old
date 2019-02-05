@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
 require_once($CFG->dirroot. '/course/format/tabbedtopics/lib.php');
-require_once($CFG->dirroot. '/course/format/topcoll/lib.php'); // For format_qmultc.
+//require_once($CFG->dirroot. '/course/format/topcoll/lib.php');
 
 /**
  * Main class for the Topics (QMUL) course format
@@ -52,31 +52,31 @@ class format_qmultopics extends format_tabbedtopics {
         if ($forsection == false) {
 
             // Assessment Information
-            $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
-            $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultc', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultc'));
-            $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultc'));
+            $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
+            $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultopics', '', true);
+            $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultopics'));
+            $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
 
             // Extra Tab 1
-            $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultc', 1));
-            $mform->addHelpButton('extratab1', 'extratab', 'format_qmultc', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultc'));
-            $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultc'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultc'));
+            $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultopics', 1));
+            $mform->addHelpButton('extratab1', 'extratab', 'format_qmultopics', '', true);
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultopics'));
+            $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultopics'));
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultopics'));
 
             // Extra Tab 2
-            $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultc', 2));
-            $mform->addHelpButton('extratab2', 'extratab', 'format_qmultc', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultc'));
-            $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultc'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultc'));
+            $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultopics', 2));
+            $mform->addHelpButton('extratab2', 'extratab', 'format_qmultopics', '', true);
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultopics'));
+            $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultopics'));
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultopics'));
 
             // Extra Tab 3
-            $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultc', 3));
-            $mform->addHelpButton('extratab3', 'extratab', 'format_qmultc', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultc'));
-            $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultc'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultc'));
+            $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultopics', 3));
+            $mform->addHelpButton('extratab3', 'extratab', 'format_qmultopics', '', true);
+            $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultopics'));
+            $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultopics'));
+            $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultopics'));
         }
 
         return $elements;
@@ -88,21 +88,21 @@ class format_qmultopics extends format_tabbedtopics {
 
         if (isset($data['enable_extratab1'])) {
             if (empty($data['title_extratab1'])) {
-                $return['title_extratab1'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+                $return['title_extratab1'] = get_string('titlerequiredwhenenabled', 'format_qmultopics');
             }
         } else {
             $data['enabled_extratab1'] = 0;
         }
         if (isset($data['enable_extratab2'])) {
             if (empty($data['title_extratab2'])) {
-                $return['title_extratab2'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+                $return['title_extratab2'] = get_string('titlerequiredwhenenabled', 'format_qmultopics');
             }
         } else {
             $data['enabled_extratab1'] = 0;
         }
         if (isset($data['enable_extratab3'])) {
             if (empty($data['title_extratab3'])) {
-                $return['title_extratab3'] = get_string('titlerequiredwhenenabled', 'format_qmultc');
+                $return['title_extratab3'] = get_string('titlerequiredwhenenabled', 'format_qmultopics');
             }
         } else {
             $data['enabled_extratab1'] = 0;
@@ -113,12 +113,17 @@ class format_qmultopics extends format_tabbedtopics {
 
     public function course_format_options($foreditform = false) {
         global $CFG;
-        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        $max_tabs = 9;
         static $courseformatoptions = false;
 
         if ($courseformatoptions === false) {
             $courseconfig = get_config('moodlecourse');
             $courseformatoptions = array(
+                'maxtabs' => array(
+                    'default' => (isset($CFG->max_tabs) ? $CFG->max_tabs : 5),
+                    'type' => PARAM_INT,
+                    'element_type' => 'hidden',
+                ),
                 'hiddensections' => array(
                     'default' => $courseconfig->hiddensections,
                     'type' => PARAM_INT,
