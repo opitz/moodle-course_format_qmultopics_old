@@ -89,3 +89,9 @@ $string['assessment_info_block_tab_option0'] = 'Show as Block';
 $string['assessment_info_block_tab_option1'] = 'Show as Tab';
 $string['assessment_info_block_tab_option2'] = 'Merge with "Assessment Information" Tab';
 
+$string['tabname'] = 'Tab';
+$string['tabzero_title'] = 'Module Content';
+$string['tabtitle_edithint'] = 'Edit tab name';
+$string['tabtitle_editlabel'] = 'New value for {a}';
+
+$string['hidden_tab_hint'] = 'This tab contains only hidden topics and will not be shown to students';

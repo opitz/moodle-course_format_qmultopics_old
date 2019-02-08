@@ -17,12 +17,13 @@ M.course.format = M.course.format || {};
  * @return {object} section list configuration
  */
 M.course.format.get_config = function() {
-    return {
+    var value = {
         container_node : 'ul',
         container_class : 'qmultopics',
         section_node : 'li',
         section_class : 'section'
     };
+    return value;
 }
 
 /**
