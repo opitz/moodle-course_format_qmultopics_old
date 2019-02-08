@@ -167,7 +167,7 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
             if ($format_options['enable_'.$extratabname]) {
                 echo html_writer::start_tag('li', array('id' => $extratabname, 'section-id' => $extratabname, 'class' => 'extratab section', 'style' => 'display: none;'));
                 echo '<div class="content"><div class="summary"></div></div>';
-                echo $extratabs[$extratabname]->content;
+                echo $tabs[$extratabname]->content;
                 echo html_writer::end_tag('li');
             }
         }
