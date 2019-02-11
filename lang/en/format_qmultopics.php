@@ -46,3 +46,10 @@ $string['page-course-view-qmultopics-x'] = 'Any course page in topics format (QM
 $string['hidefromothers'] = 'Hide topic';
 $string['showfromothers'] = 'Show topic';
 $string['addsections'] = 'Add Topics';
+
+// News settings
+$string['newssettingsof'] = 'News settings for {$a}';
+$string['displaynews'] = 'Display the news section';
+$string['shownewsfull'] = 'Show the full news content';
+$string['statictext'] = 'Static text';
+$string['usestatictext'] = 'Use static text';
