@@ -56,8 +56,8 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
      * @param array $modnames (argument not used)
      * @param array $modnamesused (argument not used)
      */
-    public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
-        global $CFG, $DB, $PAGE;
+    public function print_multiple_section_page1($course, $sections, $mods, $modnames, $modnamesused) {
+        global $DB, $PAGE;
 
 //        $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
         $this->page->requires->js_call_amd('format_tabbedtopics/tabs', 'init', array());
@@ -109,18 +109,7 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         echo html_writer::end_tag('div');
 
         // the tab navigation
-        $result = $this->prepare_tabs($course, $format_options, $sections);
-        $tabs = $result['tabs'];
-        $count_tabs = $result['count_tabs'];
-
-        // Prepare old extratabs
-//        $extratabs =  $this->prepare_extratabs($course, $format_options);
-
-        // Merge old extratabs
-        $tabs = array_merge($tabs,$this->prepare_extratabs($course, $format_options));
-
-        // Merge tab(s) for assessment information (old and new)
-        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
+        $tabs = $this->prepare_tabs($course, $format_options, $sections);
 
         // rendering the tab navigation
         echo html_writer::start_tag('ul', array('class'=>'tabs nav nav-tabs row'));
@@ -145,7 +134,6 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         echo html_writer::end_tag('ul');
 
         // the sections
-//        echo $this->start_section_list();
         if($format_options['single_section_tabs']) {
             echo html_writer::start_tag('ul', array('class' => 'topics single_section_tabs'));
         } else {
@@ -153,73 +141,127 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         }
 
         // Put content of old extratabs into hidden divs
-        $extratabnames = array('extratab1', 'extratab2', 'extratab3');
-        foreach ($extratabnames as $extratabname) {
-            if ($format_options['enable_'.$extratabname]) {
-                echo html_writer::start_tag('li', array('id' => $extratabname, 'section-id' => $extratabname, 'class' => 'extratab section', 'style' => 'display: none;'));
-                echo '<div class="content"><div class="summary"></div></div>';
-                echo $tabs[$extratabname]->content;
-                echo html_writer::end_tag('li');
-            }
-        }
+        echo $this->render_extratab_sections($format_options, $tabs);
 
         // Put the Synergy Assessment Information into a hidden div if the option is set - waiting for the tab to be clicked
-        if ($format_options['enable_assessmentinformation']) {
-            // If the option to merge assessment information add a specific class as indicator for JS
-            if ($format_options['assessment_info_block_tab'] == '2') {
-                echo html_writer::start_tag('li', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section merge_assessment_info', 'style' => 'display: none;'));
-            } else {
-                echo html_writer::start_tag('li', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section', 'style' => 'display: none;'));
-            }
-            echo '<div class="content"><div class="summary"></div></div>';
-            $gnupf = $tabs['tab_assessment_information']->content;
-            echo $tabs['tab_assessment_information']->content;
-            echo html_writer::end_tag('li');
-        }
+        echo $this->render_assessment_sections($format_options, $tabs);
 
         foreach ($sections as $section => $thissection) {
-            if ($section == 0) {
-                echo html_writer::start_tag('div', array('id' => 'inline_area'));
-                if($format_options['section0_ontop']){ // section-0 is already shown on top
-                    echo html_writer::end_tag('div');
+            echo $this->render_section($course, $section, $thissection, $format_options, $modinfo, $numsections);
+        }
+
+        if ($PAGE->user_is_editing() and has_capability('moodle/course:update', $context)) {
+            // Print stealth sections if present.
+            foreach ($modinfo->get_section_info_all() as $section => $thissection) {
+                if ($section <= $numsections or empty($modinfo->sections[$section])) {
+                    // this is not stealth section or it is empty
                     continue;
                 }
-                // 0-section is displayed a little different then the others
-                if ($thissection->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
-                    echo $this->section_header($thissection, $course, false, 0);
-                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
-                    echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
-                    echo $this->section_footer();
-                }
-                echo html_writer::end_tag('div');
-
-                continue;
-            }
-            if ($section > $numsections) {
-                // activities inside this section are 'orphaned', this section will be printed as 'stealth' below
-                continue;
-            }
-            // Show the section if the user is permitted to access it, OR if it's not available
-            // but there is some available info text which explains the reason & should display,
-            // OR it is hidden but the course has a setting to display hidden sections as unavilable.
-            $showsection = $thissection->uservisible ||
-                ($thissection->visible && !$thissection->available && !empty($thissection->availableinfo)) ||
-                (!$thissection->visible && !$course->hiddensections);
-            if (!$showsection) {
-                continue;
+                echo $this->stealth_section_header($section);
+                echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
+                echo $this->stealth_section_footer();
             }
 
-            if (!$PAGE->user_is_editing() && $course->coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
-                // Display section summary only.
-                echo $this->section_summary($thissection, $course, null);
-            } else {
-                echo $this->section_header($thissection, $course, false, 0);
-                if ($thissection->uservisible) {
-                    echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
-                    echo $this->courserenderer->course_section_add_cm_control($course, $section, 0);
-                }
+            echo $this->end_section_list();
+
+            echo $this->change_number_sections($course, 0);
+        } else {
+            echo $this->end_section_list();
+        }
+
+    }
+    public function print_multiple_section_page0($course, $sections, $mods, $modnames, $modnamesused) {
+        global $DB, $PAGE;
+
+//        $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
+        $this->page->requires->js_call_amd('format_tabbedtopics/tabs', 'init', array());
+
+        $modinfo = get_fast_modinfo($course);
+        $course = course_get_format($course)->get_course();
+        $options = $DB->get_records('course_format_options', array('courseid' => $course->id));
+        $format_options=array();
+        foreach($options as $option) {
+            $format_options[$option->name] =$option->value;
+        }
+
+        $context = context_course::instance($course->id);
+        // Title with completion help icon.
+        $completioninfo = new completion_info($course);
+        echo $completioninfo->display_help_icon();
+        echo $this->output->heading($this->page_title(), 2, 'accesshide');
+
+        // Copy activity clipboard..
+        echo $this->course_activity_clipboard($course, 0);
+
+        // Now on to the main stage..
+        $numsections = course_get_format($course)->get_last_section_number();
+        $sections = $modinfo->get_section_info_all();
+
+        // add an invisible div that carries the course ID to be used by JS
+        echo html_writer::start_tag('div', array('id' => 'courseid', 'courseid' => $course->id));
+        echo html_writer::end_tag('div');
+
+        // display section-0 on top of tabs if option is checked
+        if($format_options['section0_ontop']) {
+            $section0 = $sections[0];
+            echo html_writer::start_tag('div', array('id' => 'ontop_area', 'class' => 'section0_ontop'));
+            echo html_writer::start_tag('ul', array('id' => 'ontop_area', 'class' => 'topics'));
+
+            // 0-section is displayed a little different then the others
+            if ($section0->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
+                echo $this->section0_ontop_header($section0, $course, false, 0);
+                echo $this->courserenderer->course_section_cm_list($course, $section0, 0);
+                echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
                 echo $this->section_footer();
             }
+        } else {
+            echo html_writer::start_tag('div', array('id' => 'ontop_area'));
+            echo html_writer::start_tag('ul', array('id' => 'ontop_area', 'class' => 'topics'));
+        }
+
+        echo $this->end_section_list();
+        echo html_writer::end_tag('div');
+
+        // the tab navigation
+        $tabs = $this->prepare_tabs($course, $format_options, $sections);
+
+        // rendering the tab navigation
+        echo html_writer::start_tag('ul', array('class'=>'tabs nav nav-tabs row'));
+
+        $tab_seq = array();
+        if ($format_options['tab_seq']) {
+            $tab_seq = explode(',',$format_options['tab_seq']);
+        }
+
+        // if a tab sequence is equal to the number of tabs is found use it to arrange the tabs otherwise show them in default order
+        if(sizeof($tab_seq) == sizeof($tabs)) {
+            foreach ($tab_seq as $tabid) {
+                $tab = $tabs[$tabid];
+                $this->render_tab($tab);
+            }
+        } else {
+            foreach ($tabs as $tab) {
+                $this->render_tab($tab);
+            }
+        }
+
+        echo html_writer::end_tag('ul');
+
+        // the sections
+        if($format_options['single_section_tabs']) {
+            echo html_writer::start_tag('ul', array('class' => 'topics single_section_tabs'));
+        } else {
+            echo html_writer::start_tag('ul', array('class' => 'topics'));
+        }
+
+        // Put content of old extratabs into hidden divs
+        echo $this->render_extratab_sections($format_options, $tabs);
+
+        // Put the Synergy Assessment Information into a hidden div if the option is set - waiting for the tab to be clicked
+        echo $this->render_assessment_sections($format_options, $tabs);
+
+        foreach ($sections as $section => $thissection) {
+            echo $this->render_section($course, $section, $thissection, $format_options, $modinfo, $numsections);
         }
 
         if ($PAGE->user_is_editing() and has_capability('moodle/course:update', $context)) {
@@ -281,6 +323,21 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         return $o;
     }
 
+    // Prepare standard tabs with added assessment info tab and extratabs
+    public function prepare_tabs($course, $format_options, $sections) {
+        // Get the standard tabs
+        $tabs = parent::prepare_tabs($course, $format_options, $sections);
+
+        // Merge old extratabs
+        $tabs = array_merge($tabs,$this->prepare_extratabs($course, $format_options));
+
+        // Merge tab(s) for assessment information (old and new)
+        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
+
+        $this->tabs = $tabs;
+        return $tabs;
+    }
+
     // prepare the old extratabs for legacy reasons
     public function prepare_extratabs($course, $format_options) {
         $extratabnames = array('extratab1', 'extratab2', 'extratab3');
@@ -302,6 +359,7 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         return $extratabs;
     }
 
+    // Prepare the assessment Information tabs (old and new)
     public function prepare_assessment_tabs($course, $format_options) {
         global $CFG, $DB, $PAGE;
 
@@ -360,77 +418,7 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         return $tabs;
     }
 
-    public function render_tab($tab){
-        if(strstr($tab->id, 'extratab')) {
-            $this->render_extratab($tab);
-        } else {
-            parent::render_tab($tab);
-        }
-    }
-
-    // Render an extratab
-    public function render_extratab($tab) {
-        global $DB, $PAGE, $OUTPUT;
-        if($tab->sections == '') {
-            echo html_writer::start_tag('li', array('class'=>'tabitem nav-item', 'style' => 'display:none;'));
-        } else {
-            echo html_writer::start_tag('li', array('class'=>'tabitem nav-item'));
-        }
-
-        $sections_array = explode(',', str_replace(' ', '', $tab->sections));
-        if($sections_array[0]) {
-            while ($sections_array[0] == "0") { // remove any occurences of section-0
-                array_shift($sections_array);
-            }
-        }
-
-        if($PAGE->user_is_editing()) {
-            // get the format option record for the given tab - we need the id
-            // if the record does not exist, create it first
-            if(!$DB->record_exists('course_format_options', array('courseid' => $PAGE->course->id, 'name' => 'title_'.$tab->id))) {
-                $record = new stdClass();
-                $record->courseid = $PAGE->course->id;
-                $record->format = 'qmultopics';
-                $record->section = 0;
-                $record->name = 'title_'.$tab->id;
-                $record->value = $tab->id;
-                $DB->insert_record('course_format_options', $record);
-            }
-
-            $format_option_tab = $DB->get_record('course_format_options', array('courseid' => $PAGE->course->id, 'name' => 'title_'.$tab->id));
-            $itemid = $format_option_tab->id;
-        } else {
-            $itemid = false;
-        }
-
-        if ($tab->id == 'tab0') {
-            echo '<span 
-                data-toggle="tab" id="'.$tab->id.'" 
-                sections="'.$tab->sections.'" 
-                section_nums="'.$tab->section_nums.'" 
-                class="tablink nav-link " 
-                tab_title="'.$tab->title.'", 
-                generic_title = "'.$tab->generic_title.'"
-                >';
-        } else {
-            echo '<span 
-                data-toggle="tab" id="'.$tab->id.'" 
-                sections="'.$tab->sections.'" 
-                section_nums="'.$tab->section_nums.'" 
-                class="tablink topictab nav-link " 
-                tab_title="'.$tab->title.'" 
-                generic_title = "'.$tab->generic_title.'" 
-                style="'.($PAGE->user_is_editing() ? 'cursor: move;' : '').'">';
-        }
-        // render the tab name as inplace_editable
-        $tmpl = new \core\output\inplace_editable('format_tabbedtopics', 'tabname', $itemid,
-            $PAGE->user_is_editing(),
-            format_string($tab->title), $tab->title, get_string('tabtitle_edithint', 'format_tabbedtopics'),  get_string('tabtitle_editlabel', 'format_tabbedtopics', format_string($tab->title)));
-        echo $OUTPUT->render($tmpl);
-        echo "</span>";
-        echo html_writer::end_tag('li');
-    }
-
+    // Get the content for the assessment information section
     public function get_assessmentinformation($content) {
         global $CFG, $DB, $COURSE, $OUTPUT, $USER;
 
@@ -580,6 +568,7 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         return html_writer::tag('div', $output, array('class'=>'row'));
     }
 
+    // Get assignments for assessment information
     public function get_assignments() {
         global $DB, $COURSE, $USER;
         $sql = "
@@ -611,4 +600,129 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         $assignments = $DB->get_recordset_sql($sql, $params);
         return $assignments;
     }
+
+    // Render a standard tab or an extratab - as long as they are still around...
+    public function render_tab($tab){
+        // as long as there are still old extratabs around we need to treat them slightly different from normal tabs
+        // this overriding function may be removed once extratabs are gone
+        if(strstr($tab->id, 'extratab')) {
+            return $this->render_extratab($tab);
+        } else {
+            return parent::render_tab($tab);
+        }
+    }
+
+    // Render an extratab
+    public function render_extratab($tab) {
+        global $DB, $PAGE, $OUTPUT;
+        $o = '';
+        if($tab->sections == '') {
+            $o .= html_writer::start_tag('li', array('class'=>'tabitem nav-item', 'style' => 'display:none;'));
+        } else {
+            $o .= html_writer::start_tag('li', array('class'=>'tabitem nav-item'));
+        }
+
+        $sections_array = explode(',', str_replace(' ', '', $tab->sections));
+        if($sections_array[0]) {
+            while ($sections_array[0] == "0") { // remove any occurences of section-0
+                array_shift($sections_array);
+            }
+        }
+
+        if($PAGE->user_is_editing()) {
+            // get the format option record for the given tab - we need the id
+            // if the record does not exist, create it first
+            if(!$DB->record_exists('course_format_options', array('courseid' => $PAGE->course->id, 'name' => 'title_'.$tab->id))) {
+                $record = new stdClass();
+                $record->courseid = $PAGE->course->id;
+                $record->format = 'qmultopics';
+                $record->section = 0;
+                $record->name = 'title_'.$tab->id;
+                $record->value = $tab->id;
+                $DB->insert_record('course_format_options', $record);
+            }
+
+            $format_option_tab = $DB->get_record('course_format_options', array('courseid' => $PAGE->course->id, 'name' => 'title_'.$tab->id));
+            $itemid = $format_option_tab->id;
+        } else {
+            $itemid = false;
+        }
+
+        if ($tab->id == 'tab0') {
+            $o .= '<span 
+                data-toggle="tab" id="'.$tab->id.'" 
+                sections="'.$tab->sections.'" 
+                section_nums="'.$tab->section_nums.'" 
+                class="tablink nav-link " 
+                tab_title="'.$tab->title.'", 
+                generic_title = "'.$tab->generic_title.'"
+                >';
+        } else {
+            $o .= '<span 
+                data-toggle="tab" id="'.$tab->id.'" 
+                sections="'.$tab->sections.'" 
+                section_nums="'.$tab->section_nums.'" 
+                class="tablink topictab nav-link " 
+                tab_title="'.$tab->title.'" 
+                generic_title = "'.$tab->generic_title.'" 
+                style="'.($PAGE->user_is_editing() ? 'cursor: move;' : '').'">';
+        }
+        // render the tab name as inplace_editable
+        $tmpl = new \core\output\inplace_editable('format_tabbedtopics', 'tabname', $itemid,
+            $PAGE->user_is_editing(),
+            format_string($tab->title), $tab->title, get_string('tabtitle_edithint', 'format_tabbedtopics'),  get_string('tabtitle_editlabel', 'format_tabbedtopics', format_string($tab->title)));
+        $o .= $OUTPUT->render($tmpl);
+        $o .= "</span>";
+        $o .= html_writer::end_tag('li');
+        return $o;
+    }
+
+    // Render sections with added assessment info and extratab sections
+    public function render_sections($course, $sections, $format_options, $modinfo, $numsections){
+        $o = '';
+        $o .= $this->render_assessment_section($format_options);
+        $o .= $this->render_extratab_sections($format_options);
+        $o .= parent::render_sections($course, $sections, $format_options, $modinfo, $numsections);
+        return $o;
+    }
+
+    // Render extratab sections as long as they are still around...
+    public function render_extratab_sections($format_options) {
+        $extratabnames = array('extratab1', 'extratab2', 'extratab3');
+        $o = '';
+        foreach ($extratabnames as $extratabname) {
+            if ($format_options['enable_'.$extratabname]) {
+                $o .= html_writer::start_tag('li', array('id' => $extratabname, 'section-id' => $extratabname, 'class' => 'extratab section', 'style' => 'display: none;'));
+                $o .= html_writer::start_tag('div', array('class' => 'content'));
+                $o .= html_writer::start_tag('div', array('class' => 'summary'));
+                $o .= $this->tabs[$extratabname]->content;
+                $o .= html_writer::end_tag('div');
+                $o .= html_writer::end_tag('div');
+                $o .= html_writer::end_tag('li');
+            }
+        }
+        return $o;
+    }
+
+    // Render section for assessment information
+    public function render_assessment_section($format_options) {
+        $o = '';
+        if ($format_options['enable_assessmentinformation']) {
+            // If the option to merge assessment information add a specific class as indicator for JS
+            if ($format_options['assessment_info_block_tab'] == '2') {
+                $o .= html_writer::start_tag('li', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section merge_assessment_info', 'style' => 'display: none;'));
+            } else {
+                $o .= html_writer::start_tag('li', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section', 'style' => 'display: none;'));
+            }
+            $o .= html_writer::start_tag('div', array('class' => 'content'));
+            $o .= html_writer::start_tag('div', array('class' => 'summary'));
+            $o .= $this->tabs['tab_assessment_information']->content;
+            $o .= html_writer::end_tag('div');
+            $o .= html_writer::end_tag('div');
+            $o .= html_writer::end_tag('li');
+        }
+        return $o;
+    }
+
 }
+
