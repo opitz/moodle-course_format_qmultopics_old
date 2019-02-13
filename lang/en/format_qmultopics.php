@@ -95,3 +95,10 @@ $string['tabtitle_edithint'] = 'Edit tab name';
 $string['tabtitle_editlabel'] = 'New value for {a}';
 
 $string['hidden_tab_hint'] = 'This tab contains only hidden topics and will not be shown to students';
+
+// News settings
+$string['newssettingsof'] = 'News settings for {$a}';
+$string['displaynews'] = 'Display the news section';
+$string['shownewsfull'] = 'Show the full news content';
+$string['statictext'] = 'Static text';
+$string['usestatictext'] = 'Use static text';
