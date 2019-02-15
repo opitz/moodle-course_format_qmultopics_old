@@ -692,6 +692,10 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
         $o = '';
         foreach ($extratabnames as $extratabname) {
             if ($format_options['enable_'.$extratabname]) {
+                $o .= html_writer::start_tag('h3', array('class' => 'sectionname'));
+                $o .= $this->tabs[$extratabname]->title;
+                $o .= html_writer::end_tag('h3');
+
                 $o .= html_writer::start_tag('li', array('id' => $extratabname, 'section-id' => $extratabname, 'class' => 'extratab section', 'style' => 'display: none;'));
                 $o .= html_writer::start_tag('div', array('class' => 'content'));
                 $o .= html_writer::start_tag('div', array('class' => 'summary'));
