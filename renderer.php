@@ -48,244 +48,6 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
     }
 
     /**
-     * Output the html for a multiple section page
-     *
-     * @param stdClass $course The course entry from DB
-     * @param array $sections (argument not used)
-     * @param array $mods (argument not used)
-     * @param array $modnames (argument not used)
-     * @param array $modnamesused (argument not used)
-     */
-    public function print_multiple_section_page1($course, $sections, $mods, $modnames, $modnamesused) {
-        global $DB, $PAGE;
-
-//        $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
-        $this->page->requires->js_call_amd('format_tabbedtopics/tabs', 'init', array());
-
-        $modinfo = get_fast_modinfo($course);
-        $course = course_get_format($course)->get_course();
-        $options = $DB->get_records('course_format_options', array('courseid' => $course->id));
-        $format_options=array();
-        foreach($options as $option) {
-            $format_options[$option->name] =$option->value;
-        }
-
-        $context = context_course::instance($course->id);
-        // Title with completion help icon.
-        $completioninfo = new completion_info($course);
-        echo $completioninfo->display_help_icon();
-        echo $this->output->heading($this->page_title(), 2, 'accesshide');
-
-        // Copy activity clipboard..
-        echo $this->course_activity_clipboard($course, 0);
-
-        // Now on to the main stage..
-        $numsections = course_get_format($course)->get_last_section_number();
-        $sections = $modinfo->get_section_info_all();
-
-        // add an invisible div that carries the course ID to be used by JS
-        echo html_writer::start_tag('div', array('id' => 'courseid', 'courseid' => $course->id));
-        echo html_writer::end_tag('div');
-
-        // display section-0 on top of tabs if option is checked
-        if($format_options['section0_ontop']) {
-            $section0 = $sections[0];
-            echo html_writer::start_tag('div', array('id' => 'ontop_area', 'class' => 'section0_ontop'));
-            echo html_writer::start_tag('ul', array('id' => 'ontop_area', 'class' => 'topics'));
-
-            // 0-section is displayed a little different then the others
-            if ($section0->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
-                echo $this->section0_ontop_header($section0, $course, false, 0);
-                echo $this->courserenderer->course_section_cm_list($course, $section0, 0);
-                echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
-                echo $this->section_footer();
-            }
-        } else {
-            echo html_writer::start_tag('div', array('id' => 'ontop_area'));
-            echo html_writer::start_tag('ul', array('id' => 'ontop_area', 'class' => 'topics'));
-        }
-
-        echo $this->end_section_list();
-        echo html_writer::end_tag('div');
-
-        // the tab navigation
-        $tabs = $this->prepare_tabs($course, $format_options, $sections);
-
-        // rendering the tab navigation
-        echo html_writer::start_tag('ul', array('class'=>'tabs nav nav-tabs row'));
-
-        $tab_seq = array();
-        if ($format_options['tab_seq']) {
-            $tab_seq = explode(',',$format_options['tab_seq']);
-        }
-
-        // if a tab sequence is equal to the number of tabs is found use it to arrange the tabs otherwise show them in default order
-        if(sizeof($tab_seq) == sizeof($tabs)) {
-            foreach ($tab_seq as $tabid) {
-                $tab = $tabs[$tabid];
-                $this->render_tab($tab);
-            }
-        } else {
-            foreach ($tabs as $tab) {
-                $this->render_tab($tab);
-            }
-        }
-
-        echo html_writer::end_tag('ul');
-
-        // the sections
-        if($format_options['single_section_tabs']) {
-            echo html_writer::start_tag('ul', array('class' => 'topics single_section_tabs'));
-        } else {
-            echo html_writer::start_tag('ul', array('class' => 'topics'));
-        }
-
-        // Put content of old extratabs into hidden divs
-        echo $this->render_extratab_sections($format_options, $tabs);
-
-        // Put the Synergy Assessment Information into a hidden div if the option is set - waiting for the tab to be clicked
-        echo $this->render_assessment_sections($format_options, $tabs);
-
-        foreach ($sections as $section => $thissection) {
-            echo $this->render_section($course, $section, $thissection, $format_options, $modinfo, $numsections);
-        }
-
-        if ($PAGE->user_is_editing() and has_capability('moodle/course:update', $context)) {
-            // Print stealth sections if present.
-            foreach ($modinfo->get_section_info_all() as $section => $thissection) {
-                if ($section <= $numsections or empty($modinfo->sections[$section])) {
-                    // this is not stealth section or it is empty
-                    continue;
-                }
-                echo $this->stealth_section_header($section);
-                echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
-                echo $this->stealth_section_footer();
-            }
-
-            echo $this->end_section_list();
-
-            echo $this->change_number_sections($course, 0);
-        } else {
-            echo $this->end_section_list();
-        }
-
-    }
-    public function print_multiple_section_page0($course, $sections, $mods, $modnames, $modnamesused) {
-        global $DB, $PAGE;
-
-//        $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
-        $this->page->requires->js_call_amd('format_tabbedtopics/tabs', 'init', array());
-
-        $modinfo = get_fast_modinfo($course);
-        $course = course_get_format($course)->get_course();
-        $options = $DB->get_records('course_format_options', array('courseid' => $course->id));
-        $format_options=array();
-        foreach($options as $option) {
-            $format_options[$option->name] =$option->value;
-        }
-
-        $context = context_course::instance($course->id);
-        // Title with completion help icon.
-        $completioninfo = new completion_info($course);
-        echo $completioninfo->display_help_icon();
-        echo $this->output->heading($this->page_title(), 2, 'accesshide');
-
-        // Copy activity clipboard..
-        echo $this->course_activity_clipboard($course, 0);
-
-        // Now on to the main stage..
-        $numsections = course_get_format($course)->get_last_section_number();
-        $sections = $modinfo->get_section_info_all();
-
-        // add an invisible div that carries the course ID to be used by JS
-        echo html_writer::start_tag('div', array('id' => 'courseid', 'courseid' => $course->id));
-        echo html_writer::end_tag('div');
-
-        // display section-0 on top of tabs if option is checked
-        if($format_options['section0_ontop']) {
-            $section0 = $sections[0];
-            echo html_writer::start_tag('div', array('id' => 'ontop_area', 'class' => 'section0_ontop'));
-            echo html_writer::start_tag('ul', array('id' => 'ontop_area', 'class' => 'topics'));
-
-            // 0-section is displayed a little different then the others
-            if ($section0->summary or !empty($modinfo->sections[0]) or $PAGE->user_is_editing()) {
-                echo $this->section0_ontop_header($section0, $course, false, 0);
-                echo $this->courserenderer->course_section_cm_list($course, $section0, 0);
-                echo $this->courserenderer->course_section_add_cm_control($course, 0, 0);
-                echo $this->section_footer();
-            }
-        } else {
-            echo html_writer::start_tag('div', array('id' => 'ontop_area'));
-            echo html_writer::start_tag('ul', array('id' => 'ontop_area', 'class' => 'topics'));
-        }
-
-        echo $this->end_section_list();
-        echo html_writer::end_tag('div');
-
-        // the tab navigation
-        $tabs = $this->prepare_tabs($course, $format_options, $sections);
-
-        // rendering the tab navigation
-        echo html_writer::start_tag('ul', array('class'=>'tabs nav nav-tabs row'));
-
-        $tab_seq = array();
-        if ($format_options['tab_seq']) {
-            $tab_seq = explode(',',$format_options['tab_seq']);
-        }
-
-        // if a tab sequence is equal to the number of tabs is found use it to arrange the tabs otherwise show them in default order
-        if(sizeof($tab_seq) == sizeof($tabs)) {
-            foreach ($tab_seq as $tabid) {
-                $tab = $tabs[$tabid];
-                $this->render_tab($tab);
-            }
-        } else {
-            foreach ($tabs as $tab) {
-                $this->render_tab($tab);
-            }
-        }
-
-        echo html_writer::end_tag('ul');
-
-        // the sections
-        if($format_options['single_section_tabs']) {
-            echo html_writer::start_tag('ul', array('class' => 'topics single_section_tabs'));
-        } else {
-            echo html_writer::start_tag('ul', array('class' => 'topics'));
-        }
-
-        // Put content of old extratabs into hidden divs
-        echo $this->render_extratab_sections($format_options, $tabs);
-
-        // Put the Synergy Assessment Information into a hidden div if the option is set - waiting for the tab to be clicked
-        echo $this->render_assessment_sections($format_options, $tabs);
-
-        foreach ($sections as $section => $thissection) {
-            echo $this->render_section($course, $section, $thissection, $format_options, $modinfo, $numsections);
-        }
-
-        if ($PAGE->user_is_editing() and has_capability('moodle/course:update', $context)) {
-            // Print stealth sections if present.
-            foreach ($modinfo->get_section_info_all() as $section => $thissection) {
-                if ($section <= $numsections or empty($modinfo->sections[$section])) {
-                    // this is not stealth section or it is empty
-                    continue;
-                }
-                echo $this->stealth_section_header($section);
-                echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
-                echo $this->stealth_section_footer();
-            }
-
-            echo $this->end_section_list();
-
-            echo $this->change_number_sections($course, 0);
-        } else {
-            echo $this->end_section_list();
-        }
-
-    }
-
-    /**
      * SYNERGY LEARNING - output news section
      * @param object $course
      * @return string
@@ -728,6 +490,23 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
             $o .= html_writer::end_tag('div');
             $o .= html_writer::end_tag('li');
         }
+        return $o;
+    }
+
+    protected function start_section_list() {
+        $o = '';
+        $o .= html_writer::start_tag('div', array('class'=>'qmultabcontent tab-content row bg-white'));
+        $o .= html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'col-12 tab-pane qmultab modulecontent active'));
+
+        $o .= html_writer::start_tag('ul', array('class' => 'topics'));
+        return $o;
+    }
+
+    protected function end_section_list() {
+        $o = '';
+        $o .= html_writer::end_tag('ul');
+        $o .= html_writer::end_tag('div');
+        $o .= html_writer::end_tag('div');
         return $o;
     }
 
