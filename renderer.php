@@ -286,8 +286,9 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         // if a tab sequence is found use it to arrange the tabs otherwise show them in default order
         if(sizeof($tab_seq) > 0) {
             foreach ($tab_seq as $tabid) {
-                $tab = $tabs[$tabid];
-                $this->render_tab($tab);
+                if(isset($tabs[$tabid]) && $tab = $tabs[$tabid] ) {
+                    $this->render_tab($tab);
+                }
             }
         } else {
             foreach ($tabs as $tab) {
@@ -679,6 +680,9 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
 
     public function render_tab($tab) {
         global $DB, $PAGE, $OUTPUT;
+        if(!isset($tab)) {
+            return false;
+        }
         if($tab->sections == '') {
             echo html_writer::start_tag('li', array('class'=>'qmultabitem nav-item', 'style' => 'display:none;'));
         } else {
