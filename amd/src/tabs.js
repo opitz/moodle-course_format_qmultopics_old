@@ -65,7 +65,7 @@ define(['jquery', 'jqueryui'], function($) {
 
                 console.log('----');
 
-                $(this).addClass('active');
+//                $(this).addClass('active');
 
                 var clicked_tab_name;
                 if ($(this).find('.inplaceeditable-text')) {
@@ -79,7 +79,7 @@ define(['jquery', 'jqueryui'], function($) {
                 // hide the content of the assessment info block tab
                 $('.assessment_info_block_content').hide();
 
-                $(".active").removeClass("active");
+                $(".tablink.active").removeClass("active");
                 $(".modulecontent").addClass("active");
 
                 $('#content_assessmentinformation_area').hide();
