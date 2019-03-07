@@ -495,9 +495,7 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
 
     protected function start_section_list() {
         $o = '';
-        $o .= html_writer::start_tag('div', array('class'=>'qmultabcontent tab-content row bg-white'));
-        $o .= html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'col-12 tab-pane qmultab modulecontent active'));
-
+        $o .= html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'tab-pane modulecontent active'));
         $o .= html_writer::start_tag('ul', array('class' => 'topics'));
         return $o;
     }
@@ -505,7 +503,6 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
     protected function end_section_list() {
         $o = '';
         $o .= html_writer::end_tag('ul');
-        $o .= html_writer::end_tag('div');
         $o .= html_writer::end_tag('div');
         return $o;
     }
