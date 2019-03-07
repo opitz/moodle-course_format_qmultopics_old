@@ -365,6 +365,9 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
 
     // Render a standard tab or an extratab - as long as they are still around...
     public function render_tab($tab){
+        if(!isset($tab)) {
+            return false;
+        }
         // as long as there are still old extratabs around we need to treat them slightly different from normal tabs
         // this overriding function may be removed once extratabs are gone
         if(strstr($tab->id, 'extratab')) {
