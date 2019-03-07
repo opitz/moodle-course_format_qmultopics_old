@@ -404,3 +404,25 @@ $string['hidden_tab_hint'] = 'This tab contains only hidden sections and will no
 // News strings
 $string['readfullpost'] = 'Read full post';
 $string['morenews'] = 'More news';
+
+$string['shownewsfull'] = 'I want to display a shortened version of news and announcements';
+$string['statictext'] = 'I want to display some static text';
+$string['usestatictext'] = 'Use static text instead of Module Announcements';
+$string['currentsection'] = 'This topic';
+$string['editsection'] = 'Edit topic';
+$string['deletesection'] = 'Delete topic';
+$string['sectionname'] = 'Topic';
+$string['pluginname'] = 'Topics format (QMUL)';
+$string['section0name'] = 'General';
+$string['page-course-view-qmultopics'] = 'Any course main page in topics format (QMUL)';
+$string['page-course-view-qmultopics-x'] = 'Any course page in topics format (QMUL)';
+$string['hidefromothers'] = 'Hide topic';
+$string['showfromothers'] = 'Show topic';
+$string['addsections'] = 'Add Topics';
+
+// News settings
+$string['newssettingsof'] = 'News settings for {$a}';
+$string['displaynews'] = 'Display the news section';
+$string['shownewsfull'] = 'Show the full news content';
+$string['statictext'] = 'Static text';
+$string['usestatictext'] = 'Use static text';
