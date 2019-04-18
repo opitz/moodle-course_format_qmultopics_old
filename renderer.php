@@ -27,7 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/course/format/renderer.php');
 require_once($CFG->dirroot . '/course/format/qmultopics/lib.php');
-require_once($CFG->dirroot . '/course/format/tabbedtopics/renderer.php');
+require_once($CFG->dirroot . '/course/format/topics2/renderer.php');
 
 /**
  * Basic renderer for qmultopics format.
@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/course/format/tabbedtopics/renderer.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class format_qmultopics_renderer extends format_tabbedtopics_renderer {
+class format_qmultopics_renderer extends format_topics2_renderer {
 
     private $courseformat = null;
     private $tcsettings;
@@ -433,9 +433,9 @@ class format_qmultopics_renderer extends format_tabbedtopics_renderer {
                 style="'.($PAGE->user_is_editing() ? 'cursor: move;' : '').'">';
         }
         // render the tab name as inplace_editable
-        $tmpl = new \core\output\inplace_editable('format_tabbedtopics', 'tabname', $itemid,
+        $tmpl = new \core\output\inplace_editable('format_topics2', 'tabname', $itemid,
             $PAGE->user_is_editing(),
-            format_string($tab->title), $tab->title, get_string('tabtitle_edithint', 'format_tabbedtopics'),  get_string('tabtitle_editlabel', 'format_tabbedtopics', format_string($tab->title)));
+            format_string($tab->title), $tab->title, get_string('tabtitle_edithint', 'format_topics2'),  get_string('tabtitle_editlabel', 'format_topics2', format_string($tab->title)));
         $o .= $OUTPUT->render($tmpl);
         $o .= "</span>";
         $o .= html_writer::end_tag('li');

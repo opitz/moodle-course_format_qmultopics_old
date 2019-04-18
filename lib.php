@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
-require_once($CFG->dirroot. '/course/format/tabbedtopics/lib.php');
+require_once($CFG->dirroot. '/course/format/topics2/lib.php');
 //require_once($CFG->dirroot. '/course/format/topcoll/lib.php');
 
 /**
@@ -35,7 +35,7 @@ require_once($CFG->dirroot. '/course/format/tabbedtopics/lib.php');
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class format_qmultopics extends format_tabbedtopics {
+class format_qmultopics extends format_topics2 {
 
     /**
      * Adds format options elements to the course/section edit form
@@ -112,6 +112,91 @@ class format_qmultopics extends format_tabbedtopics {
     }
 
     public function course_format_options($foreditform = false) {
+        global $CFG;
+//        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        $max_tabs = 9; // Currently there is a maximum of 9 tabs!
+        static $courseformatoptions = false;
+        if ($courseformatoptions === false) {
+            $courseconfig = get_config('moodlecourse');
+            $courseformatoptions = array(
+                'maxtabs' => array(
+                    'default' => (isset($CFG->max_tabs) ? $CFG->max_tabs : 5),
+                    'type' => PARAM_INT,
+                    'element_type' => 'hidden',
+                ),
+                'hiddensections' => array(
+                    'label' => new lang_string('hiddensections'),
+                    'help' => 'hiddensections',
+                    'help_component' => 'moodle',
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            0 => new lang_string('hiddensectionscollapsed'),
+                            1 => new lang_string('hiddensectionsinvisible')
+                        )
+                    ),
+                ),
+                'coursedisplay' => array(
+                    'label' => new lang_string('coursedisplay'),
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
+                            COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
+                        )
+                    ),
+                    'help' => 'coursedisplay',
+                    'help_component' => 'moodle',
+                ),
+                'toggle' => array(
+                    'label' => get_string('toggle_label', 'format_topics2'),
+                    'element_type' => 'advcheckbox',
+                    'help' => 'toggle',
+                    'help_component' => 'format_topics2',
+                ),
+                'section0_ontop' => array(
+                    'label' => get_string('section0_label', 'format_topics2'),
+                    'element_type' => 'advcheckbox',
+                    'default' => 0,
+                    'help' => 'section0',
+                    'help_component' => 'format_topics2',
+                    'element_type' => 'hidden',
+                ),
+                'single_section_tabs' => array(
+                    'label' => get_string('single_section_tabs_label', 'format_topics2'),
+                    'element_type' => 'advcheckbox',
+                    'help' => 'single_section_tabs',
+                    'help_component' => 'format_topics2',
+                ),
+                'assessment_info_block_tab' => array(
+                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
+                    'type' => PARAM_INT,
+                ),
+
+            );
+
+            // the sequence in which the tabs will be displayed
+            $courseformatoptions['tab_seq'] = array('default' => '','type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+            // now loop through the tabs but don't show them as we only need the DB records...
+            $courseformatoptions['tab0_title'] = array('default' => get_string('tabzero_title', 'format_topics2'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            $courseformatoptions['tab0'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            for ($i = 1; $i <= $max_tabs; $i++) {
+                $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i,'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i.'_sectionnums'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            }
+
+        }
+        // Allow to store a name for the Assessment Info tab
+        $courseformatoptions['tab_assessment_information_title'] = array('default' => get_string('tab_assessment_information_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+        // Allow to store a name for the Assessment Info Block tab
+        $courseformatoptions['tab_assessment_info_block_title'] = array('default' => get_string('tab_assessment_info_block_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+
+        return $courseformatoptions;
+    }
+    public function course_format_options0($foreditform = false) {
         global $CFG;
         $max_tabs = 9;
         static $courseformatoptions = false;
