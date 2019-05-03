@@ -58,9 +58,6 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
     public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
         global $DB, $CFG, $PAGE, $OUTPUT;
 
-        // allow up to 5 user tabs if nothing else is set in the config file
-        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
-
         $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
 
         $tabs = array();
@@ -68,6 +65,13 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
         $course = course_get_format($course)->get_course();
         $sections = $DB->get_records('course_sections', array('course' => $course->id));
         $format_options = $this->courseformat->get_format_options();
+
+        if(isset($format_options->maxtabs)){
+            $max_tabs = $format_options->maxtabs;
+        } else {
+            // allow up to 5 tabs  by default if nothing else is set in the config file
+            $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        }
 
         $context = context_course::instance($course->id);
         // Title with completion help icon.
@@ -459,8 +463,13 @@ class format_qmultopics_renderer extends theme_qmul_format_topics_renderer {
             return array();
         }
 
-        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        if(isset($this->tcsettings['maxtabs'])) {
+            $max_tabs = $this->tcsettings['maxtabs'];
+        } else {
+            $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        }
         $max_tabs = ($max_tabs < 10 ? $max_tabs : 9 ); // Restrict tabs to 10 max (0...9)
+
         $coursecontext = context_course::instance($course->id);
 
         if ($onsectionpage) {

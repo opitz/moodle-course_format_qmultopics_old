@@ -281,6 +281,11 @@ class format_qmultopics extends format_topics {
         if ($courseformatoptions === false) {
             $courseconfig = get_config('moodlecourse');
             $courseformatoptions = array(
+                'maxtabs' => array(
+                    'default' => (isset($CFG->max_tabs) ? $CFG->max_tabs : 5),
+                    'type' => PARAM_INT,
+                    'element_type' => 'hidden',
+                ),
                 'hiddensections' => array(
                     'default' => $courseconfig->hiddensections,
                     'type' => PARAM_INT,
