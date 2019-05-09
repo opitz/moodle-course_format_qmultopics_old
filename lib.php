@@ -171,7 +171,17 @@ class format_qmultopics extends format_topics2 {
                 ),
                 'assessment_info_block_tab' => array(
                     'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
-                    'type' => PARAM_INT,
+                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            0 => get_string('assessment_info_block_tab_option0', 'format_qmultopics'),
+                            1 => get_string('assessment_info_block_tab_option1', 'format_qmultopics'),
+                            2 => get_string('assessment_info_block_tab_option2', 'format_qmultopics')
+                        )
+                    ),
+                    'help' => 'assessment_info_block_tab',
+                    'help_component' => 'format_qmultopics',
                 ),
 
             );
@@ -195,161 +205,6 @@ class format_qmultopics extends format_topics2 {
         // Allow to store a name for the Assessment Info Block tab
         $courseformatoptions['tab_assessment_info_block_title'] = array('default' => get_string('tab_assessment_info_block_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
 
-        return $courseformatoptions;
-    }
-    public function course_format_options0($foreditform = false) {
-        global $CFG;
-        $max_tabs = 9;
-        static $courseformatoptions = false;
-
-        if ($courseformatoptions === false) {
-            $courseconfig = get_config('moodlecourse');
-            $courseformatoptions = array(
-                'maxtabs' => array(
-                    'default' => (isset($CFG->max_tabs) ? $CFG->max_tabs : 5),
-                    'type' => PARAM_INT,
-                    'element_type' => 'hidden',
-                ),
-                'hiddensections' => array(
-                    'default' => $courseconfig->hiddensections,
-                    'type' => PARAM_INT,
-                ),
-//                'coursedisplay' => array(
-//                    'default' => get_config('format_qmultopics', 'defaultcoursedisplay'),
-//                    'type' => PARAM_INT,
-//                ),
-                'section0_ontop' => array(
-                    'default' => false,
-                    'type' => PARAM_BOOL,
-                    'label' => '',
-                    'element_type' => 'hidden',
-                ),
-
-                'single_section_tabs' => array(
-                    'default' => get_config('format_qmultopics', 'defaultsectionnameastabname'),
-                    'type' => PARAM_BOOL
-                ),
-
-                /*
-                                'assessment_info_block_tab' => array(
-                                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
-                                    'type' => PARAM_BOOL
-                                ),
-                */
-                'assessment_info_block_tab' => array(
-                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
-                    'type' => PARAM_INT,
-                ),
-
-                'displayinstructions' => array(
-                    'default' => get_config('format_qmultopics', 'defaultdisplayinstructions'),
-                    'type' => PARAM_INT,
-                ),
-                'layoutelement' => array(
-                    'default' => get_config('format_qmultopics', 'defaultlayoutelement'),
-                    'type' => PARAM_INT,
-                    'label' => '',
-                    'element_type' => 'hidden',
-                ),
-                'layoutstructure' => array(
-                    'default' => get_config('format_qmultopics', 'defaultlayoutstructure'),
-                    'type' => PARAM_INT,
-                    'label' => '',
-                    'element_type' => 'hidden',
-                ),
-                'layoutcolumns' => array(
-                    'default' => get_config('format_qmultopics', 'defaultlayoutcolumns'),
-                    'type' => PARAM_INT,
-                    'label' => '',
-                    'element_type' => 'hidden',
-                ),
-                'layoutcolumnorientation' => array(
-                    'default' => get_config('format_qmultopics', 'defaultlayoutcolumnorientation'),
-                    'type' => PARAM_INT,
-                    'label' => '',
-                    'element_type' => 'hidden',
-                ),
-            );
-            // the sequence in which the tabs will be displayed
-            $courseformatoptions['tab_seq'] = array('default' => '','type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-
-            // now loop through the tabs but don't show them as we only need the DB records...
-            $courseformatoptions['tab0_title'] = array('default' => get_string('modulecontent', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-            $courseformatoptions['tab0'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-            for ($i = 1; $i <= $max_tabs; $i++) {
-                $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i,'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-                $courseformatoptions['tab'.$i] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-                $courseformatoptions['tab'.$i.'_sectionnums'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-            }
-
-            // Allow to store a name for the Assessment Info tab
-            $courseformatoptions['tab_assessment_information_title'] = array('default' => get_string('tab_assessment_information_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-
-            // Allow to store a name for the Assessment Info Block tab
-            $courseformatoptions['tab_assessment_info_block_title'] = array('default' => get_string('tab_assessment_info_block_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-
-        }
-        if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
-            $courseconfig = get_config('moodlecourse');
-            $sectionmenu = array();
-            for ($i = 0; $i <= $courseconfig->maxsections; $i++) {
-                $sectionmenu[$i] = "$i";
-            }
-            $courseformatoptionsedit = array(
-
-                'hiddensections' => array(
-                    'label' => new lang_string('hiddensections'),
-                    'help' => 'hiddensections',
-                    'help_component' => 'moodle',
-                    'element_type' => 'hidden',
-                    'element_attributes' => array(
-                        array(0 => new lang_string('hiddensectionscollapsed'),
-                            1 => new lang_string('hiddensectionsinvisible')
-                        )
-                    ),
-                ),
-
-                'displayinstructions' => array(
-                    'label' => new lang_string('displayinstructions', 'format_qmultopics'),
-                    'help' => 'displayinstructions',
-                    'help_component' => 'format_qmultopics',
-                    'element_type' => 'select',
-                    'element_attributes' => array(
-                        array(1 => new lang_string('no'),
-                            2 => new lang_string('yes'))
-                    )
-                ),
-
-                'single_section_tabs' => array(
-                    'label' => get_string('single_section_tabs_label', 'format_qmultopics'),
-                    'element_type' => 'advcheckbox',
-                    'help' => 'single_section_tabs',
-                    'help_component' => 'format_qmultopics',
-                ),
-
-                /*
-                                'assessment_info_block_tab' => array(
-                                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
-                                    'element_type' => 'advcheckbox',
-                                    'help' => 'assessment_info_block_tab',
-                                    'help_component' => 'format_qmultopics',
-                                ),
-                */
-                'assessment_info_block_tab' => array(
-                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
-                    'help' => 'assessment_info_block_tab',
-                    'help_component' => 'format_qmultopics',
-                    'element_type' => 'select',
-                    'element_attributes' => array(
-                        array(0 => get_string('assessment_info_block_tab_option0', 'format_qmultopics'),
-                            1 => get_string('assessment_info_block_tab_option1', 'format_qmultopics'),
-                            2 => get_string('assessment_info_block_tab_option2', 'format_qmultopics'))
-                    )
-                ),
-            );
-
-            $courseformatoptions = array_merge_recursive($courseformatoptions, $courseformatoptionsedit);
-        }
         return $courseformatoptions;
     }
 
