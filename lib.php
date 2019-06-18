@@ -112,17 +112,26 @@ class format_qmultopics extends format_topics2 {
     }
 
     public function course_format_options($foreditform = false) {
-        global $CFG;
+        global $CFG, $DB;
 //        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
-        $max_tabs = 9; // Currently there is a maximum of 9 tabs!
+//        $max_tabs = 9; // Currently there is a maximum of 9 tabs!
+        $fo = $DB->get_records('course_format_options', array('courseid' => $COURSE->id));
+        $format_options = array();
+        foreach($fo as $o) {
+            $format_options[$o->name] = $o->value;
+        }
+        $max_tabs = ((isset($format_options['maxtabs']) && $format_options['maxtabs'] > 0) ? $format_options['maxtabs'] : (isset($CFG->max_tabs) ? $CFG->max_tabs : 9));
         static $courseformatoptions = false;
         if ($courseformatoptions === false) {
             $courseconfig = get_config('moodlecourse');
             $courseformatoptions = array(
                 'maxtabs' => array(
+                    'label' => get_string('maxtabs_label', 'format_topics2'),
+                    'help' => 'maxtabs',
+                    'help_component' => 'format_topics2',
                     'default' => (isset($CFG->max_tabs) ? $CFG->max_tabs : 5),
                     'type' => PARAM_INT,
-                    'element_type' => 'hidden',
+//                    'element_type' => 'hidden',
                 ),
                 'hiddensections' => array(
                     'label' => new lang_string('hiddensections'),
@@ -306,87 +315,6 @@ class format_qmultopics extends format_topics2 {
 
         return $changes;
     }
-    public function update_course_format_options0($data, $oldcourse = null) {
-        global $DB;
-
-        $newdata = (array) $data;
-        $savedata = array();
-        if (isset($newdata['fullname'])) {
-            if (isset($newdata['enable_assessmentinformation'])) {
-                $savedata['enable_assessmentinformation'] = $newdata['enable_assessmentinformation'];
-            } else {
-                $savedata['enable_assessmentinformation'] = 0;
-            }
-            if (isset($newdata['content_assessmentinformation'])) {
-                $savedata['content_assessmentinformation'] = $newdata['content_assessmentinformation'];
-            }
-            if (isset($newdata['enable_extratab1'])) {
-                $savedata['enable_extratab1'] = $newdata['enable_extratab1'];
-            } else {
-                $savedata['enable_extratab1'] = 0;
-            }
-            if (isset($newdata['title_extratab1'])) {
-                $savedata['title_extratab1'] = $newdata['title_extratab1'];
-            }
-            if (isset($newdata['content_extratab1'])) {
-                $savedata['content_extratab1'] = $newdata['content_extratab1'];
-            }
-            if (isset($newdata['enable_extratab2'])) {
-                $savedata['enable_extratab2'] = $newdata['enable_extratab2'];
-            } else {
-                $savedata['enable_extratab2'] = 0;
-            }
-            if (isset($newdata['title_extratab2'])) {
-                $savedata['title_extratab2'] = $newdata['title_extratab2'];
-            }
-            if (isset($newdata['content_extratab2'])) {
-                $savedata['content_extratab2'] = $newdata['content_extratab2'];
-            }
-            if (isset($newdata['enable_extratab3'])) {
-                $savedata['enable_extratab3'] = $newdata['enable_extratab3'];
-            } else {
-                $savedata['enable_extratab3'] = 0;
-            }
-            if (isset($newdata['title_extratab3'])) {
-                $savedata['title_extratab3'] = $newdata['title_extratab3'];
-            }
-            if (isset($newdata['content_extratab3'])) {
-                $savedata['content_extratab3'] = $newdata['content_extratab3'];
-            }
-        }
-
-        $records = $DB->get_records('course_format_options',
-            array('courseid' => $this->courseid,
-                'format' => $this->format,
-                'sectionid' => 0
-            ), '', 'name,id,value');
-
-        foreach ($savedata as $key => $value) {
-            if (isset($records[$key])) {
-                if (array_key_exists($key, $newdata) && $records[$key]->value !== $newdata[$key]) {
-                    $DB->set_field('course_format_options', 'value',
-                        $value, array('id' => $records[$key]->id));
-                    $changed = true;
-                } else {
-                    $DB->set_field('course_format_options', 'value',
-                        $value, array('id' => $records[$key]->id));
-                    $changed = true;
-                }
-            } else {
-                $DB->insert_record('course_format_options', array(
-                    'courseid' => $this->courseid,
-                    'format' => $this->format,
-                    'sectionid' => 0,
-                    'name' => $key,
-                    'value' => $value
-                ));
-            }
-        }
-
-        $changes = parent::update_course_format_options($data, $oldcourse);
-
-        return $changes;
-    }
 
     /**
      * Returns the format options stored for this course or course section
@@ -487,17 +415,6 @@ function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
             format_string($newvalue), $newvalue, 'Edit tab name',  'New value for ' . format_string($newvalue));
 
         return $output;
-    }
-}
-function format_qmultopics_inplace_editable0($itemtype, $itemid, $newvalue) {
-    global $CFG;
-    require_once($CFG->dirroot . '/course/lib.php');
-    if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
-        global $DB;
-        $section = $DB->get_record_sql(
-            'SELECT s.* FROM {course_sections} s JOIN {course} c ON s.course = c.id WHERE s.id = ? AND c.format = ?',
-            array($itemid, 'qmultopics'), MUST_EXIST);
-        return course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
     }
 }
 
