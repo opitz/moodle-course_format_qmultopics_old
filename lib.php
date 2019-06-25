@@ -172,6 +172,12 @@ class format_qmultopics extends format_topics2 {
                     'help' => 'toggle',
                     'help_component' => 'format_topics2',
                 ),
+                'toggle_all' => array(
+                    'label' => get_string('toggle_all_label', 'format_topics2'),
+                    'element_type' => 'advcheckbox',
+                    'help' => 'toggle_all',
+                    'help_component' => 'format_topics2',
+                ),
                 'section0_ontop' => array(
                     'label' => get_string('section0_label', 'format_topics2'),
                     'element_type' => 'advcheckbox',
