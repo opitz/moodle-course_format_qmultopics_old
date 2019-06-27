@@ -112,7 +112,7 @@ class format_qmultopics extends format_topics2 {
     }
 
     public function course_format_options($foreditform = false) {
-        global $CFG, $DB;
+        global $CFG, $COURSE, $DB;
 //        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
 //        $max_tabs = 9; // Currently there is a maximum of 9 tabs!
         $fo = $DB->get_records('course_format_options', array('courseid' => $COURSE->id));
