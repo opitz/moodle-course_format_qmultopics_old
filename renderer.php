@@ -499,7 +499,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     protected function start_section_list() {
         $o = '';
         $o .= html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'tab-pane modulecontent active'));
-        $o .= html_writer::start_tag('ul', array('class' => 'topics'));
+        $o .= html_writer::start_tag('ul', array('class' => 'topics topics2 qmultopics'));
         return $o;
     }
 
