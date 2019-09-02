@@ -47,6 +47,12 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         $this->tcsettings = $this->courseformat->get_format_options();
     }
 
+    // Require the jQuery file for this class
+    public function require_js() {
+        $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
+        $this->page->requires->js_call_amd('format_topics2/toggle', 'init', array());
+    }
+
     /**
      * SYNERGY LEARNING - output news section
      * @param object $course
