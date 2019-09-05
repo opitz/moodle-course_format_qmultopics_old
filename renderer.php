@@ -488,16 +488,16 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         if ($format_options['enable_assessmentinformation']) {
             // If the option to merge assessment information add a specific class as indicator for JS
             if ($format_options['assessment_info_block_tab'] == '2') {
-                $o .= html_writer::start_tag('li', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section merge_assessment_info', 'style' => 'display: none;'));
+                $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section merge_assessment_info', 'style' => 'display: none;'));
             } else {
-                $o .= html_writer::start_tag('li', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section', 'style' => 'display: none;'));
+                $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section', 'style' => 'display: none;'));
             }
             $o .= html_writer::start_tag('div', array('class' => 'content'));
             $o .= html_writer::start_tag('div', array('class' => 'summary'));
             $o .= $this->tabs['tab_assessment_information']->content;
             $o .= html_writer::end_tag('div');
             $o .= html_writer::end_tag('div');
-            $o .= html_writer::end_tag('li');
+            $o .= html_writer::end_tag('div');
         }
         return $o;
     }
