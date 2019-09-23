@@ -113,7 +113,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         foreach ($extratabnames as $extratabname) {
             if (isset($this->tcsettings["enable_{$extratabname}"]) &&
                 $this->tcsettings["enable_{$extratabname}"] == 1) {
-                $tab = new stdClass();
+                $tab = (object) new stdClass();
                 $tab->id = $extratabname;
                 $tab->name = $extratabname;
                 $tab->title = $this->tcsettings["title_{$extratabname}"];
@@ -147,7 +147,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         if (isset($this->tcsettings['assessment_info_block_tab']) &&
             $assessment_info_block_id &&
             $this->tcsettings['assessment_info_block_tab'] == 1) {
-            $tab = new stdClass();
+            $tab = (object) new stdClass();
             $tab->id = "tab_assessment_info_block";
             $tab->name = 'assessment_info_block';
             $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
@@ -166,7 +166,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         // the old assessment info tab - as a new tab
         if (isset($this->tcsettings['enable_assessmentinformation']) &&
             $this->tcsettings['enable_assessmentinformation'] == 1) {
-            $tab = new stdClass();
+            $tab = (object) new stdClass();
             $tab->id = "tab_assessment_information";
             $tab->name = 'assessment_info';
             $tab->title = $this->tcsettings['tab_assessment_information_title'];
@@ -404,7 +404,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             // get the format option record for the given tab - we need the id
             // if the record does not exist, create it first
             if(!$DB->record_exists('course_format_options', array('courseid' => $PAGE->course->id, 'name' => 'title_'.$tab->id))) {
-                $record = new stdClass();
+                $record = (object) new stdClass();
                 $record->courseid = $PAGE->course->id;
                 $record->format = 'qmultopics';
                 $record->section = 0;

@@ -4,6 +4,64 @@ define(['jquery', 'jqueryui'], function($) {
         init: function() {
 
 // ---------------------------------------------------------------------------------------------------------------------
+            function add2tab(tabnum, sectionid, sectionnum) {
+                // Remove the section id and section number from any tab
+                $(".tablink").each(function() {
+                    $(this).attr('sections', $(this).attr('sections').replace("," + sectionid, ""));
+                    $(this).attr('sections', $(this).attr('sections').replace(sectionid + ",", ""));
+                    $(this).attr('sections', $(this).attr('sections').replace(sectionid, ""));
+
+                    $(this).attr('section_nums', $(this).attr('section_nums').replace("," + sectionnum, ""));
+                    $(this).attr('section_nums', $(this).attr('section_nums').replace(sectionnum + ",", ""));
+                    $(this).attr('section_nums', $(this).attr('section_nums').replace(sectionnum, ""));
+                });
+                // Add the sectionid to the new tab
+                if (tabnum > 0) { // No need to store section ids for tab 0
+                    if ($("#tab" + tabnum).attr('sections').length === 0) {
+                        $("#tab" + tabnum).attr('sections', $("#tab" + tabnum).attr('sections') + sectionid);
+                    } else {
+                        $("#tab" + tabnum).attr('sections', $("#tab" + tabnum).attr('sections') + "," + sectionid);
+                    }
+                    if ($("#tab" + tabnum).attr('section_nums').length === 0) {
+                        $("#tab" + tabnum).attr('section_nums', $("#tab" + tabnum).attr('section_nums') + sectionnum);
+                    } else {
+                        $("#tab" + tabnum).attr('section_nums', $("#tab" + tabnum).attr('section_nums') + "," + sectionnum);
+                        // X console.log('---> section_nums: '+$("#tab"+tabnum).attr('section_nums'));
+                    }
+                }
+            }
+
+// ---------------------------------------------------------------------------------------------------------------------
+            function save2tab(tabid) {
+                // save the new tab data to the database
+                var courseid = $('#courseid').attr('courseid');
+                $.ajax({
+                    url: "format/topics2/ajax/update_tab_settings.php",
+                    type: "POST",
+                    data: {
+                        'courseid': courseid,
+                        'tabid': tabid,
+                        'sections': $("#" + tabid).attr('sections'),
+                        'sectionnums': $("#" + tabid).attr('section_nums')
+                    },
+                    success: function(result) {
+                        if (result !== '') {
+                            console.log(result);
+                        }
+                    }
+                });
+            }
+
+// ---------------------------------------------------------------------------------------------------------------------
+            var set_numsections_cookie = function() {
+                $('#changenumsections').on('click', function(){
+                    // store the number of current sections in a cookie - so we know how many have been added later
+                    var numSections = $('.section.main').length;
+                    sessionStorage.setItem('numSections', numSections);
+                });
+            };
+
+// ---------------------------------------------------------------------------------------------------------------------
             var escapeHtml = function(text) {
                 var map = {
                     '&': '&amp;',
@@ -150,6 +208,9 @@ define(['jquery', 'jqueryui'], function($) {
                 // Make this an active tab
                 $(".tablink.active").removeClass("active"); // First remove any active class from tabs
                 $(this).addClass('active'); // Then add the active class to the clicked tab
+
+                // store the ID of the active tab in a cookie
+                sessionStorage.setItem('tabid', tabid);
 
                 // If the tab titles are limited - limit them and expand only the active
                 if ($('.limittabname').length > 0) {
@@ -489,7 +550,7 @@ define(['jquery', 'jqueryui'], function($) {
                 moveOntop();
                 moveInline();
                 dropdownToggle();
-//                Hover_tabname();
+                set_numsections_cookie();
             };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -590,6 +651,9 @@ define(['jquery', 'jqueryui'], function($) {
                     });
                 }
 
+                // check for a tab cookie
+                var tabid = sessionStorage.getItem('tabid');
+
                 // Move the Assessment Info Block into it's area on the main stage but hide it for now
                 if ($('#tab_assessment_info_block').length > 0 || $('.merge_assessment_info').length > 0) {
 //                    console.log('===> Assessment Info Block tab present - showing the content_assessmentinformation_area');
@@ -610,8 +674,39 @@ define(['jquery', 'jqueryui'], function($) {
                     $('#tab0').click();
                     // Click ALL tabs once
                     $('.tablink:visible').click();
-                    // Click the 1st visible tab by default
-                    $('.tablink:visible').first().click();
+
+                    if(tabid != null && tabid != 'tab0') {
+//                        console.log('Found tabid = ' + tabid);
+
+                        // if a 'numSections' cookie is set the changenumsections url has been clicked
+                        // while the particular tab was active and we have returned here
+                        // if the tabid is other than tab0 move the newly added sections to that tab
+
+                        //get the number of sections before new ones were added from another cookie
+                        var numSections = sessionStorage.getItem('numSections');
+                        sessionStorage.removeItem('numSections');
+                        if(numSections != null) {
+                            // attach all new sections to the given tab
+                            var tabnum = tabid.substring(3); // This is the tab number(!) where the section is moved to
+                            var i = 0;
+                            $('.section.main').each(function(){
+                                i = i + 1;
+                                if (i > numSections) {
+                                    // X console.log('new section id = ' + $(this).attr('id'));
+                                    var sectionid = $(this).attr('section-id');
+                                    var sectionnum = $(this).attr('id').substring(8);
+                                    add2tab(tabnum, sectionid, sectionnum);
+                                }
+                            });
+                            save2tab(tabid);
+                        }
+
+                        // click the tab with the found tab ID
+                        $('#' + tabid).click();
+                    } else {
+                        // Click the 1st visible tab by default
+                        $('.tablink:visible').first().click();
+                    }
                 }
 
                 // If section0 is on top restrict section menu - restore otherwise
