@@ -201,6 +201,7 @@ define(['jquery', 'jqueryui'], function($) {
 // ---------------------------------------------------------------------------------------------------------------------
             // react to a clicked tab
             var tabClick = function() {$(".tablink").on('click', function() {
+                var courseid = $('#courseid').attr('courseid');
                 var tabid = $(this).attr('id');
                 var sections = $(this).attr('sections');
                 var sectionArray = sections.split(",");
@@ -209,7 +210,8 @@ define(['jquery', 'jqueryui'], function($) {
                 $(".tablink.active").removeClass("active"); // First remove any active class from tabs
                 $(this).addClass('active'); // Then add the active class to the clicked tab
 
-                // store the ID of the active tab in a cookie
+                // store the course ID and the ID of the active tab in cookies
+                sessionStorage.setItem('courseid', courseid);
                 sessionStorage.setItem('tabid', tabid);
 
                 // If the tab titles are limited - limit them and expand only the active
@@ -323,7 +325,6 @@ define(['jquery', 'jqueryui'], function($) {
                     $(this).parent().hide();
 
                     // Restoring generic tab name
-                    var courseid = $('#courseid').attr('courseid');
                     var genericTitle = $(this).attr('generic_title');
                     $.ajax({
                         url: "format/topics2/ajax/update_tab_name.php",
@@ -651,8 +652,16 @@ define(['jquery', 'jqueryui'], function($) {
                     });
                 }
 
-                // check for a tab cookie
-                var tabid = sessionStorage.getItem('tabid');
+                // Check for courseid and tab cookies
+                // Only when the page is reloaded for the same course check for a tab cookie and delete it otherwise
+                var courseid = $('#courseid').attr('courseid');
+                var originCourseid = sessionStorage.getItem('courseid');
+                if(originCourseid !== null && originCourseid == courseid) {
+                    var tabid = sessionStorage.getItem('tabid');
+                } else {
+                    sessionStorage.removeItem('courseid');
+                    sessionStorage.removeItem('tabid');
+                }
 
                 // Move the Assessment Info Block into it's area on the main stage but hide it for now
                 if ($('#tab_assessment_info_block').length > 0 || $('.merge_assessment_info').length > 0) {
