@@ -4,6 +4,39 @@ define(['jquery', 'jqueryui'], function($) {
         init: function() {
 
 // ---------------------------------------------------------------------------------------------------------------------
+            function insertTabIndex(element) {
+                // Inserts the tabindex from any active tab to its sections to make sure tey will follow after the tab
+                // when navigating using the keyboard only
+                var tabtabindex = element.attr('tabindex');
+                if (tabtabindex > 0) {
+                    $('.section.main:visible').each( function() {
+                        $(this).attr('tabindex',tabtabindex);
+                    });
+                }
+            }
+
+// ---------------------------------------------------------------------------------------------------------------------
+            function tabnav() {
+                // Supporting navigation using the keyboard
+                $(document).keyup(function(e) {
+                    var code = e.keyCode || e.which;
+                    var focused = $(':focus');
+                    // When using the TAB key to navigate the page actually click a tab when in focus to reveal its sections
+                    if (code == '9') { // TAB key pressed
+                        if ( typeof focused.attr('id') !== 'undefined' && focused.attr('id').indexOf("tab") > -1) {
+                            focused.click();
+                        }
+                    }
+                    // Toggle the focused section by pressing ENTER
+                    if (code == 13) { // ENTER key pressed
+                        if ( typeof focused.attr('id') !== 'undefined' && focused.attr('id').indexOf("section") > -1) {
+                            focused.find('.toggler:visible').click();
+                        }
+                    }
+                });
+            }
+
+// ---------------------------------------------------------------------------------------------------------------------
             function add2tab(tabnum, sectionid, sectionnum) {
                 // Remove the section id and section number from any tab
                 $(".tablink").each(function() {
@@ -372,8 +405,9 @@ define(['jquery', 'jqueryui'], function($) {
                     // X console.log('--> tab0 is a single tab - hiding it');
                     $('.tabitem').hide();
                 }
-            });
-};
+                // this will make sure tab navigation goes from tab to its sections and then on to the next tab
+                insertTabIndex($(this));
+            });};
 
 // ---------------------------------------------------------------------------------------------------------------------
             // Moving a section to a tab by menu
@@ -552,6 +586,7 @@ define(['jquery', 'jqueryui'], function($) {
                 moveInline();
                 dropdownToggle();
                 set_numsections_cookie();
+                tabnav();
             };
 
 // ---------------------------------------------------------------------------------------------------------------------
