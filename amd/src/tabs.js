@@ -5,8 +5,8 @@ define(['jquery', 'jqueryui'], function($) {
 
 // ---------------------------------------------------------------------------------------------------------------------
             function insertTabIndex(element) {
-                // Inserts the tabindex from any active tab to its sections to make sure tey will follow after the tab
-                // when navigating using the keyboard only
+                // Inserts the tabindex from any active tab to its visible sections to make sure they will follow
+                // directly after the tab when navigating using the TAB key
                 var tabtabindex = element.attr('tabindex');
                 if (tabtabindex > 0) {
                     $('.section.main:visible').each( function() {
@@ -22,13 +22,17 @@ define(['jquery', 'jqueryui'], function($) {
                     var code = e.keyCode || e.which;
                     var focused = $(':focus');
                     // When using the TAB key to navigate the page actually click a tab when in focus to reveal its sections
-                    if (code == '9') { // TAB key pressed
+//                    if (code == '9') { // TAB key pressed
+//                        if ( typeof focused.attr('id') !== 'undefined' && focused.attr('id').indexOf("tab") > -1) {
+//                            focused.click();
+//                        }
+//                    }
+                    if (code == 13) { // ENTER key pressed
+                        // Click a focused tab by pressing ENTER
                         if ( typeof focused.attr('id') !== 'undefined' && focused.attr('id').indexOf("tab") > -1) {
                             focused.click();
                         }
-                    }
-                    // Toggle the focused section by pressing ENTER
-                    if (code == 13) { // ENTER key pressed
+                        // Toggle a focused section by pressing ENTER
                         if ( typeof focused.attr('id') !== 'undefined' && focused.attr('id').indexOf("section") > -1) {
                             focused.find('.toggler:visible').click();
                         }
