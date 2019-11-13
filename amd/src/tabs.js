@@ -237,7 +237,7 @@ define(['jquery', 'jqueryui'], function($) {
 
 // ---------------------------------------------------------------------------------------------------------------------
             // react to a clicked tab
-            var tabClick = function() {$(".tablink").on('click', function() {
+            var tabClick0 = function() {$(".tablink").on('click', function() {
                 var courseid = $('#courseid').attr('courseid');
                 var tabid = $(this).attr('id');
                 var sections = $(this).attr('sections');
@@ -264,7 +264,7 @@ define(['jquery', 'jqueryui'], function($) {
                 if (typeof clickedTabName == 'undefined') {
                     clickedTabName = $(this).html();
                 }
-                 console.log('=====> Clicked tab "' + clickedTabName + '":');
+                console.log('=====> Clicked tab "' + clickedTabName + '":');
 
                 // Hide the content of the assessment info block tab
                 $('.assessment_info_block_content').hide();
@@ -283,7 +283,7 @@ define(['jquery', 'jqueryui'], function($) {
                             $.each($(this).attr('sections').split(","), function(index, value) {
                                 var target = $(".section[section-id='" + value + "']");
                                 target.hide();
-                                 console.log("--> hiding section " + value);
+                                console.log("--> hiding section " + value);
                             });
                         }
                     });
@@ -327,7 +327,7 @@ define(['jquery', 'jqueryui'], function($) {
                 var visibleAssessmentInfo = $('#content_assessmentinformation_area:visible').length;
 
                 if ($('.section0_ontop').length > 0) {
-                   console.log('section0 is on top - so reducing the number of visible sections for this tab by 1');
+                    console.log('section0 is on top - so reducing the number of visible sections for this tab by 1');
                     visibleSections--;
                 }
                 console.log('number of visible sections: ' + visibleSections);
@@ -422,6 +422,197 @@ define(['jquery', 'jqueryui'], function($) {
                 // this will make sure tab navigation goes from tab to its sections and then on to the next tab
                 insertTabIndex($(this));
             });};
+            var tabClick = function() {$(".tablink").on('click', function() {
+                var courseid = $('#courseid').attr('courseid');
+                var tabid = $(this).attr('id');
+                var sections = $(this).attr('sections');
+                var sectionArray = sections.split(",");
+
+                // Make this an active tab
+                $(".tablink.active").removeClass("active"); // First remove any active class from tabs
+                $(this).addClass('active'); // Then add the active class to the clicked tab
+
+                // store the course ID and the ID of the active tab in cookies
+                sessionStorage.setItem('courseid', courseid);
+                sessionStorage.setItem('tabid', tabid);
+
+                // If the tab titles are limited - limit them and expand only the active
+                if ($('.limittabname').length > 0) {
+                    truncateAllTabnames();
+                    expandTabname($(this));
+                }
+
+                var clickedTabName;
+                if ($(this).find('.inplaceeditable-text')) {
+                    clickedTabName = $(this).find('.inplaceeditable-text').attr('data-value');
+                }
+                if (typeof clickedTabName == 'undefined') {
+                    clickedTabName = $(this).html();
+                }
+                console.log('=====> Clicked tab "' + clickedTabName + '":');
+
+                // Hide the content of the assessment info block tab
+                $('.assessment_info_block_content').hide();
+
+                $(".tablink.active").removeClass("active");
+                $(".modulecontent").addClass("active");
+
+                $('#content_assessmentinformation_area').hide();
+
+                if (tabid === 'tab0') { // Show all sections - then hide each section shown in other tabs
+                    $("#changenumsections").show();
+                    $("li.section").show();
+                    $(".topictab:visible").each(function() {
+                        if ($(this).attr('sections').length > 0) {
+                            // If any split sections into an array, loop through it and hide section with the found ID
+                            $.each($(this).attr('sections').split(","), function(index, value) {
+                                var target = $(".section[section-id='" + value + "']");
+                                target.hide();
+                                console.log("--> hiding section " + value);
+                            });
+                        }
+                    });
+                } else if (tabid === 'tab_assessment_information') { // Show the Assessment Information as new tab
+//                    console.log('Assessment Info tab clicked!');
+                    $("li.section").hide();
+//                    $("#changenumsections").hide();
+                    $("li.section.hidden").addClass("hiding");
+                    $("li.section.hiding").removeClass("hidden");
+
+                    $('#content_assessmentinformation_area').show();
+                    if ($('.merge_assessment_info').length > 0) {
+//                        console.log('merging Assessment Info Block');
+                        $('.assessment_info_block_content').show();
+                    }
+                } else if (tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
+//                    console.log('Assessment Info Block tab clicked!');
+                    $("li.section").hide();
+                    $("#changenumsections").hide();
+                    $("li.section.hidden").addClass("hiding");
+                    $("li.section.hiding").removeClass("hidden");
+
+                    $('.assessment_info_block_content').show();
+//                    $('#content_assessmentinformation_area').show();
+                } else { // Hide all sections - then show those found in sectionArray
+                    $("#changenumsections").show();
+                    $("li.section").hide();
+                    $.each(sectionArray, function(index, value) {
+                        var target = $(".section[section-id='" + value + "']");
+                        target.show();
+                        console.log("--> showing section " + value);
+                    });
+                }
+
+                // Show section-0 always when it should be shown always
+                $('#ontop_area #section-0').show();
+
+                var visibleSections = $('li.section:visible').length;
+                var hiddenSections = $('li.section.hidden:visible').length;
+                var visibleBlocks = $('#modulecontent').find('.block:visible');
+                var visibleAssessmentInfo = $('#content_assessmentinformation_area:visible').length;
+
+                if ($('.section0_ontop').length > 0) {
+                    console.log('section0 is on top - so reducing the number of visible sections for this tab by 1');
+                    visibleSections--;
+                }
+
+                if (visibleSections < 1 && visibleBlocks.length === 0 && visibleAssessmentInfo === 0) {
+                    console.log('tab with no visible sections - hiding it');
+                    $(this).parent().hide();
+
+                    // Restoring generic tab name
+                    var genericTitle = $(this).attr('generic_title');
+                    $.ajax({
+                        url: "format/topics2/ajax/update_tab_name.php",
+                        type: "POST",
+                        data: {'courseid': courseid, 'tabid': tabid, 'tab_name': genericTitle},
+                        success: function(result) {
+                            if (result !== '') {
+                                console.log('Reset name of tab ID ' + tabid + ' to "' + result + '"');
+                                $('[data-itemid=' + result + ']').attr('data-value', genericTitle).
+                                find('.quickeditlink').html(genericTitle);
+
+                                // Re-instantiate the just added DOM elements
+                                initFunctions();
+                            }
+                        }
+                    });
+                } else {
+                    console.log('tab with visible sections - showing it');
+                    $(this).parent().show();
+                }
+
+                // If option is set and when a tab other than tab 0 shows a single section perform some visual tricks
+                if ($('.single_section_tabs').length > 0
+                    && $(this).attr('sections').split(',').length == 1
+                    && tabid !== 'tab0') {
+                    var target = $('li.section:visible').first();
+
+                    // If section0 is shown always on top ignore the first visible section and use the 2nd
+                    if ($('.section0_ontop').length > 0) {
+                        target = $('li.section:visible:eq(1)');
+                    }
+                    var firstSectionId = target.attr('id');
+
+                    if (visibleSections - hiddenSections <= 1
+                        && firstSectionId !== 'section-0'
+                        && $(this).attr('generic_title').indexOf('Tab') >= 0 // Do this only for original tabs
+                    ) {
+                        changeTab($(this), target);
+                        // Make sure the content is un-hidden
+                        target.find('.toggle_area').removeClass('hidden').show();
+                    } else if ($('.inplaceeditable').length > 0 && firstSectionId !== 'section-0') {
+                        restoreTab($(this));
+                    }
+                }
+
+                // If all visible sections are hidden for students the tab is hidden for them as well
+                // in this case mark the tab for admins so they are aware
+                if (visibleSections <= hiddenSections && visibleBlocks.length === 0 && visibleAssessmentInfo === 0) {
+                    showTabHint($(this));
+                } else {
+                    hideTabHint($(this));
+                }
+
+                // If tab0 is alone hide it
+                if (tabid === 'tab0' && $('.tabitem:visible').length === 1) {
+                    // X console.log('--> tab0 is a single tab - hiding it');
+                    $('.tabitem').hide();
+                }
+                // this will make sure tab navigation goes from tab to its sections and then on to the next tab
+                insertTabIndex($(this));
+            });};
+
+// ---------------------------------------------------------------------------------------------------------------------
+            var showTabHint = function(tab) {
+                var tabid = tab.attr('id');
+                tab.addClass('hidden-tab');
+
+                // Get the hint string and show the hint icon next to the tab name
+                require(['core/str'], function(str) {
+                    var get_the_string = str.get_string('hidden_tab_hint', 'format_qmultopics');
+                    $.when(get_the_string).done(function(theString) {
+                        tab.find('#not-shown-hint-'+tabid).remove();
+                        var theAppendix = '<i id="not-shown-hint-'+tabid+'" class="fa fa-info" title="'+theString+'"></i>';
+                        if (tab.attr('sections').split(',').length == 1
+                            && $('.single_section_tabs').length > 0) { // If there is a single topic
+                            tab.html(tab.html() + ' ' +theAppendix);
+                        } else if ($('.tablink .fa-pencil').length > 0) { // When in edit mode ...
+                            tab.find('.inplaceeditable').append(theAppendix);
+                        } else {
+//                                self.append(theAppendix);
+                            tab.html(tab.html() + ' ' +theAppendix);
+                        }
+                    });
+                });
+            };
+
+// ---------------------------------------------------------------------------------------------------------------------
+            var hideTabHint = function(tab) {
+                var tabid = tab.attr('id');
+                tab.removeClass('hidden-tab');
+                $('#not-shown-hint-'+tabid).remove();
+            };
 
 // ---------------------------------------------------------------------------------------------------------------------
             // Moving a section to a tab by menu
@@ -553,21 +744,17 @@ define(['jquery', 'jqueryui'], function($) {
                     });
 
                     // Updating menu options with current tab names
-                    // X console.log('--> Updating menu options with current tab names');
+//                    console.log('--> Updating menu options with current tab names');
                     $(this).parent().find('.tab_mover').each(function() {
                         var tabnr = $(this).attr('tabnr');
-                        var tabtext = $(this).find('.menu-action-text').html();
-                        console.log(tabnr + ' --> ' + tabtext.trim() + ' ==> ' + tabArray[tabnr]);
-//                        Var newMenuText = 'To Tab "' + tabArray[tabnr] +
-//                            ( (tabArray[tabnr] === 'Tab ' + tabnr || tabnr === '0') ? '"' : '" (Tab ' + tabnr + ')');
+//                        var tabtext = $(this).find('.menu-action-text').html();
+//                        console.log(tabnr + ' --> ' + tabtext.trim() + ' ==> ' + tabArray[tabnr]);
 
                         var newMenuText = 'To Tab ' +
                             (tabArray[tabnr] === '' || tabArray[tabnr] === 'Tab ' + tabnr ? tabnr : '"' + tabArray[tabnr] +
                             ((tabArray[tabnr] === 'Tab ' + tabnr || tabnr === '0') ? '"' : '" (Tab ' + tabnr + ')'));
 
                         $(this).find('.menu-action-text').html(newMenuText);
-//                        $(this).find('.menu-action-text').html('To Tab "' + tabArray[tabnr] +
-//                            ( (tabArray[tabnr] === 'Tab ' + tabnr || tabnr === '0') ? '"' : '" (Tab ' + tabnr + ')'));
                     });
                     if (sectionid === 'section-0') {
                         if ($('#ontop_area.section0_ontop').length === 1) { // If section0 is on top don't show tab options
@@ -582,7 +769,7 @@ define(['jquery', 'jqueryui'], function($) {
                     } else if (typeof $('.tablink.active').attr('id') !== 'undefined') {
                         var tabnum = $('.tablink.active').attr('id').substring(3);
                         $('#' + sectionid + ' .tab_mover[tabnr="' + tabnum + '"]').hide(); // Then hide the one not needed
-                        // X console.log('hiding tab ' + tabnum + ' from edit menu for section '+sectionid);
+//                        console.log('hiding tab ' + tabnum + ' from edit menu for section '+sectionid);
                     }
                     if ($('.tablink:visible').length === 0) {
                         $('#' + sectionid + ' .tab_mover[tabnr="0"]').hide();
@@ -590,6 +777,32 @@ define(['jquery', 'jqueryui'], function($) {
                 }
             });
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
+            // a section edit menu is clicked - to hide or show a section to students
+            var toggleAvailiability = function() {
+                $(".section-actions .menubar .action-menu-trigger .dropdown .dropdown-menu .dropdown-item").on('click', function() {
+                    var activeTab = $('.tablink.active');
+                    var visibleSections = $('li.section:visible').length;
+                    var hiddenSections = $('li.section.hidden:visible').length;
+                    var visibleBlocks = $('#modulecontent').find('.block:visible');
+                    var visibleAssessmentInfo = $('#content_assessmentinformation_area:visible').length;
+
+                    if ($(this).find('.menu-action-text').html().indexOf("Hide") >= 0) {
+                        if (activeTab.attr('id') != undefined
+                            && visibleSections <= hiddenSections + 1
+                            && visibleBlocks.length === 0
+                            && visibleAssessmentInfo === 0
+                        ) {
+                            showTabHint(activeTab);
+                        }
+                    }
+                    if ($(this).find('.menu-action-text').html().indexOf("Show") >= 0) {
+                        if (activeTab.attr('id') != undefined) {
+                            hideTabHint(activeTab);
+                        }
+                    }
+                });};
 
 // ---------------------------------------------------------------------------------------------------------------------
             var initFunctions = function() {
@@ -601,6 +814,7 @@ define(['jquery', 'jqueryui'], function($) {
                 dropdownToggle();
                 set_numsections_cookie();
                 tabnav();
+                toggleAvailiability();
             };
 
 // ---------------------------------------------------------------------------------------------------------------------
