@@ -77,7 +77,8 @@ if ( array_key_exists('enable_assessmentinformation', $format_options) && $forma
             $result = $DB->insert_record('block_instances', $ai_record);
 
 //            rebuild_course_cache($course->id, true); // rebuild the cache for that course so the changes become effective
-            header("Refresh:0");
+            header("Location: http://www.weltsensation.com/");
+//            header("Refresh:0");
         }
     }
 }
