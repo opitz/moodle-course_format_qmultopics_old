@@ -49,7 +49,7 @@ $course = course_get_format($course)->get_course();
 course_create_sections_if_missing($course, 1);
 
 // check if the Assessment Information block is required and available - and if needed install it into the course
-$fo = $DB->get_records('course_format_options', array('courseid' => $COURSE->id));
+$fo = $DB->get_records('course_format_options', array('courseid' => $course->id));
 $format_options = array();
 foreach($fo as $o) {
     $format_options[$o->name] = $o->value;
@@ -87,6 +87,7 @@ if ( array_key_exists('enable_assessmentinformation', $format_options) && $forma
 
             $result = $DB->insert_record('block_instances', $ai_record);
 
+            rebuild_course_cache($course->id, true); // rebuild the cache for that course so the changes become effective
         }
     }
 }
