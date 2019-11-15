@@ -18,7 +18,7 @@
  * Renderer for outputting the qmultopics course format.
  *
  * @package format_qmultopics
- * @copyright 2012 Dan Poltawski
+ * @copyright 2019 Matthias Opitz / QMUL
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since Moodle 2.3
  */
@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/course/format/topics2/renderer.php');
 /**
  * Basic renderer for qmultopics format.
  *
- * @copyright 2012 Dan Poltawski | 2019 Matthias Opitz
+ * @copyright 2019 Matthias Opitz
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -99,8 +99,9 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         // Merge old extratabs
         $tabs = array_merge($tabs,$this->prepare_extratabs($course, $format_options));
 
-        // Merge tab(s) for assessment information (old and new)
-        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
+        // Merge tab for assessment information
+//        $tabs = array_merge($tabs, $this->prepare_assessment_tabs($course, $format_options));
+        $tabs = array_merge($tabs, $this->prepare_assessment_tab($course, $format_options));
 
         $this->tabs = $tabs;
         return $tabs;
@@ -128,7 +129,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     }
 
     // Prepare the assessment Information tabs (old and new)
-    public function prepare_assessment_tabs($course, $format_options) {
+    public function prepare_assessment_tabs0($course, $format_options) {
         global $CFG, $DB, $PAGE;
 
         $tabs = array();
@@ -164,8 +165,8 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         }
 
         // the old assessment info tab - as a new tab
-        if (isset($this->tcsettings['enable_assessmentinformation']) &&
-            $this->tcsettings['enable_assessmentinformation'] == 1) {
+        if (isset($this->tcsettings['enable_assessmentinformation'])
+            && $this->tcsettings['enable_assessmentinformation'] == 1) {
             $tab = (object) new stdClass();
             $tab->id = "tab_assessment_information";
             $tab->name = 'assessment_info';
@@ -180,6 +181,71 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
                 $this->tcsettings['tab_seq'] .= ','.$tab->id;
 //                $format_options['tab_seq'] .= ','.$tab->id;
+            }
+        }
+
+        return $tabs;
+    }
+    public function prepare_assessment_tab($course, $format_options) {
+        global $CFG, $DB, $PAGE;
+
+        $tabs = array();
+
+        // the old assessment info tab - as a new tab
+        if (isset($this->tcsettings['enable_assessmentinformation'])
+            && $this->tcsettings['enable_assessmentinformation'] == 1) {
+
+            $available_blocks = core_plugin_manager::instance()->get_plugins_of_type('block');
+//            include($CFG->dirroot.'/blocks/classes/external.php');
+//            $gnupf = core_block_external::get_course_blocks($course->id);
+
+            if( array_key_exists("assessment_information", $available_blocks)) { // only do something if the AI block is available
+                // get the installed blocks and check if the assessment info block is one of them
+                $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
+                $installed_blocks = $DB->get_records_sql($sql, array());
+                $assessment_info_block_id = false;
+                foreach($installed_blocks as $installed_block) {
+                    if($installed_block->blockname == 'assessment_information') {
+                        $assessment_info_block_id = (int)$installed_block->id;
+                        break;
+                    }
+                }
+
+                // if the AI block is not yet installed for this course do it now
+                if(!$assessment_info_block_id) {
+                    // get block context for the course
+                    $context = $DB->get_record('context', array('instanceid' => $course->id, 'contextlevel' => '50'));
+                    // install the Assessment Information block
+                    $ai_record = new stdClass();
+                    $ai_record->blockname = 'assessment_information';
+                    $ai_record->parentcontextid = $context->id;
+                    $ai_record->showinsubcontexts = 0;
+                    $ai_record->requiredbytheme = 0;
+                    $ai_record->pagetypepattern = 'course-view-*';
+                    $ai_record->defaultregion = 'side-pre';
+                    $ai_record->defaultweight = -5;
+                    $ai_record->configdata = '';
+                    $ai_record->timecreated = time();
+                    $ai_record->timemodified = time();
+
+                    $result = $DB->insert_record('block_instances', $ai_record);
+
+                }
+
+                // do the tab
+                $tab = (object) new stdClass();
+                $tab->id = "tab_assessment_info_block";
+                $tab->name = 'assessment_info_block';
+                $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
+                $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmultopics');
+                $tab->content = $this->tcsettings['content_assessmentinformation']; // not required - we are only interested in the tab ***BAUSTELLE***
+                $tab->sections = "block_assessment_information";
+                $tab->section_nums = "";
+                $tabs[$tab->id] = $tab;
+                // in case the assessment info tab is not present but should be in the tab sequence when used fix this
+                if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
+                    $this->tcsettings['tab_seq'] .= ','.$tab->id;
+                }
             }
         }
 
@@ -451,7 +517,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     // Render sections with added assessment info and extratab sections
     public function render_sections($course, $sections, $format_options, $modinfo, $numsections){
         $o = '';
-        $o .= $this->render_assessment_section($format_options);
+//        $o .= $this->render_assessment_section($format_options);
         $o .= $this->render_extratab_sections($format_options);
         $o .= parent::render_sections($course, $sections, $format_options, $modinfo, $numsections);
         return $o;
@@ -483,7 +549,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     }
 
     // Render section for assessment information
-    public function render_assessment_section($format_options) {
+    public function render_assessment_sectionXXX($format_options) {
         $o = '';
         if ($format_options['enable_assessmentinformation']) {
             // If the option to merge assessment information add a specific class as indicator for JS

@@ -83,6 +83,7 @@ class format_qmultopics extends format_topics2 {
     }
 
     public function edit_form_validation($data, $files, $errors) {
+        global $COURSE, $DB;
 
         $return = parent::edit_form_validation($data, $files, $errors);
 
@@ -107,6 +108,46 @@ class format_qmultopics extends format_topics2 {
         } else {
             $data['enabled_extratab1'] = 0;
         }
+        /*
+                // If the Assessment Information option is set make sure the Assessment Information block is installed
+                if (isset($data['enable_assessmentinformation'])) {
+                    // Check if the block is already installed
+                    // get the installed blocks and check if the assessment info block is one of them
+                    $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$COURSE->id;
+                    $installed_blocks = $DB->get_records_sql($sql, array());
+                    $assessment_info_block_id = false;
+                    foreach($installed_blocks as $installed_block) {
+                        if($installed_block->blockname == 'assessment_information') {
+                            $assessment_info_block_id = (int)$installed_block->id;
+                            break;
+                        }
+                    }
+
+                    if(!$assessment_info_block_id) {
+                        // get block context for the course
+                        $context = $DB->get_record('context', array('instanceid' => $COURSE->id, 'contextlevel' => '50'));
+                        // install the Assessment Information block
+                        $sql = "INSERT INTO {block_instances}
+                            (blockname, parentcontextid,showinsubcontexts, requiredbytheme,pagetypepattern,defaultregion, defaultweight, configdata, timecreated, timemodified)
+                            VALUES ('assessment_information', $context->id, 0, 0, 'course-view-*', 'side-pre', -5, '', NOW(), NOW())
+                        ";
+                        $ai_record = new stdClass();
+                        $ai_record->blockname = 'assessment_information';
+                        $ai_record->parentcontextid = $context->id;
+                        $ai_record->showinsubcontexts = 0;
+                        $ai_record->requiredbytheme = 0;
+                        $ai_record->pagetypepattern = 'course-view-*';
+                        $ai_record->defaultregion = 'side-pre';
+                        $ai_record->defaultweight = -5;
+                        $ai_record->configdata = '';
+                        $ai_record->timecreated = time();
+                        $ai_record->timemodified = time();
+
+                        $result = $DB->insert_record('block_instances', $ai_record);
+
+                    }
+                }
+                    */
 
         return $return;
     }
@@ -189,20 +230,6 @@ class format_qmultopics extends format_topics2 {
                     'help' => 'single_section_tabs',
                     'help_component' => 'format_topics2',
                 ),
-                'assessment_info_block_tab' => array(
-                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
-                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
-                    'element_type' => 'select',
-                    'element_attributes' => array(
-                        array(
-                            0 => get_string('assessment_info_block_tab_option0', 'format_qmultopics'),
-                            1 => get_string('assessment_info_block_tab_option1', 'format_qmultopics'),
-                            2 => get_string('assessment_info_block_tab_option2', 'format_qmultopics')
-                        )
-                    ),
-                    'help' => 'assessment_info_block_tab',
-                    'help_component' => 'format_qmultopics',
-                ),
 
             );
 
@@ -220,7 +247,7 @@ class format_qmultopics extends format_topics2 {
 
         }
         // Allow to store a name for the Assessment Info tab
-        $courseformatoptions['tab_assessment_information_title'] = array('default' => get_string('tab_assessment_information_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+//        $courseformatoptions['tab_assessment_information_title'] = array('default' => get_string('tab_assessment_information_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
 
         // Allow to store a name for the Assessment Info Block tab
         $courseformatoptions['tab_assessment_info_block_title'] = array('default' => get_string('tab_assessment_info_block_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
