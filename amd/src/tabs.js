@@ -289,6 +289,7 @@ define(['jquery', 'jqueryui'], function($) {
                     });
                 } else if (tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
 //                    console.log('Assessment Info Block tab clicked!');
+ alert('Assessment Info Block tab clicked!');
                     $("li.section").hide();
                     $("#changenumsections").hide();
                     $("li.section.hidden").addClass("hiding");
