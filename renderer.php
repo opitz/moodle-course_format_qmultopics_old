@@ -200,6 +200,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 //            $gnupf = core_block_external::get_course_blocks($course->id);
 
             if( array_key_exists("assessment_information", $available_blocks)) { // only do something if the AI block is available
+/*
                 // get the installed blocks and check if the assessment info block is one of them
                 $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
                 $installed_blocks = $DB->get_records_sql($sql, array());
@@ -231,7 +232,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
                     $result = $DB->insert_record('block_instances', $ai_record);
 
                 }
-
+*/
                 // do the tab
                 $tab = (object) new stdClass();
                 $tab->id = "tab_assessment_info_block";
