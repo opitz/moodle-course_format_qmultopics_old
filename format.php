@@ -37,17 +37,6 @@ if ($topic = optional_param('topic', 0, PARAM_INT)) {
 }
 // End backwards-compatible aliasing..
 
-$context = context_course::instance($course->id);
-
-if (($marker >=0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
-    $course->marker = $marker;
-    course_set_marker($course->id, $marker);
-}
-
-// make sure all sections are created
-$course = course_get_format($course)->get_course();
-course_create_sections_if_missing($course, 1);
-
 // check if the Assessment Information block is required and available - and if needed install it into the course
 $fo = $DB->get_records('course_format_options', array('courseid' => $course->id));
 $format_options = array();
@@ -91,6 +80,17 @@ if ( array_key_exists('enable_assessmentinformation', $format_options) && $forma
         }
     }
 }
+
+$context = context_course::instance($course->id);
+
+if (($marker >=0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
+    $course->marker = $marker;
+    course_set_marker($course->id, $marker);
+}
+
+// make sure all sections are created
+$course = course_get_format($course)->get_course();
+course_create_sections_if_missing($course, 1);
 
 $renderer = $PAGE->get_renderer('format_qmultopics');
 
