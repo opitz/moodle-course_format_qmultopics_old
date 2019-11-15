@@ -289,8 +289,13 @@ define(['jquery', 'jqueryui'], function($) {
                     });
                 } else if (tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
 //                    console.log('Assessment Info Block tab clicked!');
+
+                    // Here comes a bit of hacking in course of replacing the old Assessment Information with the new one
+                    // provided by the Assessment Information block
+                    // If the new Assessment Information block has just been installed to replace the deprecated Synergy variant
+                    // the tab is rendered but the block has not been recognised yet as it was not there when
+                    // the loading of this page begun - in this case we just reload the page again
                     if ($('.block_assessment_information').length < 1) {
-//                        alert('Refreshing!');
                         location.reload();
                     }
 
