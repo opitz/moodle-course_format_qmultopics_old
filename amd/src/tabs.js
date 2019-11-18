@@ -273,7 +273,7 @@ define(['jquery', 'jqueryui'], function($) {
                 $(".modulecontent").addClass("active");
 
 //                $('#content_assessmentinformation_area').hide();
-                $('#content_assessmentinformation_area').hide();
+                $('#assessment_information_area').hide();
 
                 if (tabid === 'tab0') { // Show all sections - then hide each section shown in other tabs
                     $("#changenumsections").show();

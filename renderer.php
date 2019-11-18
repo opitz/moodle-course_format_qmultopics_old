@@ -613,8 +613,9 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         return $o;
     }
     public function render_assessment_section($format_options) {
-        $o = '';
-        $o .= html_writer::tag('li', 'dummy', array('id' => 'assessment_information_area', 'style' => 'display: show;'));
+//        $o = '<br>';
+        $content = html_writer::div($format_options['content_assessmentinformation']);
+        $o .= html_writer::tag('li', $content, array('id' => 'assessment_information_area', 'style' => 'display: show;'));
         return $o;
     }
 
