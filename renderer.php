@@ -196,8 +196,6 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             && $this->tcsettings['enable_assessmentinformation'] == 1) {
 
             $available_blocks = core_plugin_manager::instance()->get_plugins_of_type('block');
-//            include($CFG->dirroot.'/blocks/classes/external.php');
-//            $gnupf = core_block_external::get_course_blocks($course->id);
 
             if( array_key_exists("assessment_information", $available_blocks)) { // only do something if the AI block is available
 /*
@@ -233,7 +231,10 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
                 }
 */
-                // do the tab
+                // Add the AI block if necessary
+                $this->add_assessment_information($course, $format_options);
+
+                // now do the tab
                 $tab = (object) new stdClass();
                 $tab->id = "tab_assessment_info_block";
                 $tab->name = 'assessment_info_block';
@@ -249,8 +250,51 @@ class format_qmultopics_renderer extends format_topics2_renderer {
                 }
             }
         }
-
         return $tabs;
+    }
+
+    // check and add the assessment information
+    public function add_assessment_information($course, $format_options) {
+        global $DB;
+        if ( array_key_exists('enable_assessmentinformation', $format_options) && $format_options['enable_assessmentinformation'] == '1') {
+            $available_blocks = core_plugin_manager::instance()->get_plugins_of_type('block');
+            if( array_key_exists("assessment_information", $available_blocks)) { // only do something if the AI block is available
+                // get the installed blocks and check if the assessment info block is one of them
+                $sql = "SELECT * FROM {context} cx 
+                        join {block_instances} bi on bi.parentcontextid = cx.id 
+                        where cx.contextlevel = 50 
+                        and cx.instanceid = ".$course->id;
+                $installed_blocks = $DB->get_records_sql($sql, array());
+                $assessment_info_block_id = false;
+                foreach($installed_blocks as $installed_block) {
+                    if($installed_block->blockname == 'assessment_information') {
+                        $assessment_info_block_id = (int)$installed_block->id;
+                        break;
+                    }
+                }
+
+                // if the AI block is not yet installed for this course do it now
+                if(!$assessment_info_block_id) {
+                    // get block context for the course
+                    $context = $DB->get_record('context', array('instanceid' => $course->id, 'contextlevel' => '50'));
+                    // install the Assessment Information block
+                    $ai_record = new stdClass();
+                    $ai_record->blockname = 'assessment_information';
+                    $ai_record->parentcontextid = $context->id;
+                    $ai_record->showinsubcontexts = 0;
+                    $ai_record->requiredbytheme = 0;
+                    $ai_record->pagetypepattern = 'course-view-*';
+                    $ai_record->defaultregion = 'side-pre';
+                    $ai_record->defaultweight = -5;
+                    $ai_record->configdata = '';
+                    $ai_record->timecreated = time();
+                    $ai_record->timemodified = time();
+
+                    $result = $DB->insert_record('block_instances', $ai_record);
+
+                }
+            }
+        }
     }
 
     // Get the content for the assessment information section
@@ -518,7 +562,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     // Render sections with added assessment info and extratab sections
     public function render_sections($course, $sections, $format_options, $modinfo, $numsections){
         $o = '';
-//        $o .= $this->render_assessment_section($format_options);
+        $o .= $this->render_assessment_section($format_options);
         $o .= $this->render_extratab_sections($format_options);
         $o .= parent::render_sections($course, $sections, $format_options, $modinfo, $numsections);
         return $o;
@@ -566,6 +610,11 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             $o .= html_writer::end_tag('div');
             $o .= html_writer::end_tag('div');
         }
+        return $o;
+    }
+    public function render_assessment_section($format_options) {
+        $o = '';
+        $o .= html_writer::tag('li', 'dummy', array('id' => 'assessment_information_area', 'style' => 'display: show;'));
         return $o;
     }
 

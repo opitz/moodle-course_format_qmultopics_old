@@ -82,6 +82,32 @@ class format_qmultopics extends format_topics2 {
         return $elements;
     }
 
+    public function check_assessment_information($data) {
+        global $COURSE, $DB;
+        // If the Assessment Information option is UNset make sure the Assessment Information Block is removed from that course
+        if (! isset($data['enable_assessmentinformation']) || $data['enable_assessmentinformation'] == '0') {
+            // get the installed blocks and check if the assessment info block is one of them
+            $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$COURSE->id;
+            $installed_blocks = $DB->get_records_sql($sql, array());
+            $assessment_info_block_id = false;
+            foreach($installed_blocks as $installed_block) {
+                if($installed_block->blockname == 'assessment_information') {
+                    $assessment_info_block_id = (int)$installed_block->id;
+                    break;
+                }
+            }
+
+            // It is installed and will have to go
+            if($assessment_info_block_id) {
+                // get block context for the course - then delete the AI block with that context
+                $context = $DB->get_record('context', array('instanceid' => $COURSE->id, 'contextlevel' => '50'));
+                if (isset($context->id) && $context->id > 0) {
+                    $DB->delete_records('block_instances', array('blockname' => 'assessment_information', 'parentcontextid' => $context->id));
+                }
+            }
+        }
+    }
+
     public function edit_form_validation($data, $files, $errors) {
         global $COURSE, $DB;
 
@@ -108,46 +134,9 @@ class format_qmultopics extends format_topics2 {
         } else {
             $data['enabled_extratab1'] = 0;
         }
-        /*
-                // If the Assessment Information option is set make sure the Assessment Information block is installed
-                if (isset($data['enable_assessmentinformation'])) {
-                    // Check if the block is already installed
-                    // get the installed blocks and check if the assessment info block is one of them
-                    $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$COURSE->id;
-                    $installed_blocks = $DB->get_records_sql($sql, array());
-                    $assessment_info_block_id = false;
-                    foreach($installed_blocks as $installed_block) {
-                        if($installed_block->blockname == 'assessment_information') {
-                            $assessment_info_block_id = (int)$installed_block->id;
-                            break;
-                        }
-                    }
 
-                    if(!$assessment_info_block_id) {
-                        // get block context for the course
-                        $context = $DB->get_record('context', array('instanceid' => $COURSE->id, 'contextlevel' => '50'));
-                        // install the Assessment Information block
-                        $sql = "INSERT INTO {block_instances}
-                            (blockname, parentcontextid,showinsubcontexts, requiredbytheme,pagetypepattern,defaultregion, defaultweight, configdata, timecreated, timemodified)
-                            VALUES ('assessment_information', $context->id, 0, 0, 'course-view-*', 'side-pre', -5, '', NOW(), NOW())
-                        ";
-                        $ai_record = new stdClass();
-                        $ai_record->blockname = 'assessment_information';
-                        $ai_record->parentcontextid = $context->id;
-                        $ai_record->showinsubcontexts = 0;
-                        $ai_record->requiredbytheme = 0;
-                        $ai_record->pagetypepattern = 'course-view-*';
-                        $ai_record->defaultregion = 'side-pre';
-                        $ai_record->defaultweight = -5;
-                        $ai_record->configdata = '';
-                        $ai_record->timecreated = time();
-                        $ai_record->timemodified = time();
-
-                        $result = $DB->insert_record('block_instances', $ai_record);
-
-                    }
-                }
-                    */
+        // Check the AI option and act accordingly
+        $this->check_assessment_information($data);
 
         return $return;
     }
@@ -415,7 +404,7 @@ class format_qmultopics extends format_topics2 {
  * @param mixed $newvalue
  * @return \core\output\inplace_editable
  */
-function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
+function format_qmultopics_inplace_editableXXX($itemtype, $itemid, $newvalue) {
     global $CFG;
     require_once($CFG->dirroot . '/course/lib.php');
 

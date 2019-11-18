@@ -272,6 +272,7 @@ define(['jquery', 'jqueryui'], function($) {
                 $(".tablink.active").removeClass("active");
                 $(".modulecontent").addClass("active");
 
+//                $('#content_assessmentinformation_area').hide();
                 $('#content_assessmentinformation_area').hide();
 
                 if (tabid === 'tab0') { // Show all sections - then hide each section shown in other tabs
@@ -304,7 +305,8 @@ define(['jquery', 'jqueryui'], function($) {
                     $("li.section.hidden").addClass("hiding");
                     $("li.section.hiding").removeClass("hidden");
 
-                    $('.assessment_info_block_content').show();
+//                    $('.assessment_info_block_content').show();
+                    $('#assessment_information_area').show();
                 } else { // Hide all sections - then show those found in sectionArray
                     $("#changenumsections").show();
                     $("li.section").hide();
@@ -706,6 +708,16 @@ define(['jquery', 'jqueryui'], function($) {
                 console.log('=================< topics2/tabs.js >=================');
                 initFunctions();
 
+                // Move the Assessment Information block when active
+                if ( $('.block_assessment_information').length > 0) {
+                    // move the block into it's area in the main region
+                    $('#assessment_information_area').append($('.block_assessment_information'));
+                    // If the AI block is the only one remove the 'has-blocks' class from the main region
+                    if ( $('.block').length === $('.block_assessment_information').length) {
+                        $('#region-main').removeClass('has-blocks');
+                    }
+                }
+
                 // Show the edit menu for section-0
                 $("#section-0 .right.side").show();
 
@@ -737,7 +749,7 @@ define(['jquery', 'jqueryui'], function($) {
                     sessionStorage.removeItem('courseid');
                     sessionStorage.removeItem('tabid');
                 }
-
+/*
                 // Move the Assessment Info Block into it's area on the main stage but hide it for now
                 if ($('#tab_assessment_info_block').length > 0 || $('.merge_assessment_info').length > 0) {
 //                    console.log('===> Assessment Info Block tab present - showing the content_assessmentinformation_area');
@@ -752,7 +764,7 @@ define(['jquery', 'jqueryui'], function($) {
                         $('.assessment_info_block_content').find('.card-header').removeClass('d-flex').hide();
                     }
                 }
-
+*/
                 // If there are visible tabs click them all once to potentially reveal any section names as tab names
                 if ($(".topictab:visible").length > 0) {
                     $('#tab0').click();

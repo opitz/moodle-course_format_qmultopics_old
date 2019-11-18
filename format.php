@@ -43,6 +43,7 @@ $format_options = array();
 foreach($fo as $o) {
     $format_options[$o->name] = $o->value;
 }
+/*
 if ( array_key_exists('enable_assessmentinformation', $format_options) && $format_options['enable_assessmentinformation'] == '1') {
     $available_blocks = core_plugin_manager::instance()->get_plugins_of_type('block');
     if( array_key_exists("assessment_information", $available_blocks)) { // only do something if the AI block is available
@@ -76,13 +77,10 @@ if ( array_key_exists('enable_assessmentinformation', $format_options) && $forma
 
             $result = $DB->insert_record('block_instances', $ai_record);
 
-//            rebuild_course_cache($course->id, true); // rebuild the cache for that course so the changes become effective
-            header("Location: http://www.weltsensation.com/");
-//            header("Refresh:0");
         }
     }
 }
-
+*/
 $context = context_course::instance($course->id);
 
 if (($marker >=0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
