@@ -749,22 +749,7 @@ define(['jquery', 'jqueryui'], function($) {
                     sessionStorage.removeItem('courseid');
                     sessionStorage.removeItem('tabid');
                 }
-/*
-                // Move the Assessment Info Block into it's area on the main stage but hide it for now
-                if ($('#tab_assessment_info_block').length > 0 || $('.merge_assessment_info').length > 0) {
-//                    console.log('===> Assessment Info Block tab present - showing the content_assessmentinformation_area');
-                    $('#content_assessmentinformation_area').hide(); // Hide the new Assessment Info area initially
-                    $( "[sections=block_assessment_information]").parent().show();
-                    $('#modulecontent').append($('.block_assessment_information').addClass('assessment_info_block_content').hide());
-                    $('.assessment_info_block_content').removeClass('d-flex');
-                    $('.assessment_info_block_content').find('.card-body').removeClass('p-3').removeClass('card-body');
-                    $('.assessment_info_block_content').find('.block-inner').removeClass('card');
-                    $('.assessment_info_block_content').find('.show-content').hide();
-                    if ($('.tablink .fa-pencil').length == 0) { // If NOT in edit mode hide the block header
-                        $('.assessment_info_block_content').find('.card-header').removeClass('d-flex').hide();
-                    }
-                }
-*/
+
                 // If there are visible tabs click them all once to potentially reveal any section names as tab names
                 if ($(".topictab:visible").length > 0) {
                     $('#tab0').click();
