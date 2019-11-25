@@ -146,8 +146,8 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             }
         }
 
-        if ($assessment_info_block_id) {
-            if ($PAGE->user_is_editing()
+        if ($assessment_info_block_id) { // The AI block is installed ...
+            if ($PAGE->user_is_editing() // ... but the format option has not been set yet - so let's do it
                 && isset($this->tcsettings['enable_assessmentinformation'])
                 && $this->tcsettings['enable_assessmentinformation'] == 0) {
                 // set the format_option accordingly
@@ -171,7 +171,8 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             $tab->name = 'assessment_info_block';
             $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
             $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmultopics');
-            $tab->content = $this->tcsettings['content_assessmentinformation']; // not required - we are only interested in the tab ***BAUSTELLE***
+//            $tab->content = $this->tcsettings['content_assessmentinformation']; // not required - we are only interested in the tab ***BAUSTELLE***
+            $tab->content = ''; // not required - we are only interested in the tab
             $tab->sections = "block_assessment_information";
             $tab->section_nums = "";
             $tabs[$tab->id] = $tab;
@@ -505,7 +506,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     public function render_assessment_section($format_options) {
         $o = '';
         $content = html_writer::div($format_options['content_assessmentinformation']);
-        $o .= html_writer::tag('li', $content, array('id' => 'assessment_information_area', 'style' => 'display: show;'));
+        $o .= html_writer::tag('li', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
         return $o;
     }
 
