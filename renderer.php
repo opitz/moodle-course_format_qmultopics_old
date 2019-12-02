@@ -506,7 +506,8 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     public function render_assessment_section($format_options) {
         $o = '';
         $content = html_writer::div($format_options['content_assessmentinformation']);
-        $o .= html_writer::tag('li', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
+//        $o .= html_writer::tag('li', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
+        $o .= html_writer::tag('div', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
         return $o;
     }
 
