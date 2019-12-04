@@ -379,7 +379,7 @@ class format_qmultopics extends format_topics2 {
 
         if ($sectionid == 0) {
             $alloptions = $DB->get_records('course_format_options',
-                array('courseid'=>$this->courseid, 'format'=>'qmultopics',
+                array('courseid'=>$this->courseid, 'format'=>$this->format,
                     'sectionid'=>0));
 
             foreach ($alloptions as $option) {
@@ -395,53 +395,3 @@ class format_qmultopics extends format_topics2 {
     }
 
 }
-
-/**
- * Implements callback inplace_editable() allowing to edit values in-place
- *
- * @param string $itemtype
- * @param int $itemid
- * @param mixed $newvalue
- * @return \core\output\inplace_editable
- */
-function format_qmultopics_inplace_editableXXX($itemtype, $itemid, $newvalue) {
-    global $CFG;
-    require_once($CFG->dirroot . '/course/lib.php');
-
-    // deal with inplace changes of a section name
-    if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
-        global $DB;
-        $section = $DB->get_record_sql(
-            'SELECT s.* FROM {course_sections} s JOIN {course} c ON s.course = c.id WHERE s.id = ? AND c.format = ?',
-            array($itemid, 'qmultopics'), MUST_EXIST);
-        $result = course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
-        return $result;
-    }
-
-    // deal with inplace changes of a tab name
-    if ($itemtype === 'tabname') {
-        global $DB, $PAGE;
-        $courseid = key($_SESSION['USER']->currentcourseaccess);
-        // the $itemid is actually the name of the record so use it to get the id
-
-        // update the database with the new value given
-        // Must call validate_context for either system, or course or course module context.
-        // This will both check access and set current context.
-        \external_api::validate_context(context_system::instance());
-        // Check permission of the user to update this item.
-//        require_capability('moodle/course:update', context_system::instance());
-        // Clean input and update the record.
-        $newvalue = clean_param($newvalue, PARAM_NOTAGS);
-        $record = $DB->get_record('course_format_options', array('id' => $itemid), '*', MUST_EXIST);
-//        $record['value'] = $newvalue;
-        $DB->update_record('course_format_options', array('id' => $record->id, 'value' => $newvalue));
-
-        // Prepare the element for the output ():
-        $output = new \core\output\inplace_editable('format_qmultopics', 'tabname', $record->id,
-            true,
-            format_string($newvalue), $newvalue, 'Edit tab name',  'New value for ' . format_string($newvalue));
-
-        return $output;
-    }
-}
-
