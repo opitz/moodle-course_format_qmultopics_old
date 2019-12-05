@@ -216,6 +216,37 @@ define(['jquery', 'jqueryui'], function($) {
             });
 
 // ---------------------------------------------------------------------------------------------------------------------
+            var showTabHint = function(tab) {
+                var tabid = tab.attr('id');
+                tab.addClass('hidden-tab');
+
+                // Get the hint string and show the hint icon next to the tab name
+                require(['core/str'], function(str) {
+                    var get_the_string = str.get_string('hidden_tab_hint', 'format_qmultopics');
+                    $.when(get_the_string).done(function(theString) {
+                        tab.find('#not-shown-hint-'+tabid).remove();
+                        var theAppendix = '<i id="not-shown-hint-'+tabid+'" class="fa fa-info" title="'+theString+'"></i>';
+                        if (tab.attr('sections').split(',').length == 1
+                            && $('.single_section_tabs').length > 0) { // If there is a single topic
+                            tab.html(tab.html() + ' ' +theAppendix);
+                        } else if ($('.tablink .fa-pencil').length > 0) { // When in edit mode ...
+                            tab.find('.inplaceeditable').append(theAppendix);
+                        } else {
+//                                self.append(theAppendix);
+                            tab.html(tab.html() + ' ' +theAppendix);
+                        }
+                    });
+                });
+            };
+
+// ---------------------------------------------------------------------------------------------------------------------
+            var hideTabHint = function(tab) {
+                var tabid = tab.attr('id');
+                tab.removeClass('hidden-tab');
+                $('#not-shown-hint-'+tabid).remove();
+            };
+
+// ---------------------------------------------------------------------------------------------------------------------
             // Restore the tab name
             var restoreTab = function(tab) {
                 // Restore the tab name from the backup
@@ -297,7 +328,8 @@ define(['jquery', 'jqueryui'], function($) {
                     // the tab is rendered but the block has not been recognised yet as it was not there when
                     // the loading of this page begun - in this case we just reload the page again
                     if ($('.block_assessment_information').length < 1) {
-                        location.reload();
+//                        location.reload();
+                        window.location = window.location;
                     }
 
                     $("li.section").hide();
@@ -396,37 +428,6 @@ define(['jquery', 'jqueryui'], function($) {
                 // this will make sure tab navigation goes from tab to its sections and then on to the next tab
                 insertTabIndex($(this));
             });};
-
-// ---------------------------------------------------------------------------------------------------------------------
-            var showTabHint = function(tab) {
-                var tabid = tab.attr('id');
-                tab.addClass('hidden-tab');
-
-                // Get the hint string and show the hint icon next to the tab name
-                require(['core/str'], function(str) {
-                    var get_the_string = str.get_string('hidden_tab_hint', 'format_qmultopics');
-                    $.when(get_the_string).done(function(theString) {
-                        tab.find('#not-shown-hint-'+tabid).remove();
-                        var theAppendix = '<i id="not-shown-hint-'+tabid+'" class="fa fa-info" title="'+theString+'"></i>';
-                        if (tab.attr('sections').split(',').length == 1
-                            && $('.single_section_tabs').length > 0) { // If there is a single topic
-                            tab.html(tab.html() + ' ' +theAppendix);
-                        } else if ($('.tablink .fa-pencil').length > 0) { // When in edit mode ...
-                            tab.find('.inplaceeditable').append(theAppendix);
-                        } else {
-//                                self.append(theAppendix);
-                            tab.html(tab.html() + ' ' +theAppendix);
-                        }
-                    });
-                });
-            };
-
-// ---------------------------------------------------------------------------------------------------------------------
-            var hideTabHint = function(tab) {
-                var tabid = tab.attr('id');
-                tab.removeClass('hidden-tab');
-                $('#not-shown-hint-'+tabid).remove();
-            };
 
 // ---------------------------------------------------------------------------------------------------------------------
             // Moving a section to a tab by menu
