@@ -136,7 +136,8 @@ class format_qmultopics extends format_topics2 {
         }
 
         // Check the AI option and act accordingly
-        $this->check_assessment_information($data);
+        // This will not make it into the JAN2020 update - so disabled for now
+//        $this->check_assessment_information($data);
 
         return $return;
     }
@@ -218,6 +219,20 @@ class format_qmultopics extends format_topics2 {
                     'element_type' => 'advcheckbox',
                     'help' => 'single_section_tabs',
                     'help_component' => 'format_topics2',
+                ),
+                'assessment_info_block_tab' => array(
+                    'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
+                    'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            0 => get_string('assessment_info_block_tab_option0', 'format_qmultopics'),
+                            1 => get_string('assessment_info_block_tab_option1', 'format_qmultopics'),
+                            2 => get_string('assessment_info_block_tab_option2', 'format_qmultopics')
+                        )
+                    ),
+                    'help' => 'assessment_info_block_tab',
+                    'help_component' => 'format_qmultopics',
                 ),
 
             );
