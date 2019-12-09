@@ -322,16 +322,13 @@ define(['jquery', 'jqueryui'], function($) {
                 } else if (tabid === 'tab_assessment_information') { // Show the Assessment Information as new tab
 //                    console.log('Assessment Info tab clicked!');
                     $("li.section").hide();
-//                    $("#changenumsections").hide();
                     $("li.section.hidden").addClass("hiding");
                     $("li.section.hiding").removeClass("hidden");
 
                     $('#content_assessmentinformation_area').show();
                     if ($('.merge_assessment_info').length > 0) {
 //                        console.log('merging Assessment Info Block');
-//                        $('.assessment_info_block_content').show();
                         $('#assessment_information_area').show();
-                        $('#content_assessmentinformation_area').show();
                     }
                 } else if (tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
 //                    console.log('Assessment Info Block tab clicked!');
@@ -724,7 +721,7 @@ define(['jquery', 'jqueryui'], function($) {
 
                 // Move the Assessment Information block when active
                 if ( $('.block_assessment_information').length > 0) {
-                    // move the block into it's area in the main region
+                    // Move the block into it's area in the main region
                     $('#assessment_information_area').append($('.block_assessment_information'));
                     // If the AI block is the only one remove the 'has-blocks' class from the main region
                     if ( $('.block').length === $('.block_assessment_information').length) {
@@ -770,7 +767,7 @@ define(['jquery', 'jqueryui'], function($) {
                     // Click ALL tabs once
                     $('.tablink:visible').click();
 
-                    if(tabid != null && tabid != 'tab0') {
+                    if(tabid !== null && tabid != 'tab0') {
 //                        console.log('Found tabid = ' + tabid);
 
                         // if a 'numSections' cookie is set the changenumsections url has been clicked
@@ -780,7 +777,7 @@ define(['jquery', 'jqueryui'], function($) {
                         //get the number of sections before new ones were added from another cookie
                         var numSections = sessionStorage.getItem('numSections');
                         sessionStorage.removeItem('numSections');
-                        if(numSections != null) {
+                        if(numSections !== null) {
                             // attach all new sections to the given tab
                             var tabnum = tabid.substring(3); // This is the tab number(!) where the section is moved to
                             var i = 0;
