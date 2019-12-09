@@ -135,6 +135,8 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         $tabs = array();
         $show_ai_tab = false;
 
+        // No auto-conversoion of Assessment Information for JAN2020 update - so deactivating for now
+        /*
         // get the installed blocks and check if the assessment info block is one of them
         $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
         $installed_blocks = $DB->get_records_sql($sql, array());
@@ -162,6 +164,12 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             if($this->add_assessment_information_block($course)) {
                 $show_ai_tab = true;
             }
+        }
+*/
+        // for now only use the old settings
+        if (isset($this->tcsettings['enable_assessmentinformation'])
+            && $this->tcsettings['enable_assessmentinformation'] == 1) {
+            $show_ai_tab = true;
         }
 
         if ($show_ai_tab) {
