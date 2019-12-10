@@ -129,7 +129,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     }
 
     // Prepare the assessment Information tabs (old and new)
-    public function prepare_assessment_tabs($course, $format_options) {
+    public function prepare_assessment_tabs0($course, $format_options) {
         global $CFG, $DB, $PAGE;
 
         $tabs = array();
@@ -148,6 +148,61 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         if (isset($this->tcsettings['assessment_info_block_tab']) &&
             $assessment_info_block_id &&
             $this->tcsettings['assessment_info_block_tab'] == 1) {
+            $tab = new stdClass();
+            $tab->id = "tab_assessment_info_block";
+            $tab->name = 'assessment_info_block';
+            $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
+            $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmultopics');
+            $tab->content = ''; // not required - we are only interested in the tab
+            $tab->sections = "block_assessment_information";
+            $tab->section_nums = "";
+            $tabs[$tab->id] = $tab;
+            // in case the assment info tab is not present but should be in the tab sequence when used fix this
+            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
+                $this->tcsettings['tab_seq'] .= ','.$tab->id;
+//                $format_options['tab_seq'] .= ','.$tab->id;
+            }
+        }
+
+        // the old assessment info tab - as a new tab
+        if (isset($this->tcsettings['enable_assessmentinformation']) &&
+            $this->tcsettings['enable_assessmentinformation'] == 1) {
+            $tab = new stdClass();
+            $tab->id = "tab_assessment_information";
+            $tab->name = 'assessment_info';
+            $tab->title = $this->tcsettings['tab_assessment_information_title'];
+            $tab->generic_title = get_string('tab_assessment_information_title', 'format_qmultopics');
+            // Get the synergy assessment info and store the result as content for this tab
+            $tab->content = $this->get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
+            $tab->sections = "assessment_information";
+            $tab->section_nums = "";
+            $tabs[$tab->id] = $tab;
+            // in case the assment info tab is not present but should be in the tab sequence when used fix this
+            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
+                $this->tcsettings['tab_seq'] .= ','.$tab->id;
+//                $format_options['tab_seq'] .= ','.$tab->id;
+            }
+        }
+
+        return $tabs;
+    }
+    public function prepare_assessment_tabs($course, $format_options) {
+        global $CFG, $DB, $PAGE;
+
+        $tabs = array();
+
+        // get the installed blocks and check if the assessment info block is one of them
+        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
+        $installed_blocks = $DB->get_records_sql($sql, array());
+        $assessment_info_block_id = false;
+        foreach($installed_blocks as $installed_block) {
+            if($installed_block->blockname == 'assessment_information') {
+                $assessment_info_block_id = (int)$installed_block->id;
+                break;
+            }
+        }
+        // the assessment info block tab
+        if ($assessment_info_block_id) {
             $tab = new stdClass();
             $tab->id = "tab_assessment_info_block";
             $tab->name = 'assessment_info_block';
