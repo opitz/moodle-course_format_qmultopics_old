@@ -223,7 +223,8 @@ class format_qmultopics extends format_topics2 {
                 'assessment_info_block_tab' => array(
                     'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
                     'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
-                    'element_type' => 'select',
+//                    'element_type' => 'select',
+                    'element_type' => 'hidden',
                     'element_attributes' => array(
                         array(
                             0 => get_string('assessment_info_block_tab_option0', 'format_qmultopics'),
