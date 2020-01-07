@@ -82,7 +82,34 @@ class format_qmultopics extends format_topics2 {
         return $elements;
     }
 
+    public function check_assessment_information($data) {
+        global $COURSE, $DB;
+        // If the Assessment Information option is UNset make sure the Assessment Information Block is removed from that course
+        if (! isset($data['enable_assessmentinformation']) || $data['enable_assessmentinformation'] == '0') {
+            // get the installed blocks and check if the assessment info block is one of them
+            $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$COURSE->id;
+            $installed_blocks = $DB->get_records_sql($sql, array());
+            $assessment_info_block_id = false;
+            foreach($installed_blocks as $installed_block) {
+                if($installed_block->blockname == 'assessment_information') {
+                    $assessment_info_block_id = (int)$installed_block->id;
+                    break;
+                }
+            }
+
+            // It is installed and will have to go
+            if($assessment_info_block_id) {
+                // get block context for the course - then delete the AI block with that context
+                $context = $DB->get_record('context', array('instanceid' => $COURSE->id, 'contextlevel' => '50'));
+                if (isset($context->id) && $context->id > 0) {
+                    $DB->delete_records('block_instances', array('blockname' => 'assessment_information', 'parentcontextid' => $context->id));
+                }
+            }
+        }
+    }
+
     public function edit_form_validation($data, $files, $errors) {
+        global $COURSE, $DB;
 
         $return = parent::edit_form_validation($data, $files, $errors);
 
@@ -107,6 +134,10 @@ class format_qmultopics extends format_topics2 {
         } else {
             $data['enabled_extratab1'] = 0;
         }
+
+        // Check the AI option and act accordingly
+        // This will not make it into the JAN2020 update - so disabled for now
+//        $this->check_assessment_information($data);
 
         return $return;
     }
@@ -192,7 +223,8 @@ class format_qmultopics extends format_topics2 {
                 'assessment_info_block_tab' => array(
                     'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
                     'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
-                    'element_type' => 'select',
+//                    'element_type' => 'select',
+                    'element_type' => 'hidden',
                     'element_attributes' => array(
                         array(
                             0 => get_string('assessment_info_block_tab_option0', 'format_qmultopics'),
@@ -363,7 +395,7 @@ class format_qmultopics extends format_topics2 {
 
         if ($sectionid == 0) {
             $alloptions = $DB->get_records('course_format_options',
-                array('courseid'=>$this->courseid, 'format'=>'qmultopics',
+                array('courseid'=>$this->courseid, 'format'=>$this->format,
                     'sectionid'=>0));
 
             foreach ($alloptions as $option) {
@@ -379,53 +411,3 @@ class format_qmultopics extends format_topics2 {
     }
 
 }
-
-/**
- * Implements callback inplace_editable() allowing to edit values in-place
- *
- * @param string $itemtype
- * @param int $itemid
- * @param mixed $newvalue
- * @return \core\output\inplace_editable
- */
-function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
-    global $CFG;
-    require_once($CFG->dirroot . '/course/lib.php');
-
-    // deal with inplace changes of a section name
-    if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
-        global $DB;
-        $section = $DB->get_record_sql(
-            'SELECT s.* FROM {course_sections} s JOIN {course} c ON s.course = c.id WHERE s.id = ? AND c.format = ?',
-            array($itemid, 'qmultopics'), MUST_EXIST);
-        $result = course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
-        return $result;
-    }
-
-    // deal with inplace changes of a tab name
-    if ($itemtype === 'tabname') {
-        global $DB, $PAGE;
-        $courseid = key($_SESSION['USER']->currentcourseaccess);
-        // the $itemid is actually the name of the record so use it to get the id
-
-        // update the database with the new value given
-        // Must call validate_context for either system, or course or course module context.
-        // This will both check access and set current context.
-        \external_api::validate_context(context_system::instance());
-        // Check permission of the user to update this item.
-//        require_capability('moodle/course:update', context_system::instance());
-        // Clean input and update the record.
-        $newvalue = clean_param($newvalue, PARAM_NOTAGS);
-        $record = $DB->get_record('course_format_options', array('id' => $itemid), '*', MUST_EXIST);
-//        $record['value'] = $newvalue;
-        $DB->update_record('course_format_options', array('id' => $record->id, 'value' => $newvalue));
-
-        // Prepare the element for the output ():
-        $output = new \core\output\inplace_editable('format_qmultopics', 'tabname', $record->id,
-            true,
-            format_string($newvalue), $newvalue, 'Edit tab name',  'New value for ' . format_string($newvalue));
-
-        return $output;
-    }
-}
-

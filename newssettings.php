@@ -63,7 +63,7 @@ if ($mform->is_cancelled()) {
     redirect($redir);
 } else if ($data = $mform->get_data()) {
     //Insert or update
-    $dbobj = new stdClass();
+    $dbobj = (object) new stdClass();
     $dbobj->displaynews = isset($data->displaynews) ? $data->displaynews : 0;
     $dbobj->usestatictext = isset($data->usestatictext) ? $data->usestatictext : 0;
     $dbobj->shownewsfull = isset($data->shownewsfull) ? $data->shownewsfull : 0;
