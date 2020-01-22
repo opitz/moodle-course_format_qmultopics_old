@@ -762,12 +762,11 @@ define(['jquery', 'jqueryui'], function($) {
                     sessionStorage.removeItem('tabid');
                 }
 
-                $('#tab0').click();
+                // Click all tabs once
+                $('.tablink').click();
+
                 // If there are visible tabs click them all once to potentially reveal any section names as tab names
                 if ($(".topictab:visible").length > 0) {
-                    // Click all visible tabs once
-                    $('.tablink:visible').click();
-
                     if(tabid !== null && tabid != 'tab0') {
 //                        console.log('Found tabid = ' + tabid);
 
