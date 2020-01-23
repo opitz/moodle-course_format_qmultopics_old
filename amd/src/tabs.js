@@ -763,7 +763,8 @@ define(['jquery', 'jqueryui'], function($) {
                 }
 
                 // Click all tabs once
-                $('.tablink').click();
+                $('#tab0').click();
+                $('.tablink:visible').click();
 
                 // If there are visible tabs click them all once to potentially reveal any section names as tab names
                 if ($(".topictab:visible").length > 0) {
