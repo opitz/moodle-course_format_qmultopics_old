@@ -50,33 +50,41 @@ class format_qmultopics extends format_topics2 {
         global $CFG, $OUTPUT;
         $elements = parent::create_edit_form_elements($mform, $forsection);
         if ($forsection == false) {
-
+            $fo = $this->get_format_options();
             // Assessment Information
-            $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
-            $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultopics', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultopics'));
-            $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
+            if($fo['enable_assessmentinformation'] == "1") {
+                $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
+                $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultopics', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultopics'));
+                $elements[] = $mform->addElement('htmleditor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
+            }
 
             // Extra Tab 1
-            $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultopics', 1));
-            $mform->addHelpButton('extratab1', 'extratab', 'format_qmultopics', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultopics'));
-            $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultopics'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultopics'));
+            if($fo['enable_extratab1'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultopics', 1));
+                $mform->addHelpButton('extratab1', 'extratab', 'format_qmultopics', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultopics'));
+                $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultopics'));
+                $elements[] = $mform->addElement('htmleditor', 'content_extratab1', get_string('tabcontent', 'format_qmultopics'));
+            }
 
             // Extra Tab 2
-            $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultopics', 2));
-            $mform->addHelpButton('extratab2', 'extratab', 'format_qmultopics', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultopics'));
-            $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultopics'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultopics'));
+            if($fo['enable_extratab2'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultopics', 2));
+                $mform->addHelpButton('extratab2', 'extratab', 'format_qmultopics', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultopics'));
+                $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultopics'));
+                $elements[] = $mform->addElement('htmleditor', 'content_extratab2', get_string('tabcontent', 'format_qmultopics'));
+            }
 
             // Extra Tab 3
-            $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultopics', 3));
-            $mform->addHelpButton('extratab3', 'extratab', 'format_qmultopics', '', true);
-            $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultopics'));
-            $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultopics'));
-            $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultopics'));
+            if($fo['enable_extratab3'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultopics', 3));
+                $mform->addHelpButton('extratab3', 'extratab', 'format_qmultopics', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultopics'));
+                $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultopics'));
+                $elements[] = $mform->addElement('htmleditor', 'content_extratab3', get_string('tabcontent', 'format_qmultopics'));
+            }
         }
 
         return $elements;
