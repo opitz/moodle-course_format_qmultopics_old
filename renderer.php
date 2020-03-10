@@ -652,7 +652,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         return $o;
     }
 
-    // get any summary text from the hidden section that is automatically created by the Assessment Information tab
+    // render any summary text from the hidden section that is automatically created by the Assessment Information tab
     public function render_aitext() {
         global $COURSE, $DB;
         $o = '';
