@@ -273,7 +273,6 @@ define(['jquery', 'jqueryui'], function($) {
                 var tabid = $(this).attr('id');
                 var sections = $(this).attr('sections');
                 var sectionArray = sections.split(",");
-
                 // Make this an active tab
                 $(".tablink.active").removeClass("active"); // First remove any active class from tabs
                 $(this).addClass('active'); // Then add the active class to the clicked tab
@@ -304,6 +303,7 @@ define(['jquery', 'jqueryui'], function($) {
                 $(".modulecontent").addClass("active");
 
                 $('#content_assessmentinformation_area').hide();
+                $('#assessment_information_summary').hide();
                 $('#assessment_information_area').hide();
 
                 if (tabid === 'tab0') { // Show all sections - then hide each section shown in other tabs
@@ -328,6 +328,7 @@ define(['jquery', 'jqueryui'], function($) {
                     $('#content_assessmentinformation_area').show();
                     if ($('.merge_assessment_info').length > 0) {
 //                        console.log('merging Assessment Info Block');
+                        $('#assessment_information_summary').show();
                         $('#assessment_information_area').show();
                     }
                 } else if (tabid === 'tab_assessment_info_block') { // Show the Assessment Info Block on the main stage
@@ -348,6 +349,7 @@ define(['jquery', 'jqueryui'], function($) {
                     $("li.section.hiding").removeClass("hidden");
 
 //                    $('.assessment_info_block_content').show();
+                    $('#assessment_information_summary').show();
                     $('#assessment_information_area').show();
                 } else { // Hide all sections - then show those found in sectionArray
                     $("#changenumsections").show();
