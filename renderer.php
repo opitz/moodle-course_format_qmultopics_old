@@ -148,7 +148,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         if (isset($this->tcsettings['assessment_info_block_tab']) &&
             $assessment_info_block_id &&
             $this->tcsettings['assessment_info_block_tab'] == 1) {
-            $tab = new stdClass();
+            $tab = (object) new stdClass();
             $tab->id = "tab_assessment_info_block";
             $tab->name = 'assessment_info_block';
             $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
@@ -167,7 +167,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         // the old assessment info tab - as a new tab
         if (isset($this->tcsettings['enable_assessmentinformation']) &&
             $this->tcsettings['enable_assessmentinformation'] == 1) {
-            $tab = new stdClass();
+            $tab = (object) new stdClass();
             $tab->id = "tab_assessment_information";
             $tab->name = 'assessment_info';
             $tab->title = $this->tcsettings['tab_assessment_information_title'];
@@ -203,7 +203,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         }
         // the assessment info block tab
         if ($assessment_info_block_id) {
-            $tab = new stdClass();
+            $tab = (object) new stdClass();
             $tab->id = "tab_assessment_info_block";
             $tab->name = 'assessment_info_block';
             $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
@@ -222,7 +222,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         // the old assessment info tab - as a new tab
         if (isset($this->tcsettings['enable_assessmentinformation']) &&
             $this->tcsettings['enable_assessmentinformation'] == 1) {
-            $tab = new stdClass();
+            $tab = (object) new stdClass();
             $tab->id = "tab_assessment_information";
             $tab->name = 'assessment_info';
             $tab->title = $this->tcsettings['tab_assessment_information_title'];
@@ -658,10 +658,12 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         $o = '';
         $airecord = $this->get_ai_section($COURSE);
 
-        $o .= html_writer::start_tag('div', array('id' => 'assessment_information_summary', 'style' => 'display: none;'));
-        $o .= html_writer::div($airecord->summary);
-        $o .= html_writer::empty_tag('br');
-        $o .= html_writer::end_div();
+        if($airecord) {
+            $o .= html_writer::start_tag('div', array('id' => 'assessment_information_summary', 'style' => 'display: none;'));
+            $o .= html_writer::div($airecord->summary);
+            $o .= html_writer::empty_tag('br');
+            $o .= html_writer::end_div();
+        }
         return $o;
     }
 
