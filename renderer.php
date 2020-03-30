@@ -626,9 +626,9 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     public function render_assessment_section($format_options) {
         global $COURSE,$DB;
         $o = '';
-        if ($format_options['enable_assessmentinformation']) {
+        if (isset($format_options['enable_assessmentinformation']) && $format_options['enable_assessmentinformation']) {
             // If the option to merge assessment information add a specific class as indicator for JS
-            if ($format_options['assessment_info_block_tab'] == '2') {
+            if (isset($format_options['assessment_info_block_tab']) && $format_options['assessment_info_block_tab'] == '2') {
                 $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section merge_assessment_info', 'style' => 'display: none;'));
             } else {
                 $o .= html_writer::start_tag('div', array('id' => 'content_assessmentinformation_area', 'section-id' => 'assessment_information', 'class' => 'section', 'style' => 'display: none;'));
