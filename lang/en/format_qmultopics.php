@@ -379,7 +379,8 @@ $string['single_section_tabs_help'] = 'When checked tabs with a single section w
 $string['tab_assessment_info_title'] = 'Assessment Information';
 $string['tab_assessment_information_title'] = 'Assessment Information';
 
-$string['tab_assessment_info_block_title'] = 'Assessment Info Block';
+//$string['tab_assessment_info_block_title'] = 'Assessment Info Block';
+$string['tab_assessment_info_block_title'] = 'Assessment Information';
 //$string['assessment_info_block_tab'] = 'Show "Assessment Info" block under a tab';
 //$string['assessment_info_block_tab_label'] = 'Show "Assessment Info" block under a tab.';
 //$string['assessment_info_block_tab_help'] = 'When checked the "Assessment Info" block is shown under a  tab.';
