@@ -117,11 +117,11 @@ class format_qmultopics_renderer extends format_topics2_renderer {
                 $tab = (object) new stdClass();
                 $tab->id = $extratabname;
                 $tab->name = $extratabname;
-                $tab->title = $this->tcsettings["title_{$extratabname}"];
+                $tab->title = (isset($this->tcsettings["title_{$extratabname}"]) ? $this->tcsettings["title_{$extratabname}"] : $extratabname);
                 $tab->generic_title = ucfirst($extratabname);
                 $tab->sections = $extratabname;
                 $tab->section_nums = "";
-                $tab->content = format_text($this->tcsettings["content_{$extratabname}"], FORMAT_HTML, array('trusted' => true, 'noclean' => true));
+                $tab->content = (isset($this->tcsettings["content_{$extratabname}"]) ? format_text($this->tcsettings["content_{$extratabname}"], FORMAT_HTML, array('trusted' => true, 'noclean' => true)) : '');
                 $extratabs[$tab->id] = $tab;
             }
         }
@@ -607,12 +607,12 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
                 // show the extratab title
                 $o .= html_writer::start_tag('h3', array('class' => 'sectionname'));
-                $o .= $this->tabs[$extratabname]->title;
+                $o .= (isset($this->tabs[$extratabname]) ? $this->tabs[$extratabname]->title : $extratabname);
                 $o .= html_writer::end_tag('h3');
                 // show the content
                 $o .= html_writer::start_tag('div', array('class' => 'content'));
                 $o .= html_writer::start_tag('div', array('class' => 'summary'));
-                $o .= $this->tabs[$extratabname]->content;
+                $o .= (isset($this->tabs[$extratabname]) ? $this->tabs[$extratabname]->content : '');
                 $o .= html_writer::end_tag('div');
                 $o .= html_writer::end_tag('div');
 
