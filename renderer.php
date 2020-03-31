@@ -228,7 +228,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             $tab->title = $this->tcsettings['tab_assessment_information_title'];
             $tab->generic_title = get_string('tab_assessment_information_title', 'format_qmultopics');
             // Get the synergy assessment info and store the result as content for this tab
-            $tab->content = $this->get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
+            $tab->content = (isset($this->tcsettings['content_assessmentinformation']) ? $this->get_assessmentinformation($this->tcsettings['content_assessmentinformation']) : '');
             $tab->sections = "assessment_information";
             $tab->section_nums = "";
             $tabs[$tab->id] = $tab;
