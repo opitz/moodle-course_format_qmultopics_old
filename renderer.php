@@ -203,6 +203,14 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         }
         // the assessment info block tab
         if ($assessment_info_block_id) {
+            // make sure that "Assessment Info Block" title is replaced by the real one ("Assessment Information")
+            if(isset($this->tcsettings['tab_assessment_info_block_title']) && $this->tcsettings['tab_assessment_info_block_title'] == 'Assessment Info Block') {
+                $this->tcsettings['tab_assessment_info_block_title'] = get_string('tab_assessment_info_block_title', 'format_qmultopics');
+                $record = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'tab_assessment_info_block_title'));
+                $record->value = $this->tcsettings['tab_assessment_info_block_title'];
+                $DB->update_record('course_format_options', $record);
+            }
+
             $tab = (object) new stdClass();
             $tab->id = "tab_assessment_info_block";
             $tab->name = 'assessment_info_block';
