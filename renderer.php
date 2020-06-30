@@ -598,6 +598,17 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
     // Render sections with added assessment info and extratab sections
     public function render_sections($course, $sections, $format_options, $modinfo, $numsections){
+        global $DB;
+        
+        // First we check if the course used a legacy COLLAPSE course display - and if so set the coursedisplay option correctly if needed
+        if ($format_options['coursedisplay'] == COURSE_DISPLAY_COLLAPSE) {
+            $cdrecord = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'coursedisplay'));
+            $cdrecord->value = COURSE_DISPLAY_SINGLEPAGE;
+            $DB->update_record('course_format_options', $cdrecord);
+            $course->coursedisplay = COURSE_DISPLAY_SINGLEPAGE;
+            $format_options['coursedisplay'] == COURSE_DISPLAY_SINGLEPAGE;
+        }
+
         $o = '';
         $o .= $this->render_assessment_section($format_options);
         $o .= $this->render_extratab_sections($format_options);
