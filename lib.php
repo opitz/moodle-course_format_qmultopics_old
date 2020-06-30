@@ -163,7 +163,7 @@ class format_qmultopics extends format_topics2 {
         // check for legacy 'toggle' format_option and change 'coursedisplay' accordingly where needed
         if(isset($format_options['toggle']) && $format_options['toggle'] && $format_options['coursedisplay'] == COURSE_DISPLAY_SINGLEPAGE) {
             $rec = $DB->get_record('course_format_options', array('courseid' => $COURSE->id, 'name' => 'coursedisplay'));
-            $rec->value = COURSE_DISPLAY_COLLAPSE;
+            $rec->value = COURSE_DISPLAY_SINGLEPAGE;
             $DB->update_record('course_format_options', $rec);
         }
 
@@ -207,7 +207,7 @@ class format_qmultopics extends format_topics2 {
                     'element_attributes' => array(
                         array(
                             COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
-                            COURSE_DISPLAY_COLLAPSE => get_string('coursedisplay_collapse', 'format_topics2'),
+                            COURSE_DISPLAY_NOCOLLAPSE => get_string('coursedisplay_nocollapse', 'format_topics2'),
                             COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
                         )
                     ),
