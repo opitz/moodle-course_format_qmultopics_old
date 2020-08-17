@@ -27,6 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/course/format/renderer.php');
 require_once($CFG->dirroot . '/course/format/qmultopics/lib.php');
+require_once($CFG->dirroot . '/course/format/qmultopics/classes/output/course_renderer.php');
 require_once($CFG->dirroot . '/course/format/topics2/renderer.php');
 
 /**
@@ -41,12 +42,15 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     private $courseformat = null;
     private $tcsettings;
 
-    public function __construct(moodle_page $page, $target) {
+    public function __construct(moodle_page $page, $target)
+    {
+        global $PAGE;
         parent::__construct($page, $target);
         $this->courseformat = course_get_format($page->course);
         $this->tcsettings = $this->courseformat->get_format_options();
+        //let's use our own course renderer as we want to add badges to the module output
+        $this->courserenderer = new qmultopics_course_renderer($PAGE, null);
     }
-
     // Require the jQuery file for this class
     public function require_js() {
         $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
@@ -599,7 +603,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     // Render sections with added assessment info and extratab sections
     public function render_sections($course, $sections, $format_options, $modinfo, $numsections){
         global $DB;
-        
+
         // First we check if the course used a legacy COLLAPSE course display - and if so set the coursedisplay option correctly if needed
         if ($format_options['coursedisplay'] == COURSE_DISPLAY_COLLAPSE) {
             $cdrecord = $DB->get_record('course_format_options', array('courseid' => $course->id, 'name' => 'coursedisplay'));
@@ -614,6 +618,83 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         $o .= $this->render_extratab_sections($format_options);
         $o .= parent::render_sections($course, $sections, $format_options, $modinfo, $numsections);
         return $o;
+    }
+
+    /**
+     * Renders HTML to display a list of course modules in a course section
+     * Also displays "move here" controls in Javascript-disabled mode
+     *
+     * This function calls {@link core_course_renderer::course_section_cm()}
+     *
+     * @param stdClass $course course object
+     * @param int|stdClass|section_info $section relative section number or section object
+     * @param int $sectionreturn section number to return to
+     * @param int $displayoptions
+     * @return void
+     */
+    public function course_section_cm_list($course, $section, $sectionreturn = null, $displayoptions = array()) {
+        global $USER;
+
+        $output = '';
+        $modinfo = get_fast_modinfo($course);
+        if (is_object($section)) {
+            $section = $modinfo->get_section_info($section->section);
+        } else {
+            $section = $modinfo->get_section_info($section);
+        }
+        $completioninfo = new completion_info($course);
+
+        // check if we are currently in the process of moving a module with JavaScript disabled
+        $ismoving = $this->page->user_is_editing() && ismoving($course->id);
+        if ($ismoving) {
+            $movingpix = new pix_icon('movehere', get_string('movehere'), 'moodle', array('class' => 'movetarget'));
+            $strmovefull = strip_tags(get_string("movefull", "", "'$USER->activitycopyname'"));
+        }
+
+        // Get the list of modules visible to user (excluding the module being moved if there is one)
+        $moduleshtml = array();
+        if (!empty($modinfo->sections[$section->section])) {
+            foreach ($modinfo->sections[$section->section] as $modnumber) {
+                $mod = $modinfo->cms[$modnumber];
+
+                if ($ismoving and $mod->id == $USER->activitycopy) {
+                    // do not display moving mod
+                    continue;
+                }
+
+                if ($modulehtml = $this->course_section_cm_list_item($course,
+                    $completioninfo, $mod, $sectionreturn, $displayoptions)) {
+                    $moduleshtml[$modnumber] = $modulehtml;
+                }
+            }
+        }
+
+        $sectionoutput = '';
+        if (!empty($moduleshtml) || $ismoving) {
+            foreach ($moduleshtml as $modnumber => $modulehtml) {
+                if ($ismoving) {
+                    $movingurl = new moodle_url('/course/mod.php', array('moveto' => $modnumber, 'sesskey' => sesskey()));
+                    $sectionoutput .= html_writer::tag('li',
+                        html_writer::link($movingurl, $this->output->render($movingpix), array('title' => $strmovefull)),
+                        array('class' => 'movehere'));
+                }
+
+                $sectionoutput .= $modulehtml;
+                $sectionoutput .= 'this is a test';
+            }
+
+            if ($ismoving) {
+                $movingurl = new moodle_url('/course/mod.php', array('movetosection' => $section->id, 'sesskey' => sesskey()));
+                $sectionoutput .= html_writer::tag('li',
+                    html_writer::link($movingurl, $this->output->render($movingpix), array('title' => $strmovefull)),
+                    array('class' => 'movehere'));
+            }
+        }
+
+        // Always output the section module list.
+        $output .= html_writer::tag('ul', $sectionoutput, array('class' => 'section img-text'));
+
+        return $output;
     }
 
     // Render extratab sections as long as they are still around...
