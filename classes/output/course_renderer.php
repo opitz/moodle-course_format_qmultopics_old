@@ -108,7 +108,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
     }
 
     public function show_badges($mod){
-        $badge_content = 'This is an assignment test!';
+        global $USER;
         $o = '';
         $date_format = "%d %B %Y";
 
@@ -116,9 +116,9 @@ class qmultopics_course_renderer extends \core_course_renderer{
         if($section_assignment = $this->get_submission_assignment($mod)) {
             // Show assignment due date
             $badge_class = 'badge-default';
-            $due_text = 'Due ';
+            $due_text = get_string('badge_due', 'format_qmultopics');
             if($section_assignment->duedate < time()) {
-                $due_text = 'Was due ';
+                $due_text = get_string('badge_wasdue', 'format_qmultopics');
                 $badge_class = ' badge-danger';
             }
             elseif($section_assignment->duedate < (time() + (60 * 60 * 24 * 14))) {
@@ -127,69 +127,99 @@ class qmultopics_course_renderer extends \core_course_renderer{
             $badge_content = $due_text . userdate($section_assignment->duedate,$date_format);
             $o .= $this->html_badge($badge_content, $badge_class);
 
-            // Show submissions by enrolled students
-            $spacer = ",&nbsp;&nbsp;";
-            $badge_class = 'badge-default';
-            $capability = 'assign';
-            $pre_text = '';
-            $xofy = ' of ';
-            $post_text = ' Submitted';
-            $groups_text = ' Groups';
-            $graded_text = ' Ungraded';
-            $enrolled_students = $this->enrolled_users($capability);
-            if($enrolled_students){
-                // check if the assignment allows group submissions
-                if ($section_assignment->teamsubmission && ! $section_assignment->requireallteammemberssubmit) {
-//                    $submissions = $this->get_submissions($mod);
-                    $group_gradings = $this->get_group_gradings($mod);
-//                    $badge_text = $pre_text . count($submissions).$xofy.count($enrolled_students).$post_text.'&nbsp;&nbsp;'.count($gradings).' graded';
-                    $course_groups = $this->get_course_groups();
-                    $group_submissions = $this->get_group_submissions($mod);
-                    $ungraded = (int) count($group_submissions) - count($group_gradings);
-                    $badge_text = $pre_text
-                        .count($group_submissions)
-                        .$xofy
-                        .count($course_groups)
-                        .$groups_text
-                        .$post_text
-                    ;
-                    // if there are ungraded submissions show that in the badge as well
-                    if($ungraded) {
-                        $badge_text =
-                            $badge_text
-                            .$spacer
-                            .$ungraded
-                            .$graded_text;
-                    }
+            // check if the user is able to grade (e.g. is a teacher)
+            if (has_capability('mod/assign:grade', $mod->context)) {
+                // show submission numbers and ungraded submissions if any
+                $o .= $this->show_submissions($mod, $section_assignment);
+            } else {
+                // show date of submission
+                $o .= $this->show_submission_date($mod, $section_assignment);
+            }
+        }
+        return $o;
+    }
 
-                } else {
-                    $submissions = $this->get_submissions($mod);
-                    $gradings = $this->get_gradings($mod);
-                    $ungraded = (int) count($submissions) - count($gradings);
-                    $badge_text = $pre_text
+    public function show_submissions($mod, $section_assignment) {
+        // Show submissions by enrolled students
+        $spacer = get_string('badge_commaspacer', 'format_qmultopics');
+        $badge_class = 'badge-default';
+        $capability = 'assign';
+        $pre_text = '';
+        $xofy = ' of ';
+        $post_text = get_string('badge_submitted', 'format_qmultopics');
+        $groups_text = get_string('badge_groups', 'format_qmultopics');
+        $graded_text = get_string('badge_ungraded', 'format_qmultopics');
+        $enrolled_students = $this->enrolled_users($capability);
+        if($enrolled_students){
+            // check if the assignment allows group submissions
+            if ($section_assignment->teamsubmission && ! $section_assignment->requireallteammemberssubmit) {
+//                    $submissions = $this->get_submissions($mod);
+                $group_gradings = $this->get_group_gradings($mod);
+//                    $badge_text = $pre_text . count($submissions).$xofy.count($enrolled_students).$post_text.'&nbsp;&nbsp;'.count($gradings).' graded';
+                $course_groups = $this->get_course_groups();
+                $group_submissions = $this->get_group_submissions($mod);
+                $ungraded = (int) count($group_submissions) - count($group_gradings);
+                $badge_text = $pre_text
+                    .count($group_submissions)
+                    .$xofy
+                    .count($course_groups)
+                    .$groups_text
+                    .$post_text
+                ;
+                // if there are ungraded submissions show that in the badge as well
+                if($ungraded) {
+                    $badge_text =
+                        $badge_text
+                        .$spacer
+                        .$ungraded
+                        .$graded_text;
+                }
+
+            } else {
+                $submissions = $this->get_submissions($mod);
+                $gradings = $this->get_gradings($mod);
+                $ungraded = (int) count($submissions) - count($gradings);
+                $badge_text = $pre_text
                     .count($submissions)
                     .$xofy
                     .count($enrolled_students)
                     .$post_text;
 
-                    if($ungraded) {
-                        $badge_text =
-                            $badge_text
-                            .$spacer
-                            .$ungraded
-                            .$graded_text;
-                    }
-
+                if($ungraded) {
+                    $badge_text =
+                        $badge_text
+                        .$spacer
+                        .$ungraded
+                        .$graded_text;
                 }
 
-                if($badge_text) {
-                    $o .= $this->html_badge($badge_text, $badge_class);
-                }
             }
 
+            if($badge_text) {
+                return $this->html_badge($badge_text, $badge_class);
+            } else {
+                return '';
+            }
         }
+    }
 
-        return $o;
+    public function show_submission_date($mod, $section_assignment) {
+        global $DB, $USER;
+        $badge_class = 'badge-default';
+        $date_format = "%d %B %Y";
+
+        $submission = $DB->get_record('assign_submission', array('status' => 'submitted', 'assignment' => $mod->instance, 'userid' => $USER->id));
+        if($submission) {
+            $badge_class = 'badge-ok';
+            $badge_text = get_string('badge_submitted', 'format_qmultopics').userdate($submission->timemodified,$date_format);
+        } else {
+            $badge_text = get_string('badge_notsubmitted', 'format_qmultopics');
+        }
+        if($badge_text) {
+            return $this->html_badge($badge_text, $badge_class);
+        } else {
+            return '';
+        }
     }
 
     public function get_course_groups(){
@@ -198,10 +228,10 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $DB->get_records('groups', array('courseid' => $COURSE->id));
     }
 
-    private function html_badge($badge_text, $badge_class = ""){
+    public function html_badge($badge_text, $badge_class = ""){
         $o = '';
         $o .= html_writer::div($badge_text, 'badge '.$badge_class);
-        $o .= "&nbsp;&nbsp;";
+        $o .= get_string('badge_spacer', 'format_qmultopics');
         return $o;
     }
 

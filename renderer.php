@@ -51,6 +51,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         //let's use our own course renderer as we want to add badges to the module output
         $this->courserenderer = new qmultopics_course_renderer($PAGE, null);
     }
+
     // Require the jQuery file for this class
     public function require_js() {
         $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
@@ -812,4 +813,5 @@ and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or seq
     }
 
 }
+
 

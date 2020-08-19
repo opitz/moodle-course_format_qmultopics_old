@@ -463,3 +463,14 @@ $string['displaynews'] = 'Display the news section';
 $string['shownewsfull'] = 'Show the full news content';
 $string['statictext'] = 'Static text';
 $string['usestatictext'] = 'Use static text';
+
+// Badges
+$string['badge_due'] = 'Due ';
+$string['badge_wasdue'] = 'Was due ';
+$string['badge_spacer'] = '&nbsp;&nbsp;';
+$string['badge_commaspacer'] = ',&nbsp;&nbsp;';
+$string['badge_submitted'] = '  Submitted ';
+$string['badge_notsubmitted'] = 'Not submitted';
+$string['badge_groups'] = ' Groups';
+$string['badge_graded'] = ' Graded';
+$string['badge_ungraded'] = ' Ungraded';
