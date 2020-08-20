@@ -15,13 +15,14 @@
 .course-content ul.qmultopics .tablink {
     cursor: pointer;
 }
-
 .course-content ul.qmultopics .assessment_info_block_content {
     padding-top: 16px;
 }
-
 .course-content ul.qmultopics #content_assessmentinformation_area {
     padding-top: 10px;
 }
 
-
+/* Badge Styles */
+div.badge {
+    padding: 8px;
+}
