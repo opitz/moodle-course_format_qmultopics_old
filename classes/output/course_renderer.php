@@ -350,13 +350,11 @@ class qmultopics_course_renderer extends \core_course_renderer{
         $date_format = "%d %B %Y";
         $time_format = "%d %B %Y %H:%M:%S";
 
-//        $submission = $DB->get_record('assign_submission', array('status' => 'submitted', 'assignment' => $mod->instance, 'userid' => $USER->id));
         $submission = $this->get_assign_submission($mod);
         if($submission) {
-            $grading = $this->get_grading($mod);
             $badge_text = get_string('badge_submitted', 'format_qmultopics').userdate($submission->timemodified,$date_format);
             if($this->get_grading($mod) || $this->get_group_grading($mod)) {
-                $badge_class = 'badge-success';
+//                $badge_class = 'badge-success';
                 $badge_text .= get_string('badge_feedback', 'format_qmultopics');
             }
             $badge_title = "Submission time: " . userdate($submission->timemodified,$time_format);
@@ -546,7 +544,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
 
         $submission = $DB->get_record('choice_answers', array('choiceid' => $mod->instance, 'userid' => $USER->id));
         if($submission) {
-            $badge_class = 'badge-success';
+//            $badge_class = 'badge-success';
             $badge_text = get_string('badge_answered', 'format_qmultopics').userdate($submission->timemodified,$date_format);
         } else {
             $badge_text = get_string('badge_notanswered', 'format_qmultopics');
@@ -612,7 +610,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
 
         $submission = $DB->get_record('feedback_completed', array('feedback' => $mod->instance, 'userid' => $USER->id));
         if($submission) {
-            $badge_class = 'badge-success';
+//            $badge_class = 'badge-success';
             $badge_text = get_string('badge_completed', 'format_qmultopics').userdate($submission->timemodified,$date_format);
         } else {
             $badge_text = get_string('badge_notcompleted', 'format_qmultopics');
@@ -724,7 +722,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
                     $badge_text = get_string('badge_inprogress', 'format_qmultopics').userdate($submission->timemodified,$date_format);
                     break;
                 case "finished":
-                    $badge_class = 'badge-success';
+//                    $badge_class = 'badge-success';
                     $badge_text = get_string('badge_attempted', 'format_qmultopics').userdate($submission->timemodified,$date_format);
                     break;
             }
@@ -753,9 +751,9 @@ class qmultopics_course_renderer extends \core_course_renderer{
                     $badge_text = get_string('badge_inprogress', 'format_qmultopics').userdate($submission->timemodified,$date_format);
                     break;
                 case "finished":
-                    if($submission->sumgrades > .5) {
-                        $badge_class = 'badge-success';
-                    }
+//                    if($submission->sumgrades > .5) {
+//                        $badge_class = 'badge-success';
+//                    }
                     $badge_text = get_string('badge_attempted', 'format_qmultopics').userdate($submission->timemodified,$date_format);
                     break;
             }
