@@ -6,108 +6,6 @@ require_once($CFG->dirroot . '/course/renderer.php');
 class qmultopics_course_renderer extends \core_course_renderer{
 
     /**
-     * Renders HTML to display a list of course modules in a course section
-     * Also displays "move here" controls in Javascript-disabled mode
-     *
-     * This function calls {@link core_course_renderer::course_section_cm()}
-     *
-     * @param stdClass $course course object
-     * @param int|stdClass|section_info $section relative section number or section object
-     * @param int $sectionreturn section number to return to
-     * @param int $displayoptions
-     * @return void
-     */
-    public function course_section_cm_list0($course, $section, $sectionreturn = null, $displayoptions = array()) {
-        global $USER;
-
-        $output = '';
-        $modinfo = get_fast_modinfo($course);
-        if (is_object($section)) {
-            $section = $modinfo->get_section_info($section->section);
-        } else {
-            $section = $modinfo->get_section_info($section);
-        }
-        $completioninfo = new completion_info($course);
-
-        // check if we are currently in the process of moving a module with JavaScript disabled
-        $ismoving = $this->page->user_is_editing() && ismoving($course->id);
-        if ($ismoving) {
-            $movingpix = new pix_icon('movehere', get_string('movehere'), 'moodle', array('class' => 'movetarget'));
-            $strmovefull = strip_tags(get_string("movefull", "", "'$USER->activitycopyname'"));
-        }
-
-        // Get the list of modules visible to user (excluding the module being moved if there is one)
-        $moduleshtml = array();
-        if (!empty($modinfo->sections[$section->section])) {
-            foreach ($modinfo->sections[$section->section] as $modnumber) {
-                $mod = $modinfo->cms[$modnumber];
-
-                if ($ismoving and $mod->id == $USER->activitycopy) {
-                    // do not display moving mod
-                    continue;
-                }
-
-                //$assignment_modules =
-                if ($modulehtml = $this->course_section_cm_list_item($course,
-                    $completioninfo, $mod, $sectionreturn, $displayoptions)) {
-                    $moduleshtml[$modnumber] = $modulehtml;
-                }
-            }
-        }
-
-        $sectionoutput = '';
-        if (!empty($moduleshtml) || $ismoving) {
-            foreach ($moduleshtml as $modnumber => $modulehtml) {
-                if ($ismoving) {
-                    $movingurl = new moodle_url('/course/mod.php', array('moveto' => $modnumber, 'sesskey' => sesskey()));
-                    $sectionoutput .= html_writer::tag('li',
-                        html_writer::link($movingurl, $this->output->render($movingpix), array('title' => $strmovefull)),
-                        array('class' => 'movehere'));
-                }
-
-                $sectionoutput .= $modulehtml;
-            }
-
-            if ($ismoving) {
-                $movingurl = new moodle_url('/course/mod.php', array('movetosection' => $section->id, 'sesskey' => sesskey()));
-                $sectionoutput .= html_writer::tag('li',
-                    html_writer::link($movingurl, $this->output->render($movingpix), array('title' => $strmovefull)),
-                    array('class' => 'movehere'));
-            }
-        }
-
-        // Always output the section module list.
-        $output .= html_writer::tag('ul', $sectionoutput, array('class' => 'section img-text'));
-
-        return $output;
-    }
-
-    /**
-     * Renders HTML to display one course module for display within a section.
-     *
-     * This function calls:
-     * {@link core_course_renderer::course_section_cm()}
-     *
-     * @param stdClass $course
-     * @param completion_info $completioninfo
-     * @param cm_info $mod
-     * @param int|null $sectionreturn
-     * @param array $displayoptions
-     * @return String
-     */
-    public function course_section_cm_list_item0($course, &$completioninfo, cm_info $mod, $sectionreturn, $displayoptions = array()) {
-        $output = '';
-        if ($modulehtml = $this->course_section_cm($course, $completioninfo, $mod, $sectionreturn, $displayoptions)) {
-            $modclasses = 'activity ' . $mod->modname . ' modtype_' . $mod->modname . ' ' . $mod->extraclasses;
-            $output .= html_writer::tag('li', $modulehtml, array('class' => $modclasses, 'id' => 'module-' . $mod->id));
-        }
-
-//        $output .= $this->show_badges($mod);
-
-        return $output;
-    }
-
-    /**
      * Renders HTML to display one course module in a course section
      *
      * This includes link, content, availability, completion info and additional information
@@ -246,7 +144,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
         }
     }
 
-    // Assignments
+    // Assignments -----------------------------------------------------------------------------------------------------
     public function show_assignment_badges($mod){
         global $USER;
         $o = '';
@@ -496,7 +394,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $group_grading;
     }
 
-    // Choices
+    // Choices ---------------------------------------------------------------------------------------------------------
     public function show_choice_badge($mod){
         $o = '';
 
@@ -562,7 +460,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $DB->get_records('choice_answers', array('choiceid' => $mod->instance));
     }
 
-    // Feedbacks
+    // Feedbacks -------------------------------------------------------------------------------------------------------
     public function show_feedback_badge($mod){
         $o = '';
 
@@ -628,7 +526,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $DB->get_records('feedback_completed', array('feedback' => $mod->instance));
     }
 
-    // Quizzes
+    // Quizzes ---------------------------------------------------------------------------------------------------------
     public function show_quiz_badge($mod){
         $o = '';
 
@@ -644,38 +542,6 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $o;
     }
 
-    public function show_quiz_attempts0($mod) {
-        // Show attempts by enrolled students
-        $badge_class = '';
-        $capability = 'quiz';
-        $pre_text = '';
-        $xofy = get_string('badge_xofy', 'format_qmultopics');
-        $post_text = get_string('badge_attempted', 'format_qmultopics');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
-            $submissions = $this->get_quiz_attempts($mod);
-//            $finished = $this->get_quiz_finished($mod);
-            $finished = [];
-            foreach($submissions as $submission) {
-                if($submission->state == 'finished') {
-                    $finished[] = $submission;
-                }
-            }
-            $badge_text = $pre_text
-                .count($submissions)
-                .$xofy
-                .count($enrolled_students)
-                .$post_text
-                .(count($finished) ? ', '.count($finished).get_string('badge_finished', 'format_qmultopics') : '');
-            ;
-
-        }
-        if($badge_text) {
-            return $this->html_badge($badge_text, $badge_class);
-        } else {
-            return '';
-        }
-    }
     public function show_quiz_attempts($mod) {
         // Show attempts by enrolled students
         $badge_class = '';
@@ -709,33 +575,6 @@ class qmultopics_course_renderer extends \core_course_renderer{
         }
     }
 
-    public function show_quiz_attempt0($mod) {
-        global $DB, $USER;
-        $badge_class = '';
-        $date_format = "%d %B %Y";
-
-        $submission = $DB->get_record('quiz_attempts', array('state' => 'submitted', 'quiz' => $mod->instance, 'userid' => $USER->id));
-        $submission = $DB->get_record('quiz_attempts', array('quiz' => $mod->instance, 'userid' => $USER->id));
-        if($submission) {
-            switch($submission->state) {
-                case "inprogress":
-                    $badge_text = get_string('badge_inprogress', 'format_qmultopics').userdate($submission->timemodified,$date_format);
-                    break;
-                case "finished":
-//                    $badge_class = 'badge-success';
-                    $badge_text = get_string('badge_attempted', 'format_qmultopics').userdate($submission->timemodified,$date_format);
-                    break;
-            }
-//            $badge_text = get_string('badge_attempted', 'format_qmultopics').userdate($submission->timemodified,$date_format);
-        } else {
-            $badge_text = get_string('badge_notattempted', 'format_qmultopics');
-        }
-        if($badge_text) {
-            return $this->html_badge($badge_text, $badge_class);
-        } else {
-            return '';
-        }
-    }
     public function show_quiz_attempt($mod) {
         global $DB, $USER;
         $o = '';
@@ -774,24 +613,18 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $DB->get_records('quiz_attempts', array('quiz' => $mod->instance));
     }
 
-    public function get_quiz_finished($mod) {
-        global $DB;
-
-        return $DB->get_records('quiz_attempts', array('quiz' => $mod->instance, 'state' => 'finished'));
-    }
-
-    // Supporting
-    public function get_course_groups(){
-        global $COURSE, $DB;
-
-        return $DB->get_records('groups', array('courseid' => $COURSE->id));
-    }
-
+    // Supporting ------------------------------------------------------------------------------------------------------
     public function html_badge($badge_text, $badge_class = "", $title = ""){
         $o = '';
         $o .= html_writer::div($badge_text, 'badge '.$badge_class, array('title' => $title));
         $o .= get_string('badge_spacer', 'format_qmultopics');
         return $o;
+    }
+
+    public function get_course_groups(){
+        global $COURSE, $DB;
+
+        return $DB->get_records('groups', array('courseid' => $COURSE->id));
     }
 
     public function enrolled_users($capability){
