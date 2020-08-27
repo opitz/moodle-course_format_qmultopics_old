@@ -44,12 +44,12 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
     public function __construct(moodle_page $page, $target)
     {
-        global $PAGE;
         parent::__construct($page, $target);
         $this->courseformat = course_get_format($page->course);
         $this->tcsettings = $this->courseformat->get_format_options();
         //let's use our own course renderer as we want to add badges to the module output
-        $this->courserenderer = new qmultopics_course_renderer($PAGE, null);
+//        $this->courserenderer = new qmultopics_course_renderer($PAGE, null);
+        $this->courserenderer = new qmultopics_course_renderer($page, null);
     }
 
     // Require the jQuery file for this class
