@@ -44,13 +44,75 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
     public function __construct(moodle_page $page, $target)
     {
+        global $COURSE;
+
         parent::__construct($page, $target);
         $this->courseformat = course_get_format($page->course);
         $this->tcsettings = $this->courseformat->get_format_options();
-        //let's use our own course renderer as we want to add badges to the module output
-//        $this->courserenderer = new qmultopics_course_renderer($PAGE, null);
-        $this->courserenderer = new qmultopics_course_renderer($page, null);
+        // let's use our own course renderer as we want to add badges to the module output
+//        $this->courserenderer = new qmultopics_course_renderer($page, null);
+        // create an object that contains data about modules used in this course
+        $COURSE->mod_data = $this-> get_mod_data();
+        $COURSE->group_data = $this-> get_group_data();
     }
+
+    // ============== WIP ================
+
+    public function get_mod_data() {
+        global $COURSE, $DB;
+        $sql = "
+        SELECT 
+case
+	when a.id is not null then c.id*100000+a.id*100+ue.userid
+    else c.id*100000+ue.userid
+end as ID
+,c.id as courseid
+,ue.userid
+,a.id as assignment
+,a.duedate
+,a.teamsubmission
+,a.requireallteammemberssubmit
+,asu.status as submission_status
+,asu.timemodified as submit_time
+,ag.grade
+,ag.timemodified as grade_time
+FROM mdl_user_enrolments ue
+join mdl_user u on u.id = ue.userid
+join mdl_enrol e on e.id = ue.enrolid
+join mdl_course c on c.id = e.courseid
+left join mdl_assign_submission asu on asu.userid = ue.userid
+left join mdl_assign a on a.id = asu.assignment
+left join mdl_assign_grades ag on (ag.assignment = asu.assignment and ag.userid = ue.userid)
+where e.courseid = 2
+order by ID
+";
+
+        return $DB->get_records_sql($sql);
+    }
+
+    public function get_group_data(){
+        global $COURSE, $DB;
+        $sql = "
+SELECT 
+gm.id as ID
+,asu.assignment
+,asu.groupid
+,ag.userid
+,ag.grade
+FROM mdl_assign_submission asu
+join mdl_assign a on a.id = asu.assignment
+join mdl_groups_members gm on gm.groupid = asu.groupid
+left join mdl_assign_grades ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
+where asu.groupid > 0
+and a.course = $COURSE->id
+";
+
+        return $DB->get_records_sql($sql);
+    }
+
+    // ===================================
+
+
 
     // Require the jQuery file for this class
     public function require_js() {
