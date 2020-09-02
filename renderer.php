@@ -84,7 +84,7 @@ join mdl_course c on c.id = e.courseid
 left join mdl_assign_submission asu on asu.userid = ue.userid
 left join mdl_assign a on a.id = asu.assignment
 left join mdl_assign_grades ag on (ag.assignment = asu.assignment and ag.userid = ue.userid)
-where e.courseid = 2
+where e.courseid = $COURSE->id
 order by ID
 ";
 
