@@ -50,15 +50,16 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         $this->courseformat = course_get_format($page->course);
         $this->tcsettings = $this->courseformat->get_format_options();
         // let's use our own course renderer as we want to add badges to the module output
-//        $this->courserenderer = new qmultopics_course_renderer($page, null);
+        $this->courserenderer = new qmultopics_course_renderer($page, null);
         // create an object that contains data about modules used in this course
-        $COURSE->mod_data = $this-> get_mod_data();
-        $COURSE->group_data = $this-> get_group_data();
+        $COURSE->assign_data = $this-> get_assign_data();
+        $COURSE->group_assign_data = $this-> get_group_assign_data();
+        $COURSE->choice_data = $this-> get_choice_data();
     }
 
     // ============== WIP ================
 
-    public function get_mod_data() {
+    public function get_assign_data() {
         global $COURSE, $DB;
         $sql = "
         SELECT 
@@ -90,7 +91,7 @@ order by ID
         return $DB->get_records_sql($sql);
     }
 
-    public function get_group_data(){
+    public function get_group_assign_data(){
         global $COURSE, $DB;
         $sql = "
 SELECT 
@@ -107,6 +108,29 @@ where asu.groupid > 0
 and a.course = $COURSE->id
 ";
 
+        return $DB->get_records_sql($sql);
+    }
+
+    public function get_choice_data() {
+        global $COURSE, $DB;
+        $sql = "
+select 
+case
+	when ca.id is not null then c.id*100000+ca.id
+    else c.id*100000
+end as ID
+,c.id as choice_id
+,c.name as choice_name
+,c.timeopen
+,c.timeclose as duedate
+,ca.id as answer_id
+,ca.userid as user_id
+,ca.timemodified as submit_time
+from {choice} c 
+left join {choice_answers} ca on choiceid = c.id
+where 1
+and c.course = $COURSE->id
+        ";
         return $DB->get_records_sql($sql);
     }
 
