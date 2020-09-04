@@ -52,9 +52,13 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         // let's use our own course renderer as we want to add badges to the module output
         $this->courserenderer = new qmultopics_course_renderer($page, null);
         // create an object that contains data about modules used in this course
-        $COURSE->assign_data = $this-> get_assign_data();
-        $COURSE->group_assign_data = $this-> get_group_assign_data();
-        $COURSE->choice_data = $this-> get_choice_data();
+        $COURSE->assign_data = $this->get_assign_data();
+        $COURSE->group_assign_data = $this->get_group_assign_data();
+        $COURSE->choice_data = $this->get_choice_data();
+        $COURSE->quiz_data = $this->get_quiz_data();
+        $COURSE->feedback_data = $this->get_feedback_data();
+        $COURSE->lesson_data = $this->get_lesson_data();
+        $stop = true;
     }
 
     // ============== WIP ================
@@ -63,10 +67,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         global $COURSE, $DB;
         $sql = "
         SELECT 
-case
-	when a.id is not null then c.id*100000+a.id*100+ue.userid
-    else c.id*100000+ue.userid
-end as ID
+concat_ws('', ue.id, u.id, asu.id, ag.id) as row_id
 ,c.id as courseid
 ,ue.userid
 ,a.id as assignment
@@ -85,7 +86,6 @@ left join mdl_assign_submission asu on asu.userid = ue.userid
 left join mdl_assign a on a.id = asu.assignment
 left join mdl_assign_grades ag on (ag.assignment = asu.assignment and ag.userid = ue.userid)
 where e.courseid = $COURSE->id
-order by ID
 ";
 
         return $DB->get_records_sql($sql);
@@ -115,10 +115,7 @@ and a.course = $COURSE->id
         global $COURSE, $DB;
         $sql = "
 select 
-case
-	when ca.id is not null then c.id*100000+ca.id
-    else c.id*100000
-end as ID
+concat_ws('', c.id, ca.id) as row_id
 ,c.id as choice_id
 ,c.name as choice_name
 ,c.timeopen
@@ -130,6 +127,65 @@ from {choice} c
 left join {choice_answers} ca on choiceid = c.id
 where 1
 and c.course = $COURSE->id
+        ";
+        return $DB->get_records_sql($sql);
+    }
+
+    public function get_quiz_data() {
+        global $COURSE, $DB;
+        $sql = "
+select concat_ws('', q.id, qa.id) as row_id
+,q.id as quiz_id
+,q.name
+,q.timeopen
+,q.timeclose as duedate
+,qa.userid as user_id
+,qa.state
+,qa.timestart
+,qa.timefinish
+,qg.grade
+from mdl_quiz q
+left join mdl_quiz_attempts qa on qa.quiz = q.id
+left join mdl_quiz_grades qg on qg.quiz = qa.quiz && qg.userid = qa.userid
+left join mdl_user u on u.id = qa.userid
+where 1
+and course = $COURSE->id
+order by qa.userid, timefinish desc
+        ";
+        return $DB->get_records_sql($sql);
+    }
+
+    public function get_feedback_data() {
+        global $COURSE, $DB;
+        $sql = "
+select concat_ws('', fb.id, fbc.id) as row_id
+,fb.id as feedback_id
+,fb.course as course_id
+,fb.timeopen
+,fb.timeclose as duedate
+,fbc.userid as user_id
+,fbc.timemodified
+from mdl_feedback fb
+left join mdl_feedback_completed fbc on fbc.feedback = fb.id
+where fb.course = $COURSE->id
+        ";
+        return $DB->get_records_sql($sql);
+    }
+
+    public function get_lesson_data() {
+        global $COURSE, $DB;
+        $sql = "
+select concat_ws('', l.id, la.id ,lg.id) as row_id
+,l.id as lesson_id
+,l.deadline as duedate
+,la.userid as user_id
+,la.timeseen
+,lg.grade
+,lg.completed
+from mdl_lesson l
+left join mdl_lesson_attempts la on la.lessonid = l.id
+left join mdl_lesson_grades lg on lg.lessonid = l.id and lg.userid = la.userid
+where course = $COURSE->id
         ";
         return $DB->get_records_sql($sql);
     }

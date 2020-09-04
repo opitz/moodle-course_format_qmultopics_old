@@ -136,6 +136,9 @@ class qmultopics_course_renderer extends \core_course_renderer{
             case 'feedback':
                 return $this->show_feedback_badge($mod);
                 break;
+            case 'lesson':
+                return $this->show_lesson_badge($mod);
+                break;
             case 'quiz':
                 return $this->show_quiz_badge($mod);
                 break;
@@ -250,7 +253,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
         $xofy = get_string('badge_xofy', 'format_qmultopics');
         $post_text = get_string('badge_submitted', 'format_qmultopics');
         $groups_text = get_string('badge_groups', 'format_qmultopics');
-        $graded_text = get_string('badge_ungraded', 'format_qmultopics');
+        $ungraded_text = get_string('badge_ungraded', 'format_qmultopics');
         $enrolled_students = $this->enrolled_users($capability);
         if($enrolled_students){
             // check if the assignment allows group submissions
@@ -285,7 +288,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
                         $badge_text
                         .$spacer
                         .$ungraded
-                        .$graded_text;
+                        .$ungraded_text;
                 }
 
             } else {
@@ -303,7 +306,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
                         $badge_text
                         .$spacer
                         .$ungraded
-                        .$graded_text;
+                        .$ungraded_text;
                 }
 
             }
@@ -543,7 +546,16 @@ class qmultopics_course_renderer extends \core_course_renderer{
 
     // Feedbacks -------------------------------------------------------------------------------------------------------
     public function show_feedback_badge($mod){
+        global $COURSE;
         $o = '';
+
+        if(isset($COURSE->feedback_data)) foreach($COURSE->feedback_data as $feedback) {
+            // if the feedback has a due date show it
+            if($feedback->feedback_id == $mod->instance && $feedback->duedate > 0) {
+                $o .= $this->show_due_date_badge($feedback);
+                break;
+            }
+        }
 
         // check if the user is able to grade (e.g. is a teacher)
         if (has_capability('mod/assign:grade', $mod->context)) {
@@ -558,6 +570,8 @@ class qmultopics_course_renderer extends \core_course_renderer{
     }
 
     public function show_feedback_completions($mod) {
+        global $COURSE;
+
         // Show answers by enrolled students
         $badge_text = '';
         $badge_class = '';
@@ -567,9 +581,15 @@ class qmultopics_course_renderer extends \core_course_renderer{
         $post_text = get_string('badge_completed', 'format_qmultopics');
         $enrolled_students = $this->enrolled_users($capability);
         if($enrolled_students){
-            $submissions = $this->get_feedback_completions($mod);
+            $submissions = 0;
+            if(isset($COURSE->feedback_data)) foreach($COURSE->feedback_data as $feedback) {
+                if($feedback->feedback_id == $mod->instance && $feedback->user_id != null) {
+                    $submissions++;
+                }
+            }
+
             $badge_text = $pre_text
-                .count($submissions)
+                .$submissions
                 .$xofy
                 .count($enrolled_students)
                 .$post_text;
@@ -583,51 +603,134 @@ class qmultopics_course_renderer extends \core_course_renderer{
     }
 
     public function show_feedback_completion($mod) {
-        global $DB, $USER;
+        global $COURSE, $USER;
         $badge_class = '';
         $date_format = "%d %B %Y";
-
-        $submission = $DB->get_record('feedback_completed', array('feedback' => $mod->instance, 'userid' => $USER->id));
+        $submission = false;
+        if(isset($COURSE->feedback_data)) foreach($COURSE->feedback_data as $feedback) {
+            if($feedback->feedback_id == $mod->instance && $feedback->user_id == $USER->id) {
+                $submission = $feedback;
+                break;
+            }
+        }
+//        $submission = $DB->get_record('feedback_completed', array('feedback' => $mod->instance, 'userid' => $USER->id));
         if($submission) {
 //            $badge_class = 'badge-success';
             $badge_text = get_string('badge_completed', 'format_qmultopics').userdate($submission->timemodified,$date_format);
         } else {
             $badge_text = get_string('badge_notcompleted', 'format_qmultopics');
         }
-        if($badge_text) {
+        return $this->html_badge($badge_text, $badge_class);
+    }
+
+    // Lessons -------------------------------------------------------------------------------------------------------
+    public function show_lesson_badge($mod){
+        global $COURSE;
+        $o = '';
+
+        if(isset($COURSE->lesson_data)) foreach($COURSE->lesson_data as $lesson) {
+            // if the feedback has a due date show it
+            if($lesson->lesson_id == $mod->instance && $lesson->duedate > 0) {
+                $o .= $this->show_due_date_badge($lesson);
+                break;
+            }
+        }
+
+        // check if the user is able to grade (e.g. is a teacher)
+        if (has_capability('mod/assign:grade', $mod->context)) {
+            // show submission numbers and ungraded submissions if any
+            $o .= $this->show_lesson_attempts($mod);
+        } else {
+            // show date of submission
+            $o .= $this->show_lesson_attempt($mod);
+        }
+
+        return $o;
+    }
+
+    public function show_lesson_attempts($mod) {
+        global $COURSE;
+
+        // Show answers by enrolled students
+        $spacer = get_string('badge_commaspacer', 'format_qmultopics');
+        $badge_text = '';
+        $badge_class = '';
+        $capability = 'lesson';
+        $pre_text = '';
+        $xofy = ' of ';
+        $post_text = get_string('badge_attempted', 'format_qmultopics');
+        $completed_text = get_string('badge_completed', 'format_qmultopics');
+        $enrolled_students = $this->enrolled_users($capability);
+        if($enrolled_students){
+            $submissions = [];
+            $completed = [];
+            if(isset($COURSE->lesson_data)) foreach($COURSE->lesson_data as $lesson) {
+                if($lesson->lesson_id == $mod->instance && $lesson->user_id != null) {
+                    $submissions[$lesson->user_id] = true;
+                    if($lesson->completed != null) {
+                        $completed[$lesson->user_id] = true;
+                    }
+                }
+            }
+
+            $badge_text = $pre_text
+                .count($submissions)
+                .$xofy
+                .count($enrolled_students)
+                .$post_text;
+
+            if($completed > 0) {
+                $badge_text =
+                    $badge_text
+                    .$spacer
+                    .count($completed)
+                    .$completed_text;
+            }
+        }
+        if($badge_text != '') {
             return $this->html_badge($badge_text, $badge_class);
         } else {
             return '';
         }
     }
-    public function show_feedback_completion1($mod) {
-        global $DB, $USER;
+
+    public function show_lesson_attempt($mod) {
+        global $COURSE, $USER;
         $badge_class = '';
         $date_format = "%d %B %Y";
-
-        $submission = $DB->get_record('feedback_completed', array('feedback' => $mod->instance, 'userid' => $USER->id));
+        $submission = false;
+        if(isset($COURSE->lesson_data)) foreach($COURSE->lesson_data as $lesson) {
+            if($lesson->lesson_id == $mod->instance && $lesson->user_id == $USER->id) {
+                $submission = $lesson;
+                break;
+            }
+        }
+//        $submission = $DB->get_record('feedback_completed', array('feedback' => $mod->instance, 'userid' => $USER->id));
         if($submission) {
+            if($submission->completed) {
 //            $badge_class = 'badge-success';
-            $badge_text = get_string('badge_completed', 'format_qmultopics').userdate($submission->submit_time,$date_format);
+                $badge_text = get_string('badge_completed', 'format_qmultopics').userdate($submission->completed,$date_format);
+            } else {
+                $badge_text = get_string('badge_attempted', 'format_qmultopics').userdate($submission->timeseen,$date_format);
+            }
         } else {
             $badge_text = get_string('badge_notcompleted', 'format_qmultopics');
         }
-        if($badge_text) {
-            return $this->html_badge($badge_text, $badge_class);
-        } else {
-            return '';
-        }
-    }
-
-    public function get_feedback_completions($mod) {
-        global $DB;
-
-        return $DB->get_records('feedback_completed', array('feedback' => $mod->instance));
+        return $this->html_badge($badge_text, $badge_class);
     }
 
     // Quizzes ---------------------------------------------------------------------------------------------------------
     public function show_quiz_badge($mod){
+        global $COURSE;
         $o = '';
+
+        if(isset($COURSE->quiz_data)) foreach($COURSE->quiz_data as $quiz) {
+            // if the quiz has a due date show it
+            if($quiz->quiz_id == $mod->instance && $quiz->duedate > 0) {
+                $o .= $this->show_due_date_badge($quiz);
+                break;
+            }
+        }
 
         // check if the user is able to grade (e.g. is a teacher)
         if (has_capability('mod/assign:grade', $mod->context)) {
@@ -642,6 +745,8 @@ class qmultopics_course_renderer extends \core_course_renderer{
     }
 
     public function show_quiz_attempts($mod) {
+        global $COURSE;
+
         // Show attempts by enrolled students
         $badge_class = '';
         $capability = 'quiz';
@@ -649,21 +754,24 @@ class qmultopics_course_renderer extends \core_course_renderer{
         $xofy = get_string('badge_xofy', 'format_qmultopics');
         $post_text = get_string('badge_attempted', 'format_qmultopics');
         $enrolled_students = $this->enrolled_users($capability);
+
         if($enrolled_students){
-            $submissions = $this->get_quiz_attempts($mod);
-//            $finished = $this->get_quiz_finished($mod);
+            $submissions = 0;
             $finished = 0;
-            foreach($submissions as $submission) {
-                if($submission->state == 'finished') {
-                    $finished++;
+            if(isset($COURSE->quiz_data)) foreach($COURSE->quiz_data as $quiz) {
+                if($quiz->quiz_id == $mod->instance && $quiz->user_id != null) {
+                    $submissions++;
+                    if($quiz->state == 'finished') {
+                        $finished++;
+                    }
                 }
             }
             $badge_text = $pre_text
-                .count($submissions)
+                .$submissions
                 .$xofy
                 .count($enrolled_students)
                 .$post_text
-                .(count($submissions) ? ', '.$finished.get_string('badge_finished', 'format_qmultopics') : '');
+                .($submissions > 0 ? ', '.$finished.get_string('badge_finished', 'format_qmultopics') : '');
             ;
 
         }
@@ -675,24 +783,25 @@ class qmultopics_course_renderer extends \core_course_renderer{
     }
 
     public function show_quiz_attempt($mod) {
-        global $DB, $USER;
+        global $COURSE, $DB, $USER;
         $o = '';
         $badge_class = '';
         $date_format = "%d %B %Y";
 
-        $submissions = $DB->get_records('quiz_attempts', array('quiz' => $mod->instance, 'userid' => $USER->id));
+        $submissions = [];
+        if(isset($COURSE->quiz_data)) foreach($COURSE->quiz_data as $quiz) {
+            if($quiz->quiz_id == $mod->instance && $quiz->user_id == $USER->id) {
+                $submissions[] = $quiz;
+            }
+        }
 
-        if($submissions) foreach($submissions as $submission) {
+        if(count($submissions)) foreach($submissions as $submission) {
             switch($submission->state) {
                 case "inprogress":
-                    $badge_class = '';
-                    $badge_text = get_string('badge_inprogress', 'format_qmultopics').userdate($submission->timemodified,$date_format);
+                    $badge_text = get_string('badge_inprogress', 'format_qmultopics').userdate($submission->timestart,$date_format);
                     break;
                 case "finished":
-//                    if($submission->sumgrades > .5) {
-//                        $badge_class = 'badge-success';
-//                    }
-                    $badge_text = get_string('badge_attempted', 'format_qmultopics').userdate($submission->timemodified,$date_format);
+                    $badge_text = get_string('badge_finished', 'format_qmultopics').userdate($submission->timefinish,$date_format);
                     break;
             }
 //            $badge_text = get_string('badge_attempted', 'format_qmultopics').userdate($submission->timemodified,$date_format);
@@ -736,11 +845,6 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $o;
     }
 
-    public function get_quiz_attempts($mod) {
-        global $DB;
-
-        return $DB->get_records('quiz_attempts', array('quiz' => $mod->instance));
-    }
 
     // Supporting ------------------------------------------------------------------------------------------------------
     public function html_badge($badge_text, $badge_class = "", $title = ""){
