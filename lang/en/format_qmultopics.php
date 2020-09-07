@@ -485,3 +485,4 @@ $string['badge_inprogress'] = 'In Progress since ';
 $string['badge_xofy'] = ' of ';
 $string['badge_finished'] = ' Finished ';
 $string['badge_feedback'] = ' - Feedback available!';
+$string['badge_submission_time_title'] = 'Submission time: ';

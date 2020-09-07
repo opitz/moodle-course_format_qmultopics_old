@@ -58,7 +58,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         $COURSE->quiz_data = $this->get_quiz_data();
         $COURSE->feedback_data = $this->get_feedback_data();
         $COURSE->lesson_data = $this->get_lesson_data();
-        $stop = true;
+        $COURSE->module_data = $this->get_module_data();
     }
 
     // ============== WIP ================
@@ -190,6 +190,92 @@ where course = $COURSE->id
         return $DB->get_records_sql($sql);
     }
 
+    public function get_module_data() {
+        global $COURSE, $DB;
+        $sql = "
+select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,la.id,lg.id,q.id,qa.id,qg.id) as row_id
+,m.name as module_name
+#,'assign >'
+#,cm.*
+#,cm.id as cm_id
+#,a.*
+,a.id as assign_id
+,a.name as assign
+,a.duedate as assign_duedate
+,a.teamsubmission
+,a.requireallteammemberssubmit
+#,asu.*
+,asu.userid as assign_userid
+,asu.status as assign_submission_status
+,asu.timemodified as assign_submit_time
+#,ag.*
+,ag.grade as assign_grade
+,ag.timemodified as assign_grade_time
+#,'choice >'
+#,c.*
+,c.id as choice_id
+,c.name as choice
+,c.timeopen as choice_timeopen
+,c.timeclose as choice_duedate
+,ca.userid as choice_userid
+,ca.timemodified as choice_submit_time
+#,'feedback >'
+#,f.*
+#,fc.*
+,f.id as feedback_id
+,f.name as feedback
+,f.timeopen as feedback_timeopen
+,f.timeclose as feedback_duedate
+,fc.userid as feedback_userid
+,fc.timemodified as feedback_submit_time
+#,'lesson >'
+#,l.*
+,l.id as lesson_id
+,l.name as lesson
+,l.deadline as lesson_duedate
+,la.userid as lesson_userid
+,la.correct
+,la.timeseen as lesson_submit_time
+,lg.grade as lesson_grade
+,lg.completed as lesson_completed_date
+#,'quiz >'
+,q.id as quiz_id
+,q.name as quiz_name
+,q.timeopen as quiz_timeopen
+,q.timeclose as quiz_duedate
+,qa.userid as quiz_userid
+,qa.state as quiz_state
+,qa.timestart as quiz_timestart
+,qa.timefinish as quiz_submit_time
+,qg.grade as quiz_grade
+from mdl_course_modules cm
+join mdl_modules m on m.id = cm.module
+# assign
+left join mdl_assign a on a.id = cm.instance and a.course = cm.course and m.name = 'assign'
+left join mdl_assign_submission asu on asu.assignment = a.id
+left join mdl_assign_grades ag on ag.assignment = asu.assignment and ag.userid = asu.userid
+# choice
+left join mdl_choice c on c.id = cm.instance and c.course = cm.course and m.name = 'choice'
+left join mdl_choice_answers ca on ca.choiceid = c.id
+# feedback
+left join mdl_feedback f on f.id = cm.instance and f.course = cm.course and m.name = 'feedback'
+left join mdl_feedback_completed fc on fc.feedback = f.id
+# lesson
+left join mdl_lesson l on l.id = cm.instance and l.course = cm.course and m.name = 'lesson'
+left join mdl_lesson_attempts la on la.lessonid = l.id
+left join mdl_lesson_grades lg on lg.lessonid = la.lessonid and lg.userid = la.userid
+# quiz
+left join mdl_quiz q on q.id = cm.instance and q.course = cm.course and m.name = 'quiz'
+left join mdl_quiz_attempts qa on qa.quiz = q.id
+left join mdl_quiz_grades qg on qg.quiz = qa.quiz and qg.userid = qa.userid
+where 1
+and cm.course = $COURSE->id
+#and m.name = 'choice'
+#order by m.name
+#order by concat_ws('',cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,la.id,lg.id,q.id,qa.id,qg.id)
+        ";
+        return $DB->get_records_sql($sql);
+    }
     // ===================================
 
 
