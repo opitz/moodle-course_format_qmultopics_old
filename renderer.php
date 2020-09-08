@@ -52,12 +52,12 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         // let's use our own course renderer as we want to add badges to the module output
         $this->courserenderer = new qmultopics_course_renderer($page, null);
         // create an object that contains data about modules used in this course
-        $COURSE->assign_data = $this->get_assign_data();
+//        $COURSE->assign_data = $this->get_assign_data();
         $COURSE->group_assign_data = $this->get_group_assign_data();
-        $COURSE->choice_data = $this->get_choice_data();
-        $COURSE->quiz_data = $this->get_quiz_data();
-        $COURSE->feedback_data = $this->get_feedback_data();
-        $COURSE->lesson_data = $this->get_lesson_data();
+//        $COURSE->choice_data = $this->get_choice_data();
+//        $COURSE->quiz_data = $this->get_quiz_data();
+//        $COURSE->feedback_data = $this->get_feedback_data();
+//        $COURSE->lesson_data = $this->get_lesson_data();
         $COURSE->module_data = $this->get_module_data();
     }
 
@@ -196,23 +196,17 @@ where course = $COURSE->id
 select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,la.id,lg.id,q.id,qa.id,qg.id) as row_id
 ,m.name as module_name
 #,'assign >'
-#,cm.*
-#,cm.id as cm_id
-#,a.*
 ,a.id as assign_id
 ,a.name as assign
 ,a.duedate as assign_duedate
 ,a.teamsubmission
 ,a.requireallteammemberssubmit
-#,asu.*
 ,asu.userid as assign_userid
 ,asu.status as assign_submission_status
 ,asu.timemodified as assign_submit_time
-#,ag.*
 ,ag.grade as assign_grade
 ,ag.timemodified as assign_grade_time
 #,'choice >'
-#,c.*
 ,c.id as choice_id
 ,c.name as choice
 ,c.timeopen as choice_timeopen
@@ -220,8 +214,6 @@ select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,l
 ,ca.userid as choice_userid
 ,ca.timemodified as choice_submit_time
 #,'feedback >'
-#,f.*
-#,fc.*
 ,f.id as feedback_id
 ,f.name as feedback
 ,f.timeopen as feedback_timeopen
@@ -229,7 +221,6 @@ select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,l
 ,fc.userid as feedback_userid
 ,fc.timemodified as feedback_submit_time
 #,'lesson >'
-#,l.*
 ,l.id as lesson_id
 ,l.name as lesson
 ,l.deadline as lesson_duedate
@@ -237,7 +228,7 @@ select concat_ws('', cm.id,a.id, asu.id, ag.id, c.id, ca.id, f.id, fc.id, l.id,l
 ,la.correct
 ,la.timeseen as lesson_submit_time
 ,lg.grade as lesson_grade
-,lg.completed as lesson_completed_date
+,lg.completed as lesson_completed
 #,'quiz >'
 ,q.id as quiz_id
 ,q.name as quiz_name
