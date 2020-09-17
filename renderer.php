@@ -52,144 +52,16 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         // let's use our own course renderer as we want to add badges to the module output
         $this->courserenderer = new qmultopics_course_renderer($page, null);
         // create an object that contains data about modules used in this course
-//        $COURSE->assign_data = $this->get_assign_data();
-        $COURSE->group_assign_data = $this->get_group_assign_data();
-//        $COURSE->choice_data = $this->get_choice_data();
-//        $COURSE->quiz_data = $this->get_quiz_data();
-//        $COURSE->feedback_data = $this->get_feedback_data();
-//        $COURSE->lesson_data = $this->get_lesson_data();
         $COURSE->module_data = $this->get_module_data();
+        $COURSE->group_assign_data = $this->get_group_assign_data();
     }
 
-    // ============== WIP ================
-
-    public function get_assign_data() {
-        global $COURSE, $DB;
-        $sql = "
-        SELECT 
-concat_ws('', ue.id, u.id, asu.id, ag.id) as row_id
-,c.id as courseid
-,ue.userid
-,a.id as assignment
-,a.duedate
-,a.teamsubmission
-,a.requireallteammemberssubmit
-,asu.status as submission_status
-,asu.timemodified as submit_time
-,ag.grade
-,ag.timemodified as grade_time
-FROM mdl_user_enrolments ue
-join mdl_user u on u.id = ue.userid
-join mdl_enrol e on e.id = ue.enrolid
-join mdl_course c on c.id = e.courseid
-left join mdl_assign_submission asu on asu.userid = ue.userid
-left join mdl_assign a on a.id = asu.assignment
-left join mdl_assign_grades ag on (ag.assignment = asu.assignment and ag.userid = ue.userid)
-where e.courseid = $COURSE->id
-";
-
-        return $DB->get_records_sql($sql);
-    }
-
-    public function get_group_assign_data(){
-        global $COURSE, $DB;
-        $sql = "
-SELECT 
-gm.id as ID
-,asu.assignment
-,asu.groupid
-,ag.userid
-,ag.grade
-FROM mdl_assign_submission asu
-join mdl_assign a on a.id = asu.assignment
-join mdl_groups_members gm on gm.groupid = asu.groupid
-left join mdl_assign_grades ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
-where asu.groupid > 0
-and a.course = $COURSE->id
-";
-
-        return $DB->get_records_sql($sql);
-    }
-
-    public function get_choice_data() {
-        global $COURSE, $DB;
-        $sql = "
-select 
-concat_ws('', c.id, ca.id) as row_id
-,c.id as choice_id
-,c.name as choice_name
-,c.timeopen
-,c.timeclose as duedate
-,ca.id as answer_id
-,ca.userid as user_id
-,ca.timemodified as submit_time
-from {choice} c 
-left join {choice_answers} ca on choiceid = c.id
-where 1
-and c.course = $COURSE->id
-        ";
-        return $DB->get_records_sql($sql);
-    }
-
-    public function get_quiz_data() {
-        global $COURSE, $DB;
-        $sql = "
-select concat_ws('', q.id, qa.id) as row_id
-,q.id as quiz_id
-,q.name
-,q.timeopen
-,q.timeclose as duedate
-,qa.userid as user_id
-,qa.state
-,qa.timestart
-,qa.timefinish
-,qg.grade
-from mdl_quiz q
-left join mdl_quiz_attempts qa on qa.quiz = q.id
-left join mdl_quiz_grades qg on qg.quiz = qa.quiz && qg.userid = qa.userid
-left join mdl_user u on u.id = qa.userid
-where 1
-and course = $COURSE->id
-order by qa.userid, timefinish desc
-        ";
-        return $DB->get_records_sql($sql);
-    }
-
-    public function get_feedback_data() {
-        global $COURSE, $DB;
-        $sql = "
-select concat_ws('', fb.id, fbc.id) as row_id
-,fb.id as feedback_id
-,fb.course as course_id
-,fb.timeopen
-,fb.timeclose as duedate
-,fbc.userid as user_id
-,fbc.timemodified
-from mdl_feedback fb
-left join mdl_feedback_completed fbc on fbc.feedback = fb.id
-where fb.course = $COURSE->id
-        ";
-        return $DB->get_records_sql($sql);
-    }
-
-    public function get_lesson_data() {
-        global $COURSE, $DB;
-        $sql = "
-select concat_ws('', l.id, la.id ,lg.id) as row_id
-,l.id as lesson_id
-,l.deadline as duedate
-,la.userid as user_id
-,la.timeseen
-,lg.grade
-,lg.completed
-from mdl_lesson l
-left join mdl_lesson_attempts la on la.lessonid = l.id
-left join mdl_lesson_grades lg on lg.lessonid = l.id and lg.userid = la.userid
-where course = $COURSE->id
-        ";
-        return $DB->get_records_sql($sql);
-    }
-
+    /**
+     * Get submission and grading data for modules in this course
+     *
+     * @return array
+     * @throws dml_exception
+     */
     public function get_module_data() {
         global $COURSE, $DB;
         $sql = "
@@ -267,11 +139,36 @@ and cm.course = $COURSE->id
         ";
         return $DB->get_records_sql($sql);
     }
-    // ===================================
 
+    /**
+     * Get group related submission and grading data for modules in this course
+     *
+     * @return array
+     * @throws dml_exception
+     */
+    public function get_group_assign_data(){
+        global $COURSE, $DB;
+        $sql = "
+SELECT 
+gm.id as ID
+,asu.assignment
+,asu.groupid
+,ag.userid
+,ag.grade
+FROM mdl_assign_submission asu
+join mdl_assign a on a.id = asu.assignment
+join mdl_groups_members gm on gm.groupid = asu.groupid
+left join mdl_assign_grades ag on (ag.assignment = asu.assignment and ag.userid = gm.userid)
+where asu.groupid > 0
+and a.course = $COURSE->id
+";
 
+        return $DB->get_records_sql($sql);
+    }
 
-    // Require the jQuery file for this class
+    /**
+     * Require the jQuery files for this class
+     */
     public function require_js() {
         $this->page->requires->js_call_amd('format_qmultopics/tabs', 'init', array());
         $this->page->requires->js_call_amd('format_topics2/toggle', 'init', array());
@@ -315,7 +212,16 @@ and cm.course = $COURSE->id
         return $o;
     }
 
-    // Prepare standard tabs with added assessment info tab and extratabs
+    /**
+     * Prepare standard tabs with added assessment info tab and extratabs
+     *
+     * @param array|stdClass $course
+     * @param array|stdClass $format_options
+     * @param array|stdClass $sections
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function prepare_tabs($course, $format_options, $sections) {
         // Get the standard tabs
         $tabs = parent::prepare_tabs($course, $format_options, $sections);
@@ -331,7 +237,13 @@ and cm.course = $COURSE->id
         return $tabs;
     }
 
-    // prepare the old extratabs for legacy reasons
+    /**
+     * prepare the old extratabs for legacy reasons
+     *
+     * @param array|stdClass $course
+     * @param array|stdClass $format_options
+     * @return array
+     */
     public function prepare_extratabs($course, $format_options) {
         $extratabnames = array('extratab1', 'extratab2', 'extratab3');
         $extratabs = array();
@@ -352,64 +264,14 @@ and cm.course = $COURSE->id
         return $extratabs;
     }
 
-    // Prepare the assessment Information tabs (old and new)
-    public function prepare_assessment_tabs0($course, $format_options) {
-        global $CFG, $DB, $PAGE;
-
-        $tabs = array();
-
-        // get the installed blocks and check if the assessment info block is one of them
-        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
-        $installed_blocks = $DB->get_records_sql($sql, array());
-        $assessment_info_block_id = false;
-        foreach($installed_blocks as $installed_block) {
-            if($installed_block->blockname == 'assessment_information') {
-                $assessment_info_block_id = (int)$installed_block->id;
-                break;
-            }
-        }
-        // the assessment info block tab
-        if (isset($this->tcsettings['assessment_info_block_tab']) &&
-            $assessment_info_block_id &&
-            $this->tcsettings['assessment_info_block_tab'] == 1) {
-            $tab = (object) new stdClass();
-            $tab->id = "tab_assessment_info_block";
-            $tab->name = 'assessment_info_block';
-            $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
-            $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmultopics');
-            $tab->content = ''; // not required - we are only interested in the tab
-            $tab->sections = "block_assessment_information";
-            $tab->section_nums = "";
-            $tabs[$tab->id] = $tab;
-            // in case the assment info tab is not present but should be in the tab sequence when used fix this
-            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
-                $this->tcsettings['tab_seq'] .= ','.$tab->id;
-//                $format_options['tab_seq'] .= ','.$tab->id;
-            }
-        }
-
-        // the old assessment info tab - as a new tab
-        if (isset($this->tcsettings['enable_assessmentinformation']) &&
-            $this->tcsettings['enable_assessmentinformation'] == 1) {
-            $tab = (object) new stdClass();
-            $tab->id = "tab_assessment_information";
-            $tab->name = 'assessment_info';
-            $tab->title = $this->tcsettings['tab_assessment_information_title'];
-            $tab->generic_title = get_string('tab_assessment_information_title', 'format_qmultopics');
-            // Get the synergy assessment info and store the result as content for this tab
-            $tab->content = $this->get_assessmentinformation($this->tcsettings['content_assessmentinformation']);
-            $tab->sections = "assessment_information";
-            $tab->section_nums = "";
-            $tabs[$tab->id] = $tab;
-            // in case the assment info tab is not present but should be in the tab sequence when used fix this
-            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
-                $this->tcsettings['tab_seq'] .= ','.$tab->id;
-//                $format_options['tab_seq'] .= ','.$tab->id;
-            }
-        }
-
-        return $tabs;
-    }
+    /**
+     * Prepare the assessment Information tabs (old and new)
+     * @param array|stdClass $course
+     * @param array|stdClass $format_options
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function prepare_assessment_tabs($course, $format_options) {
         global $CFG, $DB, $PAGE;
 
@@ -473,70 +335,13 @@ and cm.course = $COURSE->id
 
         return $tabs;
     }
-    public function prepare_assessment_tab($course, $format_options) {
-        global $CFG, $DB, $PAGE;
 
-        $tabs = array();
-        $show_ai_tab = false;
-
-        // No auto-conversoion of Assessment Information for JAN2020 update - so deactivating for now
-        /*
-        // get the installed blocks and check if the assessment info block is one of them
-        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
-        $installed_blocks = $DB->get_records_sql($sql, array());
-        $assessment_info_block_id = false;
-        foreach($installed_blocks as $installed_block) {
-            if($installed_block->blockname == 'assessment_information') {
-                $assessment_info_block_id = (int)$installed_block->id;
-                break;
-            }
-        }
-
-        if ($assessment_info_block_id) { // The AI block is installed ...
-            if ($PAGE->user_is_editing() // ... but the format option has not been set yet - so let's do it
-                && isset($this->tcsettings['enable_assessmentinformation'])
-                && $this->tcsettings['enable_assessmentinformation'] == 0) {
-                // set the format_option accordingly
-                $fo_record = $DB->get_record('course_format_options', array('name' => 'enable_assessmentinformation', 'courseid' => $course->id));
-                $fo_record->value = 1;
-                $DB->update_record('course_format_options', $fo_record);
-            }
-            $show_ai_tab = true;
-        } else if (isset($this->tcsettings['enable_assessmentinformation'])
-            && $this->tcsettings['enable_assessmentinformation'] == 1) {
-            // Add the AI block if necessary
-            if($this->add_assessment_information_block($course)) {
-                $show_ai_tab = true;
-            }
-        }
-*/
-        // for now only use the old settings
-        if (isset($this->tcsettings['enable_assessmentinformation'])
-            && $this->tcsettings['enable_assessmentinformation'] == 1) {
-            $show_ai_tab = true;
-        }
-
-        if ($show_ai_tab) {
-            // now do the tab
-            $tab = (object) new stdClass();
-            $tab->id = "tab_assessment_info_block";
-            $tab->name = 'assessment_info_block';
-            $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
-            $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmultopics');
-//            $tab->content = $this->tcsettings['content_assessmentinformation']; // not required - we are only interested in the tab ***BAUSTELLE***
-            $tab->content = ''; // not required - we are only interested in the tab
-            $tab->sections = "block_assessment_information";
-            $tab->section_nums = "";
-            $tabs[$tab->id] = $tab;
-            // in case the assessment info tab is not present but should be in the tab sequence when used fix this
-            if(strlen($this->tcsettings['tab_seq']) && !strstr($this->tcsettings['tab_seq'], $tab->id)) {
-                $this->tcsettings['tab_seq'] .= ','.$tab->id;
-            }
-        }
-        return $tabs;
-    }
-
-    // check and add the assessment information
+    /**
+     * check and add the assessment information
+     * @param array|stdClass $course
+     * @return bool|int
+     * @throws dml_exception
+     */
     public function add_assessment_information_block($course) {
         global $DB;
         // get block context for the course
@@ -558,7 +363,15 @@ and cm.course = $COURSE->id
         return $DB->insert_record('block_instances', $ai_record);
     }
 
-    // Get the content for the assessment information section
+    /**
+     * Get the content for the assessment information section
+     *
+     * @param $content
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function get_assessmentinformation($content) {
         global $CFG, $DB, $COURSE, $OUTPUT, $USER;
 
@@ -708,7 +521,12 @@ and cm.course = $COURSE->id
         return html_writer::tag('div', $output, array('class'=>'row'));
     }
 
-    // Get assignments for assessment information
+    /**
+     * Get assignments for assessment information
+     *
+     * @return moodle_recordset
+     * @throws dml_exception
+     */
     public function get_assignments() {
         global $DB, $COURSE, $USER;
         $sql = "
@@ -741,7 +559,14 @@ and cm.course = $COURSE->id
         return $assignments;
     }
 
-    // Render a standard tab or an extratab - as long as they are still around...
+    /**
+     * Render a standard tab or an extratab - as long as they are still around...
+     *
+     * @param array|stdClass $tab
+     * @return bool|string
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function render_tab($tab){
         if(!isset($tab)) {
             return false;
@@ -755,7 +580,14 @@ and cm.course = $COURSE->id
         }
     }
 
-    // Render an extratab
+    /**
+     * Render an extratab
+     *
+     * @param $tab
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function render_extratab($tab) {
         global $DB, $PAGE, $OUTPUT;
         $o = '';
@@ -820,7 +652,17 @@ and cm.course = $COURSE->id
         return $o;
     }
 
-    // Render sections with added assessment info and extratab sections
+    /**
+     * Render sections with added assessment info and extratab sections
+     *
+     * @param array|stdClass $course
+     * @param array|stdClass $sections
+     * @param array|stdClass $format_options
+     * @param array|stdClass $modinfo
+     * @param int $numsections
+     * @return string
+     * @throws dml_exception
+     */
     public function render_sections($course, $sections, $format_options, $modinfo, $numsections){
         global $DB;
 
@@ -917,7 +759,12 @@ and cm.course = $COURSE->id
         return $output;
     }
 
-    // Render extratab sections as long as they are still around...
+    /**
+     * Render extratab sections as long as they are still around...
+     *
+     * @param array|stdClass $format_options
+     * @return string
+     */
     public function render_extratab_sections($format_options) {
         $extratabnames = array('extratab1', 'extratab2', 'extratab3');
         $o = '';
@@ -942,7 +789,12 @@ and cm.course = $COURSE->id
         return $o;
     }
 
-    // Render section for assessment information
+    /**
+     * Render section for assessment information
+     *
+     * @param array|stdClass $format_options
+     * @return string
+     */
     public function render_assessment_section($format_options) {
         global $COURSE,$DB;
         $o = '';
@@ -972,7 +824,12 @@ and cm.course = $COURSE->id
         return $o;
     }
 
-    // render any summary text from the hidden section that is automatically created by the Assessment Information tab
+    /**
+     * Render any summary text from the hidden section that is automatically created by the Assessment Information tab
+     *
+     * @return string
+     * @throws dml_exception
+     */
     public function render_aitext() {
         global $COURSE;
         $o = '';
@@ -987,20 +844,12 @@ and cm.course = $COURSE->id
         return $o;
     }
 
-    public function render_assessment_section1($format_options) {
-        $o = '';
-        $content = html_writer::div($format_options['content_assessmentinformation']);
-//        $o .= html_writer::tag('li', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
-        $o .= html_writer::tag('div', $content, array('id' => 'assessment_information_area', 'style' => 'display: none;'));
-        return $o;
-    }
-
     /**
      * get a section created by the Assessment Information block
      * for now it is identified by hacking the sequence field of that section:
      * if it contains the section id 666 (the number of the beast as we are doing evil here...) it is related to the AI block.
      *
-     * @param $course
+     * @param array|stdClass $course
      * @return mixed
      * @throws dml_exception
      */
@@ -1016,7 +865,11 @@ and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or seq
         return reset($result); // get the 1st element of the returned array - should have one element only anyway
     }
 
-
+    /**
+     * Start the section list
+     *
+     * @return string
+     */
     protected function start_section_list() {
         $o = '';
         $o .= html_writer::start_tag('div', array('id'=>'modulecontent', 'class'=>'tab-pane modulecontent active'));
@@ -1024,6 +877,11 @@ and (sequence = '666' or sequence like '666,%' or sequence like '%,666,%' or seq
         return $o;
     }
 
+    /**
+     * End the section list
+     *
+     * @return string
+     */
     protected function end_section_list() {
         $o = '';
         $o .= html_writer::end_tag('ul');

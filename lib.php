@@ -30,10 +30,6 @@ require_once($CFG->dirroot. '/course/format/topics2/lib.php');
 
 /**
  * Main class for the Topics (QMUL) course format
- *
- * @package    format_qmultopics
- * @copyright  2012 Marina Glancy
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class format_qmultopics extends format_topics2 {
 
@@ -90,32 +86,6 @@ class format_qmultopics extends format_topics2 {
         return $elements;
     }
 
-    public function check_assessment_information($data) {
-        global $COURSE, $DB;
-        // If the Assessment Information option is UNset make sure the Assessment Information Block is removed from that course
-        if (! isset($data['enable_assessmentinformation']) || $data['enable_assessmentinformation'] == '0') {
-            // get the installed blocks and check if the assessment info block is one of them
-            $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$COURSE->id;
-            $installed_blocks = $DB->get_records_sql($sql, array());
-            $assessment_info_block_id = false;
-            foreach($installed_blocks as $installed_block) {
-                if($installed_block->blockname == 'assessment_information') {
-                    $assessment_info_block_id = (int)$installed_block->id;
-                    break;
-                }
-            }
-
-            // It is installed and will have to go
-            if($assessment_info_block_id) {
-                // get block context for the course - then delete the AI block with that context
-                $context = $DB->get_record('context', array('instanceid' => $COURSE->id, 'contextlevel' => '50'));
-                if (isset($context->id) && $context->id > 0) {
-                    $DB->delete_records('block_instances', array('blockname' => 'assessment_information', 'parentcontextid' => $context->id));
-                }
-            }
-        }
-    }
-
     public function edit_form_validation($data, $files, $errors) {
         global $COURSE, $DB;
 
@@ -142,10 +112,6 @@ class format_qmultopics extends format_topics2 {
         } else {
             $data['enabled_extratab1'] = 0;
         }
-
-        // Check the AI option and act accordingly
-        // This will not make it into the JAN2020 update - so disabled for now
-//        $this->check_assessment_information($data);
 
         return $return;
     }
