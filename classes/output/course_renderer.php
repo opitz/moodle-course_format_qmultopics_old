@@ -266,11 +266,22 @@ class qmultopics_course_renderer extends \core_course_renderer{
         $groups_text = get_string('badge_groups', 'format_qmultopics');
         $ungraded_text = get_string('badge_ungraded', 'format_qmultopics');
         $enrolled_students = $this->enrolled_users($capability);
+        if(!empty($mod->availability)) {
+
+            // Get availability information.
+            $info = new \core_availability\info_module($mod);
+            $restricted_students = $info->filter_user_list($enrolled_students);
+        } else {
+            $restricted_students = $enrolled_students;
+        }
+
         if($enrolled_students){
             $submissions = 0;
             $gradings = 0;
             if($COURSE->module_data) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'assign' && $module->assign_id == $mod->instance && $module->assign_submission_status == 'submitted') {
+                if($module->module_name == 'assign' &&
+                    $module->assign_id == $mod->instance &&
+                    $module->assign_submission_status == 'submitted') {
                     $submissions++;
                     if($module->assign_grade > 0) {
                         $gradings++;
@@ -281,7 +292,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
             $badge_text = $pre_text
                 .$submissions
                 .$xofy
-                .count($enrolled_students)
+                .count($restricted_students)
                 .$post_text;
 
             if($ungraded) {

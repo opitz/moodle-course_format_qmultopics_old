@@ -486,3 +486,5 @@ $string['badge_xofy'] = ' of ';
 $string['badge_finished'] = ' Finished ';
 $string['badge_feedback'] = ' - Feedback available!';
 $string['badge_submission_time_title'] = 'Submission time: ';
+$string['usethemebadges'] = 'Use assignemt badges from QMUL theme';
+$string['usethemebadges_desc'] = 'Switch to either use assigment badges provided by the course format or by the theme (in case the new format badges are affecting performance too much)';

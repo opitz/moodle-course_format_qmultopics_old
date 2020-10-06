@@ -44,13 +44,16 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
     public function __construct(moodle_page $page, $target)
     {
-        global $COURSE;
+        global $PAGE, $COURSE;
 
         parent::__construct($page, $target);
         $this->courseformat = course_get_format($page->course);
         $this->tcsettings = $this->courseformat->get_format_options();
         // let's use our own course renderer as we want to add badges to the module output
-        $this->courserenderer = new qmultopics_course_renderer($page, null);
+        $usethemebadges = get_config('format_qmultopics', 'usethemebadges');
+        if($usethemebadges != 1) {
+            $this->courserenderer = new qmultopics_course_renderer($page, null);
+        }
         // create an object that contains data about modules used in this course
         $COURSE->module_data = $this->get_module_data();
         $COURSE->group_assign_data = $this->get_group_assign_data();
