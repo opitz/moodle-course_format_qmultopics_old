@@ -47,39 +47,58 @@ class format_qmultopics extends format_topics2 {
         $elements = parent::create_edit_form_elements($mform, $forsection);
         if ($forsection == false) {
             $fo = $this->get_format_options();
-            // Assessment Information
-            if(isset($fo['enable_assessmentinformation']) && $fo['enable_assessmentinformation'] == "1") {
-                $elements[] = $mform->addElement('header', 'assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
-                $mform->addHelpButton('assessmentinformation', 'assessmentinformation', 'format_qmultopics', '', true);
-                $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation', get_string('enabletab', 'format_qmultopics'));
-                $elements[] = $mform->addElement('editor', 'content_assessmentinformation', get_string('assessmentinformation', 'format_qmultopics'));
+            // Assessment Information.
+            if (isset($fo['enable_assessmentinformation']) && $fo['enable_assessmentinformation'] == "1") {
+                $elements[] = $mform->addElement('header', 'assessmentinformation',
+                    get_string('assessmentinformation', 'format_qmultopics'));
+                $mform->addHelpButton('assessmentinformation', 'assessmentinformation',
+                    'format_qmultopics', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_assessmentinformation',
+                    get_string('enabletab', 'format_qmultopics'));
+                $elements[] = $mform->addElement('editor', 'content_assessmentinformation',
+                    get_string('assessmentinformation', 'format_qmultopics'));
             }
 
-            // Extra Tab 1
-            if(isset($fo['enable_extratab1']) && $fo['enable_extratab1'] == "1") {
-                $elements[] = $mform->addElement('header', 'extratab1', get_string('extratab', 'format_qmultopics', 1));
-                $mform->addHelpButton('extratab1', 'extratab', 'format_qmultopics', '', true);
-                $elements[] = $mform->addElement('checkbox', 'enable_extratab1', get_string('enabletab', 'format_qmultopics'));
-                $elements[] = $mform->addElement('text', 'title_extratab1', get_string('tabtitle', 'format_qmultopics'));
-                $elements[] = $mform->addElement('editor', 'content_extratab1', get_string('tabcontent', 'format_qmultopics'));
+            // Extra Tab 1.
+            if (isset($fo['enable_extratab1']) && $fo['enable_extratab1'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab1',
+                    get_string('extratab', 'format_qmultopics', 1));
+                $mform->addHelpButton('extratab1', 'extratab',
+                    'format_qmultopics', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab1',
+                    get_string('enabletab', 'format_qmultopics'));
+                $elements[] = $mform->addElement('text', 'title_extratab1',
+                    get_string('tabtitle', 'format_qmultopics'));
+                $elements[] = $mform->addElement('editor', 'content_extratab1',
+                    get_string('tabcontent', 'format_qmultopics'));
             }
 
-            // Extra Tab 2
-            if(isset($fo['enable_extratab2']) && $fo['enable_extratab2'] == "1") {
-                $elements[] = $mform->addElement('header', 'extratab2', get_string('extratab', 'format_qmultopics', 2));
-                $mform->addHelpButton('extratab2', 'extratab', 'format_qmultopics', '', true);
-                $elements[] = $mform->addElement('checkbox', 'enable_extratab2', get_string('enabletab', 'format_qmultopics'));
-                $elements[] = $mform->addElement('text', 'title_extratab2', get_string('tabtitle', 'format_qmultopics'));
-                $elements[] = $mform->addElement('editor', 'content_extratab2', get_string('tabcontent', 'format_qmultopics'));
+            // Extra Tab 2.
+            if (isset($fo['enable_extratab2']) && $fo['enable_extratab2'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab2',
+                    get_string('extratab', 'format_qmultopics', 2));
+                $mform->addHelpButton('extratab2', 'extratab',
+                    'format_qmultopics', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab2',
+                    get_string('enabletab', 'format_qmultopics'));
+                $elements[] = $mform->addElement('text', 'title_extratab2',
+                    get_string('tabtitle', 'format_qmultopics'));
+                $elements[] = $mform->addElement('editor', 'content_extratab2',
+                    get_string('tabcontent', 'format_qmultopics'));
             }
 
-            // Extra Tab 3
-            if(isset($fo['enable_extratab3']) && $fo['enable_extratab3'] == "1") {
-                $elements[] = $mform->addElement('header', 'extratab3', get_string('extratab', 'format_qmultopics', 3));
-                $mform->addHelpButton('extratab3', 'extratab', 'format_qmultopics', '', true);
-                $elements[] = $mform->addElement('checkbox', 'enable_extratab3', get_string('enabletab', 'format_qmultopics'));
-                $elements[] = $mform->addElement('text', 'title_extratab3', get_string('tabtitle', 'format_qmultopics'));
-                $elements[] = $mform->addElement('editor', 'content_extratab3', get_string('tabcontent', 'format_qmultopics'));
+            // Extra Tab 3.
+            if (isset($fo['enable_extratab3']) && $fo['enable_extratab3'] == "1") {
+                $elements[] = $mform->addElement('header', 'extratab3',
+                    get_string('extratab', 'format_qmultopics', 3));
+                $mform->addHelpButton('extratab3', 'extratab',
+                    'format_qmultopics', '', true);
+                $elements[] = $mform->addElement('checkbox', 'enable_extratab3',
+                    get_string('enabletab', 'format_qmultopics'));
+                $elements[] = $mform->addElement('text', 'title_extratab3',
+                    get_string('tabtitle', 'format_qmultopics'));
+                $elements[] = $mform->addElement('editor', 'content_extratab3',
+                    get_string('tabcontent', 'format_qmultopics'));
             }
         }
 
@@ -87,8 +106,6 @@ class format_qmultopics extends format_topics2 {
     }
 
     public function edit_form_validation($data, $files, $errors) {
-        global $COURSE, $DB;
-
         $return = parent::edit_form_validation($data, $files, $errors);
 
         if (isset($data['enable_extratab1'])) {
@@ -112,28 +129,31 @@ class format_qmultopics extends format_topics2 {
         } else {
             $data['enabled_extratab1'] = 0;
         }
-
         return $return;
     }
 
     public function course_format_options($foreditform = false) {
         global $CFG, $COURSE, $DB;
-//        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
-//        $max_tabs = 9; // Currently there is a maximum of 9 tabs!
+        /*
+        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        $max_tabs = 9; // Currently there is a maximum of 9 tabs!
+        */
         $fo = $DB->get_records('course_format_options', array('courseid' => $COURSE->id));
         $format_options = array();
         foreach($fo as $o) {
             $format_options[$o->name] = $o->value;
         }
 
-        // check for legacy 'toggle' format_option and change 'coursedisplay' accordingly where needed
-        if(isset($format_options['toggle']) && $format_options['toggle'] && $format_options['coursedisplay'] == COURSE_DISPLAY_SINGLEPAGE) {
+        // Check for legacy 'toggle' format_option and change 'coursedisplay' accordingly where needed.
+        if (isset($format_options['toggle']) && $format_options['toggle'] && $format_options['coursedisplay'] ==
+            COURSE_DISPLAY_SINGLEPAGE) {
             $rec = $DB->get_record('course_format_options', array('courseid' => $COURSE->id, 'name' => 'coursedisplay'));
             $rec->value = COURSE_DISPLAY_SINGLEPAGE;
             $DB->update_record('course_format_options', $rec);
         }
 
-        $max_tabs = ((isset($format_options['maxtabs']) && $format_options['maxtabs'] > 0) ? $format_options['maxtabs'] : (isset($CFG->max_tabs) ? $CFG->max_tabs : 9));
+        $max_tabs = ((isset($format_options['maxtabs']) && $format_options['maxtabs'] > 0) ?
+            $format_options['maxtabs'] : (isset($CFG->max_tabs) ? $CFG->max_tabs : 9));
         static $courseformatoptions = false;
         if ($courseformatoptions === false) {
             $courseconfig = get_config('moodlecourse');
@@ -197,7 +217,6 @@ class format_qmultopics extends format_topics2 {
                 'assessment_info_block_tab' => array(
                     'default' => get_config('format_qmultopics', 'defaultshowassessmentinfotab'),
                     'label' => get_string('assessment_info_block_tab_label', 'format_qmultopics'),
-//                    'element_type' => 'select',
                     'element_type' => 'hidden',
                     'element_attributes' => array(
                         array(
@@ -212,24 +231,63 @@ class format_qmultopics extends format_topics2 {
 
             );
 
-            // the sequence in which the tabs will be displayed
-            $courseformatoptions['tab_seq'] = array('default' => '','type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            // The sequence in which the tabs will be displayed.
+            $courseformatoptions['tab_seq'] = array(
+                'default' => '',
+                'type' => PARAM_TEXT,
+                'label' => '',
+                'element_type' => 'hidden'
+            );
 
-            // now loop through the tabs but don't show them as we only need the DB records...
-            $courseformatoptions['tab0_title'] = array('default' => get_string('tabzero_title', 'format_topics2'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-            $courseformatoptions['tab0'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+            // Now loop through the tabs but don't show them as we only need the DB records...
+            $courseformatoptions['tab0_title'] = array(
+                'default' => get_string('tabzero_title', 'format_topics2'),
+                'type' => PARAM_TEXT,
+                'label' => '',
+                'element_type' => 'hidden'
+            );
+            $courseformatoptions['tab0'] = array(
+                'default' => "",
+                'type' => PARAM_TEXT,
+                'label' => '',
+                'element_type' => 'hidden'
+            );
             for ($i = 1; $i <= $max_tabs; $i++) {
-                $courseformatoptions['tab'.$i.'_title'] = array('default' => "Tab ".$i,'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-                $courseformatoptions['tab'.$i] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
-                $courseformatoptions['tab'.$i.'_sectionnums'] = array('default' => "",'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+                $courseformatoptions['tab'.$i.'_title'] = array(
+                    'default' => "Tab ".$i,
+                    'type' => PARAM_TEXT,
+                    'label' => '',
+                    'element_type' => 'hidden'
+                );
+                $courseformatoptions['tab'.$i] = array(
+                    'default' => "",
+                    'type' => PARAM_TEXT,
+                    'label' => '',
+                    'element_type' => 'hidden'
+                );
+                $courseformatoptions['tab'.$i.'_sectionnums'] = array(
+                    'default' => "",
+                    'type' => PARAM_TEXT,
+                    'label' => '',
+                    'element_type' => 'hidden'
+                );
             }
-
         }
-        // Allow to store a name for the Assessment Info tab
-        $courseformatoptions['tab_assessment_information_title'] = array('default' => get_string('tab_assessment_information_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+        // Allow to store a name for the Assessment Info tab.
+        $courseformatoptions['tab_assessment_information_title'] = array(
+            'default' => get_string('tab_assessment_information_title', 'format_qmultopics'),
+            'type' => PARAM_TEXT,
+            'label' => '',
+            'element_type' => 'hidden'
+        );
 
-        // Allow to store a name for the Assessment Info Block tab
-        $courseformatoptions['tab_assessment_info_block_title'] = array('default' => get_string('tab_assessment_info_block_title', 'format_qmultopics'),'type' => PARAM_TEXT,'label' => '','element_type' => 'hidden',);
+        // Allow to store a name for the Assessment Info Block tab.
+        $courseformatoptions['tab_assessment_info_block_title'] = array(
+            'default' => get_string('tab_assessment_info_block_title', 'format_qmultopics'),
+            'type' => PARAM_TEXT,
+            'label' => '',
+            'element_type' => 'hidden'
+        );
 
         return $courseformatoptions;
     }
@@ -303,8 +361,8 @@ class format_qmultopics extends format_topics2 {
             ), '', 'name,id,value');
 
         foreach ($savedata as $key => $value) {
-            // from 3.6 on HTML editor will return an array - if so just get the txt to store
-            if(gettype($value) == 'array' && isset($value['text'])){
+            // From 3.6 on HTML editor will return an array - if so just get the txt to store.
+            if (gettype($value) == 'array' && isset($value['text'])){
                 $value = $value['text'];
             }
             if (isset($records[$key])) {
@@ -351,39 +409,34 @@ class format_qmultopics extends format_topics2 {
         $options = parent::get_format_options($section);
 
         if ($section === null) {
-            // course format options will be returned
+            // Course format options will be returned.
             $sectionid = 0;
         } else if ($this->courseid && isset($section->id)) {
-            // course section format options will be returned
+            // Course section format options will be returned.
             $sectionid = $section->id;
         } else if ($this->courseid && is_int($section) &&
             ($sectionobj = $DB->get_record('course_sections',
                 array('section' => $section, 'course' => $this->courseid), 'id'))) {
-            // course section format options will be returned
+            // Course section format options will be returned.
             $sectionid = $sectionobj->id;
         } else {
-            // non-existing (yet) section was passed as an argument
-            // default format options for course section will be returned
+            // Non-existing (yet) section was passed as an argument.
+            // Default format options for course section will be returned.
             $sectionid = -1;
         }
 
         if ($sectionid == 0) {
             $alloptions = $DB->get_records('course_format_options',
-                array('courseid'=>$this->courseid, 'format'=>$this->format,
-                    'sectionid'=>0));
-
+                array('courseid' => $this->courseid, 'format' => $this->format, 'sectionid' => 0));
             foreach ($alloptions as $option) {
                 if (!isset($options[$option->name])) {
                     $options[$option->name] = $option->value;
                 }
             }
-
             $this->formatoptions[$sectionid] = $options;
         }
-
         return $options;
     }
-
 }
 
 /**
@@ -407,20 +460,22 @@ function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
     if ($itemtype === 'tabname') {
         global $DB, $PAGE;
         $courseid = key($_SESSION['USER']->currentcourseaccess);
-        // the $itemid is actually the name of the record so use it to get the id
+        // The $itemid is actually the name of the record so use it to get the id.
 
-        // update the database with the new value given
+        // Update the database with the new value given.
         // Must call validate_context for either system, or course or course module context.
         // This will both check access and set current context.
         \external_api::validate_context(context_system::instance());
         // Check permission of the user to update this item.
-//        require_capability('moodle/course:update', context_system::instance());
+        /*
+        require_capability('moodle/course:update', context_system::instance());
+        */
         // Clean input and update the record.
         $newvalue = clean_param($newvalue, PARAM_NOTAGS);
         $record = $DB->get_record('course_format_options', array('id' => $itemid), '*', MUST_EXIST);
         $DB->update_record('course_format_options', array('id' => $record->id, 'value' => $newvalue));
 
-        // Prepare the element for the output ():
+        // Prepare the element for the output ().
         $output = new \core\output\inplace_editable('format_qmultopics', 'tabname', $record->id,
             true,
             format_string($newvalue), $newvalue, 'Edit tab name',  'New value for ' . format_string($newvalue));
