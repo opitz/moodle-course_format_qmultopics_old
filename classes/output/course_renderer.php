@@ -17,6 +17,9 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/course/renderer.php');
 
+/**
+ * Class qmultopics_course_renderer
+ */
 class qmultopics_course_renderer extends \core_course_renderer{
 
     /**
@@ -39,6 +42,8 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param int|null $sectionreturn
      * @param array $displayoptions
      * @return string
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function course_section_cm($course, &$completioninfo, cm_info $mod, $sectionreturn, $displayoptions = array()) {
         $output = '';
@@ -149,6 +154,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_badges($mod) {
         switch($mod->modname) {
@@ -264,6 +270,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_assignment_badges($mod) {
         global $COURSE;
@@ -305,6 +312,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_assign_submissions($mod) {
         global $COURSE;
@@ -372,6 +380,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_assign_group_submissions($mod) {
         global $COURSE;
@@ -516,6 +525,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_choice_badge($mod) {
         global $COURSE;
@@ -549,6 +559,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_choice_answers($mod) {
         global $COURSE;
@@ -622,6 +633,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_feedback_badge($mod) {
         global $COURSE;
@@ -655,6 +667,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_feedback_completions($mod) {
         global $COURSE;
@@ -728,6 +741,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_lesson_badge($mod) {
         global $COURSE;
@@ -761,6 +775,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_lesson_attempts($mod) {
         global $COURSE;
@@ -853,6 +868,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_quiz_badge($mod) {
         global $COURSE;
@@ -886,6 +902,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
      * @param $mod
      * @return string
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function show_quiz_attempts($mod) {
         global $COURSE;

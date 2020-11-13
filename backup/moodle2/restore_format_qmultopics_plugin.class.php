@@ -22,11 +22,8 @@
  * Toggles are persistent on a per browser session per course basis but can be made to persist longer by a small
  * code change. Full installation instructions, code adaptions and credits are included in the 'Readme.txt' file.
  *
- * @package    course/format
- * @subpackage qmultopics
- * @version    See the value of '$plugin->version' in below.
- * @copyright  &copy; 2009-onwards G J Barnard in respect to modifications of standard topics format.
- * @author     G J Barnard - gjbarnard at gmail dot com and {@link http://moodle.org/user/profile.php?id=442195}
+ * @package    format_qmultopics
+ * @copyright  2020 Matthias Opitz m.opitz@qmul.ac.uk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
  *
  * This program is free software: you can redistribute it and/or modify
@@ -47,6 +44,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/course/format/qmultopics/lib.php');
 
 /**
+ * Class restore_format_qmultopics_plugin
  * Restore plugin class that provides the necessary information
  * Needed to restore one qmultopics course format
  */
@@ -70,6 +68,9 @@ class restore_format_qmultopics_plugin extends restore_format_plugin {
      * Process the 'plugin_format_qmultopics_course' element within the 'course' element in
      * the 'course.xml' file in the '/course' folder
      * of the zipped backup 'mbz' file.
+     *
+     * @param $data
+     * @throws dml_exception
      */
     public function process_format_qmultopics($data) {
         global $DB;
@@ -89,6 +90,9 @@ class restore_format_qmultopics_plugin extends restore_format_plugin {
         $this->set_mapping($this->get_namefor('newssettings'), $oldid, $newitemid, true);
     }
 
+    /**
+     * What to do after the execution
+     */
     protected function after_execute_structure() {
 
     }

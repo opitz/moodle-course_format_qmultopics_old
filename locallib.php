@@ -23,8 +23,11 @@ define('FORMAT_QMULTOPICS_IMAGE_NAME', 'qmt1');
 /**
  * Functions for all QMUL news formats
  *
- * Return string with latest news
- * @param object course
+ * @param $course
+ * @return string
+ * @throws coding_exception
+ * @throws dml_exception
+ * @throws moodle_exception
  */
 function format_qmultopics_getnews($course) {
     global $CFG, $DB, $OUTPUT;
@@ -89,6 +92,16 @@ function format_qmultopics_getnews($course) {
     return $OUTPUT->render_from_template('format_qmultopics/news', $context);
 }
 
+/**
+ * Truncate text
+ *
+ * @param $text
+ * @param int $length
+ * @param string $ending
+ * @param bool $exact
+ * @param bool $considerhtml
+ * @return false|string
+ */
 function format_qmultopics_truncatehtml($text, $length = 100, $ending = '...', $exact = false, $considerhtml = true) {
     if ($considerhtml) {
         // If the plain text is shorter than the maximum length, return the whole text.

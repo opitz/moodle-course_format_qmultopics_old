@@ -34,12 +34,13 @@ class format_qmultopics extends format_topics2 {
 
     /**
      * Adds format options elements to the course/section edit form
-     *
      * This function is called from {@link course_edit_form::definition_after_data()}
      *
-     * @param MoodleQuickForm $mform form the elements are added to
-     * @param bool $forsection 'true' if this is a section edit form, 'false' if this is course edit form
-     * @return array array of references to the added form elements
+     * @param MoodleQuickForm $mform
+     * @param bool $forsection
+     * @return array
+     * @throws coding_exception
+     *
      */
     public function create_edit_form_elements(&$mform, $forsection = false) {
         global $CFG, $OUTPUT;
@@ -104,6 +105,15 @@ class format_qmultopics extends format_topics2 {
         return $elements;
     }
 
+    /**
+     * Validate the form edit
+     *
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     * @throws coding_exception
+     */
     public function edit_form_validation($data, $files, $errors) {
         $return = parent::edit_form_validation($data, $files, $errors);
 
@@ -131,6 +141,14 @@ class format_qmultopics extends format_topics2 {
         return $return;
     }
 
+    /**
+     * Get the course format options
+     *
+     * @param bool $foreditform
+     * @return array|bool
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function course_format_options($foreditform = false) {
         global $CFG, $COURSE, $DB;
 
@@ -289,15 +307,10 @@ class format_qmultopics extends format_topics2 {
     /**
      * Updates format options for a course
      *
-     * In case if course format was changed to 'Collapsed Topics', we try to copy options
-     * 'coursedisplay', 'numsections' and 'hiddensections' from the previous format.
-     * If previous course format did not have 'numsections' option, we populate it with the
-     * current number of sections.  The layout and colour defaults will come from 'course_format_options'.
-     *
-     * @param stdClass|array $data return value from {@link moodleform::get_data()} or array with data
-     * @param stdClass $oldcourse if this function is called from {@link update_course()}
-     *     this object contains information about the course before update
-     * @return bool whether there were any changes to the options values
+     * @param array|stdClass $data
+     * @param null $oldcourse
+     * @return bool
+     * @throws dml_exception
      */
     public function update_course_format_options($data, $oldcourse = null) {
         global $DB;

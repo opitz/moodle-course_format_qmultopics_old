@@ -15,6 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Upgrading the plugin
+ *
+ * @package format_qmultopics
+ * @copyright 2020 Matthias Opitz / QMUL
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since Moodle 2.3
+ */
+
+/**
  * Upgrading
  *
  * @param int $oldversion
@@ -37,10 +46,14 @@ function xmldb_format_qmultopics_upgrade($oldversion = 0) {
         $table = new xmldb_table('qmultopics_newssettings');
 
         // Adding fields to table qmultopics_newssettings.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
-        $table->add_field('displaynews', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '1');
-        $table->add_field('image', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null);
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED,
+            XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED,
+            XMLDB_NOTNULL, null, '0');
+        $table->add_field('displaynews', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED,
+            XMLDB_NOTNULL, null, '1');
+        $table->add_field('image', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED,
+            null, null, null);
 
         // Adding keys to table qmultopics_newssettings.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
@@ -104,7 +117,7 @@ function xmldb_format_qmultopics_upgrade($oldversion = 0) {
         if ($dbman->table_exists($table)) {
             $dbman->rename_table($table, 'format_qmultopics_news');
         }
-        upgrade_plugin_savepoint(true, 2012062600, 'format', 'qmultopics');
+        upgrade_plugin_savepoint(true, 2012062900, 'format', 'qmultopics');
     }
 
     if ($oldversion < 2012062901) {
@@ -122,7 +135,8 @@ function xmldb_format_qmultopics_upgrade($oldversion = 0) {
 
         // Define field shownewsfull to be added to format_qmultopics_news.
         $table = new xmldb_table('format_qmultopics_news');
-        $field = new xmldb_field('shownewsfull', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'statictextformat');
+        $field = new xmldb_field('shownewsfull', XMLDB_TYPE_INTEGER, '2', null,
+            XMLDB_NOTNULL, null, '0', 'statictextformat');
 
         // Conditionally launch add field shownewsfull.
         if (!$dbman->field_exists($table, $field)) {

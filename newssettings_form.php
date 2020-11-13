@@ -20,8 +20,16 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once($CFG->libdir . '/formslib.php');
 
+/**
+ * Class newssettings_form
+ */
 class newssettings_form extends moodleform {
 
+    /**
+     * Definition
+     *
+     * @throws coding_exception
+     */
     public function definition() {
         $mform = $this->_form;
         $course = $this->_customdata['course'];

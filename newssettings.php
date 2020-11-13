@@ -17,9 +17,9 @@
 /**
  * Edit the introduction of a section
  *
- * @copyright 1999 Martin Dougiamas  http://dougiamas.com
+ * @copyright 2020 Matthias Opitz m.opitz@qmul.ac.uk
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @package course
+ * @package format_qmultopics
  */
 require_once("../../../config.php");
 require_once("lib.php");

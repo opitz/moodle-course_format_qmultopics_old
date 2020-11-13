@@ -35,12 +35,18 @@ require_once($CFG->dirroot . '/course/format/topics2/renderer.php');
  * @copyright 2019 Matthias Opitz
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class format_qmultopics_renderer extends format_topics2_renderer {
 
     private $courseformat = null;
     private $tcsettings;
 
+    /**
+     * format_qmultopics_renderer constructor.
+     *
+     * @param moodle_page $page
+     * @param $target
+     * @throws dml_exception
+     */
     public function __construct(moodle_page $page, $target) {
         global $COURSE;
 
@@ -704,8 +710,6 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     /**
      * Renders HTML to display a list of course modules in a course section
      * Also displays "move here" controls in Javascript-disabled mode
-     *
-     * This function calls {@link core_course_renderer::course_section_cm()}
      *
      * @param stdClass $course course object
      * @param int|stdClass|section_info $section relative section number or section object
