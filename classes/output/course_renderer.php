@@ -190,8 +190,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
             if ($duedate < (time() - 86400)) {
                 $duetext = get_string('badge_wasdue', 'format_qmultopics');
             }
-        }
-        else if ($duedate < (time() + (60 * 60 * 24 * 14))) {
+        } else if ($duedate < (time() + (60 * 60 * 24 * 14))) {
             // Only 14 days left until the due date - show a yellow badge.
             $badgeclass = ' badge-warning';
         }
@@ -410,8 +409,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
                 .$xofy
                 .$coursegroups
                 .$groupstext
-                .$posttext
-            ;
+                .$posttext;
             // If there are ungraded submissions show that in the badge as well.
             if ($ungraded) {
                 $badgetext =

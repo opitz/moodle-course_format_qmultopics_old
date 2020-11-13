@@ -496,12 +496,12 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
             if ($assignment->duedate > 0) {
                 $out .= html_writer::tag('div', $duedate, array('class' => 'due-date ml-auto badge badge-'.$statusclass,
-                    'data-toggle' => 'tooltip', 'data-placement' => 'top', 'title'=>$duestatus));
+                    'data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $duestatus));
             }
             $out .= html_writer::end_tag('div');
 
             if ($assignment->showdescription) {
-                $out .= html_writer::tag('div', format_text($assignment->intro), array('class'=>"summary pl-4"));
+                $out .= html_writer::tag('div', format_text($assignment->intro), array('class' => "summary pl-4"));
             }
             $out .= html_writer::end_tag('div');
 

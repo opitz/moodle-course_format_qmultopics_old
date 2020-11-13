@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains main class for the course format Topic
+ * This file contains main class for the course format QMULtopics
  *
  * @since     Moodle 2.0
  * @package   format_qmultopics
- * @copyright 2009 Sam Hemelryk
+ * @copyright 2020 Matthias Opitz
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
