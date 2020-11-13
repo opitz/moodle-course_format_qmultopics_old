@@ -18,6 +18,18 @@
     @template format_qmultopics/news
 
     Course module chooser.
+
+    Example context (json):
+    {
+        "discussions": [{
+            "subject": "test",
+            "discussionlink": "http://weltsensation.com",
+            "str": "Test String",
+            "fullname": "Full Name",
+            "date": "17-11-1961",
+            "morenewslink": "http://weltsensation.com/morenews",
+        }]
+    }
 }}
 {{#discussions}}
     <div class="head clearfix">
