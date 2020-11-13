@@ -26,7 +26,7 @@ class newssettings_form extends moodleform {
         $mform = $this->_form;
         $course = $this->_customdata['course'];
 
-        // Hidden elements:
+        // Hidden elements.
         $mform->addElement('hidden', 'course', $course->id);
         $mform->setType('course', PARAM_INT);
 

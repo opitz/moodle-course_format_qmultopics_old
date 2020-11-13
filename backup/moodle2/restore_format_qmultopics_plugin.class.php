@@ -58,7 +58,7 @@ class restore_format_qmultopics_plugin extends restore_format_plugin {
 
         $paths = array();
 
-        // Add own format stuff
+        // Add own format stuff.
         $elename = $this->get_namefor('');
         $elepath = $this->get_pathfor('/newssettings');
         $paths[] = new restore_path_element($elename, $elepath);

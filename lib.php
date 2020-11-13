@@ -133,10 +133,7 @@ class format_qmultopics extends format_topics2 {
 
     public function course_format_options($foreditform = false) {
         global $CFG, $COURSE, $DB;
-        /*
-        $maxtabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
-        $maxtabs = 9; // Currently there is a maximum of 9 tabs!
-        */
+
         $fo = $DB->get_records('course_format_options', array('courseid' => $COURSE->id));
         $formatoptions = array();
         foreach ($fo as $o) {
@@ -463,10 +460,7 @@ function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
         // Must call validate_context for either system, or course or course module context.
         // This will both check access and set current context.
         \external_api::validate_context(context_system::instance());
-        // Check permission of the user to update this item.
-        /*
-        require_capability('moodle/course:update', context_system::instance());
-        */
+
         // Clean input and update the record.
         $newvalue = clean_param($newvalue, PARAM_NOTAGS);
         $record = $DB->get_record('course_format_options', array('id' => $itemid), '*', MUST_EXIST);
