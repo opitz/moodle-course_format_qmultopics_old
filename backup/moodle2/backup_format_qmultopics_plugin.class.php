@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Collapsed Topics Information
  *
@@ -40,18 +39,19 @@ class backup_format_qmultopics_plugin extends backup_format_plugin {
      */
     protected function define_course_plugin_structure() {
 
-        // Define the virtual plugin element with the condition to fulfill
+        // Define the virtual plugin element with the condition to fulfill.
         $plugin = $this->get_plugin_element(null, '/course/format', 'qmultopics');
 
-        // Create one standard named plugin element (the visible container)
+        // Create one standard named plugin element (the visible container).
         $pluginwrapper = new backup_nested_element($this->get_recommended_name());
-        $plugindimension = new backup_nested_element('newssettings', array('id'), array('displaynews', 'usestatictext', 'statictext', 'statictextformat'));
+        $plugindimension = new backup_nested_element('newssettings', array('id'),
+            array('displaynews', 'usestatictext', 'statictext', 'statictextformat'));
 
-        // connect the visible container ASAP
+        // Connect the visible container ASAP.
         $plugin->add_child($pluginwrapper);
         $pluginwrapper->add_child($plugindimension);
 
-        // set source to populate the data
+        // Set source to populate the data.
         $plugindimension->set_source_table('format_qmultopics_news', array('courseid' => backup::VAR_PARENTID));
 
         return $plugin;

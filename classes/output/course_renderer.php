@@ -28,13 +28,15 @@ class qmultopics_course_renderer extends \core_course_renderer{
      */
     public function course_section_cm($course, &$completioninfo, cm_info $mod, $sectionreturn, $displayoptions = array()) {
         $output = '';
-        // We return empty string (because course module will not be displayed at all)
-        // if:
-        // 1) The activity is not visible to users
-        // and
-        // 2) The 'availableinfo' is empty, i.e. the activity was
-        //     hidden in a way that leaves no info, such as using the
-        //     eye icon.
+        /*
+        We return empty string (because course module will not be displayed at all)
+        if:
+        1) The activity is not visible to users
+        and
+        2) The 'availableinfo' is empty, i.e. the activity was
+           hidden in a way that leaves no info, such as using the
+           eye icon.
+        */
         if (!$mod->is_visible_on_course_page()) {
             return $output;
         }
@@ -58,10 +60,10 @@ class qmultopics_course_renderer extends \core_course_renderer{
         // This div is used to indent the content.
         $output .= html_writer::div('', $indentclasses);
 
-        // Start a wrapper for the actual content to keep the indentation consistent
+        // Start a wrapper for the actual content to keep the indentation consistent.
         $output .= html_writer::start_tag('div');
 
-        // Display the link to the module (or do nothing if module has no url)
+        // Display the link to the module (or do nothing if module has no url).
         $cmname = $this->course_section_cm_name($mod, $displayoptions);
 
         if (!empty($cmname)) {
@@ -73,16 +75,19 @@ class qmultopics_course_renderer extends \core_course_renderer{
             // Module can put text after the link (e.g. forum unread)
             $output .= $mod->afterlink;
 
-            // Closing the tag which contains everything but edit icons. Content part of the module should not be part of this.
+            // Closing the tag which contains everything but edit icons.
+            // Content part of the module should not be part of this.
             $output .= html_writer::end_tag('div'); // .activityinstance
         }
 
-        // If there is content but NO link (eg label), then display the
-        // content here (BEFORE any icons). In this case cons must be
-        // displayed after the content so that it makes more sense visually
-        // and for accessibility reasons, e.g. if you have a one-line label
-        // it should work similarly (at least in terms of ordering) to an
-        // activity.
+        /*
+        If there is content but NO link (eg label), then display the
+        content here (BEFORE any icons). In this case cons must be
+        displayed after the content so that it makes more sense visually
+        and for accessibility reasons, e.g. if you have a one-line label
+        it should work similarly (at least in terms of ordering) to an
+        activity.
+        */
         $contentpart = $this->course_section_cm_text($mod, $displayoptions);
         $url = $mod->url;
         if (empty($url)) {
@@ -105,18 +110,18 @@ class qmultopics_course_renderer extends \core_course_renderer{
         // Show availability info (if module is not available).
         $output .= $this->course_section_cm_availability($mod, $displayoptions);
 
-        // If there is content AND a link, then display the content here
-        // (AFTER any icons). Otherwise it was displayed before
+        // If there is content AND a link, then display the content here.
+        // (AFTER any icons). Otherwise it was displayed before.
         if (!empty($url)) {
             $output .= $contentpart;
         }
 
-        // amending badges
+        // Amending badges.
         $output .= html_writer::start_div();
         $output .= $this->show_badges($mod);
         $output .= html_writer::end_div();
 
-        $output .= html_writer::end_tag('div'); // $indentclasses
+        $output .= html_writer::end_tag('div');
 
         // End of indentation div.
         $output .= html_writer::end_tag('div');
@@ -125,7 +130,14 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $output;
     }
 
-    public function show_badges($mod){
+    /**
+     * Show a badge for the given module
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
+     */
+    public function show_badges($mod) {
         switch($mod->modname) {
             case 'assign':
                 return $this->show_assignment_badges($mod);
@@ -147,34 +159,57 @@ class qmultopics_course_renderer extends \core_course_renderer{
         }
     }
 
+    /**
+     * Show a due date badge
+     *
+     * @param $duedate
+     * @return string
+     * @throws coding_exception
+     */
     public function show_due_date_badge($duedate) {
-        $date_format = "%d %B %Y";
-        $badge_class = '';
-        $due_text = get_string('badge_due', 'format_qmultopics');
-        if($duedate < time()) {
-            // The due date has passed - show a red badge
-            $badge_class = ' badge-danger';
-            $due_text = get_string('badge_duetoday', 'format_qmultopics');
-            if($duedate < (time() - 86400)) {
-                $due_text = get_string('badge_wasdue', 'format_qmultopics');
+        $dateformat = "%d %B %Y";
+        $badgeclass = '';
+        $duetext = get_string('badge_due', 'format_qmultopics');
+        if ($duedate < time()) {
+            // The due date has passed - show a red badge.
+            $badgeclass = ' badge-danger';
+            $duetext = get_string('badge_duetoday', 'format_qmultopics');
+            if ($duedate < (time() - 86400)) {
+                $duetext = get_string('badge_wasdue', 'format_qmultopics');
             }
         }
-        elseif($duedate < (time() + (60 * 60 * 24 * 14))) {
-            // Only 14 days left until the due date - show a yellow badge
-            $badge_class = ' badge-warning';
+        elseif ($duedate < (time() + (60 * 60 * 24 * 14))) {
+            // Only 14 days left until the due date - show a yellow badge.
+            $badgeclass = ' badge-warning';
         }
-        $badge_content = $due_text . userdate($duedate,$date_format);
-        return $this->html_badge($badge_content, $badge_class);
+        $badgecontent = $duetext . userdate($duedate,$dateformat);
+        return $this->html_badge($badgecontent, $badgeclass);
     }
 
-    public function html_badge($badge_text, $badge_class = "", $title = ""){
+    /**
+     * Return the html for a badge
+     *
+     * @param $badgetext
+     * @param string $badgeclass
+     * @param string $title
+     * @return string
+     * @throws coding_exception
+     */
+    public function html_badge($badgetext, $badgeclass = "", $title = "") {
         $o = '';
-        $o .= html_writer::div($badge_text, 'badge '.$badge_class, array('title' => $title));
+        $o .= html_writer::div($badgetext, 'badge '.$badgeclass, array('title' => $title));
         $o .= get_string('badge_spacer', 'format_qmultopics');
         return $o;
     }
 
-    public function enrolled_users($capability){
+    /**
+     * Get the enrolled users with the given capability
+     *
+     * @param $capability
+     * @return array
+     * @throws dml_exception
+     */
+    public function enrolled_users($capability) {
         global $COURSE, $DB;
 
         switch($capability) {
@@ -195,7 +230,6 @@ class qmultopics_course_renderer extends \core_course_renderer{
                 $capability = '';
         }
 
-
         $context = \context_course::instance($COURSE->id);
         $groupid = '';
 
@@ -209,339 +243,385 @@ class qmultopics_course_renderer extends \core_course_renderer{
                 AND u.deleted = 0
                 ";
         return $DB->get_records_sql($sql, $capjoin->params);
-
     }
 
-    // Assignments -----------------------------------------------------------------------------------------------------
-    /*
+    // Assignments.
+    /**
      * Show badge for assign plus additional due date badge
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
-    public function show_assignment_badges($mod){
+    public function show_assignment_badges($mod) {
         global $COURSE;
         $o = '';
 
         $assignment = false;
-        foreach($COURSE->module_data as $module) {
+        foreach ($COURSE->module_data as $module) {
             if ($module->assign_id == $mod->instance) {
                 $assignment = $module;
                 break;
             }
         }
 
-        if($assignment) {
+        if ($assignment) {
 
-            // Show assignment due date
+            // Show assignment due date.
             $o .= $this->show_due_date_badge($assignment->assign_duedate);
 
-            // check if the user is able to grade (e.g. is a teacher)
+            // Check if the user is able to grade (e.g. is a teacher).
             if (has_capability('mod/assign:grade', $mod->context)) {
-                // show submission numbers and ungraded submissions if any
-                // check if the assignment allows group submissions
+                // Show submission numbers and ungraded submissions if any.
+                // Check if the assignment allows group submissions.
                 if ($assignment->teamsubmission && ! $assignment->requireallteammemberssubmit) {
                     $o .= $this->show_assign_group_submissions($mod);
                 } else {
                     $o .= $this->show_assign_submissions($mod);
                 }
             } else {
-                // show date of submission
+                // Show date of submission.
                 $o .= $this->show_assign_submission($mod);
             }
         }
         return $o;
     }
 
-    /*
+    /**
      * Show badge with submissions and gradings for all students
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_assign_submissions($mod) {
         global $COURSE;
-        // Show submissions by enrolled students
+        // Show submissions by enrolled students.
         $spacer = get_string('badge_commaspacer', 'format_qmultopics');
-        $badge_text = false;
-        $badge_class = '';
+        $badgetext = false;
+        $badgeclass = '';
         $capability = 'assign';
-        $pre_text = '';
+        $pretext = '';
         $xofy = get_string('badge_xofy', 'format_qmultopics');
-        $post_text = get_string('badge_submitted', 'format_qmultopics');
-        $groups_text = get_string('badge_groups', 'format_qmultopics');
-        $ungraded_text = get_string('badge_ungraded', 'format_qmultopics');
-        $enrolled_students = $this->enrolled_users($capability);
-        if(!empty($mod->availability)) {
+        $posttext = get_string('badge_submitted', 'format_qmultopics');
+        $groupstext = get_string('badge_groups', 'format_qmultopics');
+        $ungradedtext = get_string('badge_ungraded', 'format_qmultopics');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if (!empty($mod->availability)) {
 
             // Get availability information.
             $info = new \core_availability\info_module($mod);
-            $restricted_students = $info->filter_user_list($enrolled_students);
+            $restrictedstudents = $info->filter_user_list($enrolledstudents);
         } else {
-            $restricted_students = $enrolled_students;
+            $restrictedstudents = $enrolledstudents;
         }
 
-        if($enrolled_students){
+        if ($enrolledstudents) {
             $submissions = 0;
             $gradings = 0;
-            if($COURSE->module_data) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'assign' &&
+            if ($COURSE->module_data) foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'assign' &&
                     $module->assign_id == $mod->instance &&
                     $module->assign_submission_status == 'submitted') {
                     $submissions++;
-                    if($module->assign_grade > 0) {
+                    if ($module->assign_grade > 0) {
                         $gradings++;
                     }
                 }
             }
             $ungraded = $submissions - $gradings;
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .$submissions
                 .$xofy
-                .count($restricted_students)
-                .$post_text;
+                .count($restrictedstudents)
+                .$posttext;
 
-            if($ungraded) {
-                $badge_text =
-                    $badge_text
+            if ($ungraded) {
+                $badgetext =
+                    $badgetext
                     .$spacer
                     .$ungraded
-                    .$ungraded_text;
+                    .$ungradedtext;
             }
 
-
-            if($badge_text) {
-                return $this->html_badge($badge_text, $badge_class);
+            if ($badgetext) {
+                return $this->html_badge($badgetext, $badgeclass);
             } else {
                 return '';
             }
         }
     }
 
-    /*
+    /**
      * Show badge with submissions and gradings for all groups
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_assign_group_submissions($mod) {
         global $COURSE;
-        // Show group submissions by enrolled students
+        // Show group submissions by enrolled students.
         $spacer = get_string('badge_commaspacer', 'format_qmultopics');
-        $badge_class = '';
+        $badgeclass = '';
         $capability = 'assign';
-        $pre_text = '';
+        $pretext = '';
         $xofy = get_string('badge_xofy', 'format_qmultopics');
-        $post_text = get_string('badge_submitted', 'format_qmultopics');
-        $groups_text = get_string('badge_groups', 'format_qmultopics');
-        $ungraded_text = get_string('badge_ungraded', 'format_qmultopics');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
-            // go through the group_data to get numbers for groups, submissions and gradings
-            $course_groups_array = [];
-            $group_submissions_array = [];
-            $group_gradings_array = [];
-            if(isset($COURSE->group_assign_data)) foreach($COURSE->group_assign_data as $record) {
-                $course_groups_array[$record->groupid] = $record->groupid;
-                if($record->grade < 0) {
-                    $group_submissions_array[$record->groupid] = true;
-                } elseif($record->grade > 0) {
-                    $group_submissions_array[$record->groupid] = true;
-                    $group_gradings_array[$record->groupid] = $record->grade;
+        $posttext = get_string('badge_submitted', 'format_qmultopics');
+        $groupstext = get_string('badge_groups', 'format_qmultopics');
+        $ungradedtext = get_string('badge_ungraded', 'format_qmultopics');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if ($enrolledstudents) {
+            // Go through the group_data to get numbers for groups, submissions and gradings.
+            $coursegroupsarray = [];
+            $groupsubmissions_array = [];
+            if (isset($COURSE->group_assign_data)) foreach ($COURSE->group_assign_data as $record) {
+                $coursegroupsarray[$record->groupid] = $record->groupid;
+                if ($record->grade < 0) {
+                    $groupsubmissions_array[$record->groupid] = true;
+                } elseif ($record->grade > 0) {
+                    $groupsubmissions_array[$record->groupid] = true;
+                    $coursegroupsarray[$record->groupid] = $record->grade;
                 }
             }
-            $course_groups = count($course_groups_array);
-            $group_submissions = count($group_submissions_array);
-            $group_gradings = count($group_gradings_array);
-            $ungraded = $group_submissions - $group_gradings;
-            $badge_text = $pre_text
-                .$group_submissions
+            $coursegroups = count($coursegroupsarray);
+            $groupsubmissions = count($groupsubmissions_array);
+            $group_gradings = count($coursegroupsarray);
+            $ungraded = $groupsubmissions - $group_gradings;
+            $badgetext = $pretext
+                .$groupsubmissions
                 .$xofy
-                .$course_groups
-                .$groups_text
-                .$post_text
+                .$coursegroups
+                .$groupstext
+                .$posttext
             ;
             // if there are ungraded submissions show that in the badge as well
-            if($ungraded) {
-                $badge_text =
-                    $badge_text
+            if ($ungraded) {
+                $badgetext =
+                    $badgetext
                     .$spacer
                     .$ungraded
-                    .$ungraded_text;
+                    .$ungradedtext;
             }
 
-            if($badge_text) {
-                return $this->html_badge($badge_text, $badge_class);
+            if ($badgetext) {
+                return $this->html_badge($badgetext, $badgeclass);
             } else {
                 return '';
             }
         }
     }
 
-    /*
+    /**
      * A badge to show the student as $USER his/her submission status
      * It will display the date of a submission, a mouseover will show the time for the submission
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_assign_submission($mod) {
         global $COURSE, $USER;
-        $badge_class = '';
-        $badge_title = '';
-        $date_format = "%d %B %Y";
-        $time_format = "%d %B %Y %H:%M:%S";
+        $badgeclass = '';
+        $badgetitle = '';
+        $dateformat = "%d %B %Y";
+        $timeformat = "%d %B %Y %H:%M:%S";
 
         $submission = false;
-        foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'assign' && $module->assign_userid == $USER->id && $module->assign_id == $mod->instance) {
+        foreach ($COURSE->module_data as $module) {
+            if ($module->module_name == 'assign' && $module->assign_userid == $USER->id && $module->assign_id == $mod->instance) {
                 $submission = $module;
                 break;
             }
         }
 
-        if($submission) {
-            $badge_text = get_string('badge_submitted', 'format_qmultopics').userdate($submission->assign_submit_time,$date_format);
-            if($this->get_grading($mod) || $this->get_group_grading($mod)) {
-//                $badge_class = 'badge-success'; // this will turn the badge green
-                $badge_text .= get_string('badge_feedback', 'format_qmultopics');
+        if ($submission) {
+            $badgetext = get_string('badge_submitted',
+                    'format_qmultopics').userdate($submission->assign_submit_time, $dateformat);
+            if ($this->get_grading($mod) || $this->get_group_grading($mod)) {
+                $badgetext .= get_string('badge_feedback', 'format_qmultopics');
             }
-            $badge_title = get_string('badge_submission_time_title', 'format_qmultopics') . userdate($submission->assign_submit_time,$time_format);
+            $badgetitle = get_string('badge_submission_time_title',
+                    'format_qmultopics') . userdate($submission->assign_submit_time, $timeformat);
         } else {
-            $badge_text = get_string('badge_notsubmitted', 'format_qmultopics');
+            $badgetext = get_string('badge_notsubmitted', 'format_qmultopics');
         }
-        if($badge_text) {
-            return $this->html_badge($badge_text, $badge_class, $badge_title);
+        if ($badgetext) {
+            return $this->html_badge($badgetext, $badgeclass, $badgetitle);
         } else {
             return '';
         }
     }
 
-    /*
+    /**
      * Return grading if the given student as $USER has been graded yet
+     *
+     * @param $mod
+     * @return array
      */
     public function get_grading($mod) {
         global $COURSE, $USER;
 
         $grading = [];
-        if (isset($COURSE->module_data)) foreach($COURSE->module_data as $module){
-            if($module->module_name == 'assign' && $module->assign_id == $mod->instance && $module->assign_userid == $USER->id && $module->assign_grade > 0) {
-                $grading[] = $module;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'assign' && $module->assign_id == $mod->instance &&
+                    $module->assign_userid == $USER->id && $module->assign_grade > 0) {
+                    $grading[] = $module;
+                }
             }
         }
         return $grading;
     }
 
-    /*
+    /**
      * Return true if the submission of the group of which the given student is a member has already been graded
+     *
+     * @param $mod
+     * @return bool
      */
     public function get_group_grading($mod) {
         global $COURSE, $USER;
 
-        if(!isset($COURSE->group_assign_data)) {
+        if (!isset($COURSE->group_assign_data)) {
             return false;
         }
-        foreach($COURSE->group_assign_data as $record){
-            if($record->assignment = $mod->instance && $record->user_id = $USER->id && $record->grade > 0) {
+        foreach ($COURSE->group_assign_data as $record) {
+            if ($record->assignment == $mod->instance && $record->user_id == $USER->id && $record->grade > 0) {
                 return true;
             }
         }
         return false;
     }
 
-    // Choices ---------------------------------------------------------------------------------------------------------
-    /*
+    // Choices.
+    /**
      * Show badge for choice plus a due date badge if there is a due date
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
-    public function show_choice_badge($mod){
+    public function show_choice_badge($mod) {
         global $COURSE;
 
         $o = '';
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            // if the choice has a due date show it
-            if($module->module_name == 'choice' && $module->choice_id == $mod->instance && $module->choice_duedate > 0) {
-                $o .= $this->show_due_date_badge($module->choice_duedate);
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                // If the choice has a due date show it.
+                if ($module->module_name == 'choice' && $module->choice_id == $mod->instance && $module->choice_duedate > 0) {
+                    $o .= $this->show_due_date_badge($module->choice_duedate);
+                    break;
+                }
             }
         }
 
-        // check if the user is able to grade (e.g. is a teacher)
+        // Check if the user is able to grade (e.g. is a teacher).
         if (has_capability('mod/assign:grade', $mod->context)) {
-            // show submission numbers and ungraded submissions if any
+            // Show submission numbers and ungraded submissions if any.
             $o .= $this->show_choice_answers($mod);
         } else {
-            // show date of submission
+            // Show date of submission.
             $o .= $this->show_choice_answer($mod);
         }
 
         return $o;
     }
 
-    /*
+    /**
      * Show badge with choice answers of all students
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_choice_answers($mod) {
         global $COURSE;
 
-        // Show answers by enrolled students
-        $badge_text = '';
-        $badge_class = '';
+        // Show answers by enrolled students.
+        $badgetext = '';
+        $badgeclass = '';
         $capability = 'choice';
-        $pre_text = '';
+        $pretext = '';
         $xofy = ' of ';
-        $post_text = get_string('badge_answered', 'format_qmultopics');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
+        $posttext = get_string('badge_answered', 'format_qmultopics');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if ($enrolledstudents) {
             $submissions = 0;
-            if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'choice' && $module->choice_userid != null && $module->choice_id == $mod->instance) {
-                    $submissions++;
+            if (isset($COURSE->module_data)) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'choice' && $module->choice_userid != null && $module->choice_id == $mod->instance) {
+                        $submissions++;
+                    }
                 }
             }
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .$submissions
                 .$xofy
-                .count($enrolled_students)
-                .$post_text;
+                .count($enrolledstudents)
+                .$posttext;
         }
-        if($badge_text != '') {
-            return $this->html_badge($badge_text, $badge_class);
+        if ($badgetext != '') {
+            return $this->html_badge($badgetext, $badgeclass);
         } else {
             return '';
         }
     }
 
-    /*
+    /**
      * Show choice answer for current student as $USER
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_choice_answer($mod) {
         global $COURSE, $DB, $USER;
-        $badge_class = '';
-        $date_format = "%d %B %Y";
+        $badgeclass = '';
+        $dateformat = "%d %B %Y";
 
-        $submit_time = false;
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'choice' && $module->choice_id == $mod->instance && $module->choice_userid == $USER->id) {
-                $submit_time = $module->choice_submit_time;
-                break;
+        $submittime = false;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'choice' && $module->choice_id == $mod->instance &&
+                    $module->choice_userid == $USER->id) {
+                    $submittime = $module->choice_submit_time;
+                    break;
+                }
             }
         }
-        if($submit_time) {
-//            $badge_class = 'badge-success';
-            $badge_text = get_string('badge_answered', 'format_qmultopics').userdate($submit_time,$date_format);
+        if ($submittime) {
+            $badgetext = get_string('badge_answered',
+                    'format_qmultopics').userdate($submittime, $dateformat);
         } else {
-            $badge_text = get_string('badge_notanswered', 'format_qmultopics');
+            $badgetext = get_string('badge_notanswered', 'format_qmultopics');
         }
-        return $this->html_badge($badge_text, $badge_class);
+        return $this->html_badge($badgetext, $badgeclass);
     }
 
-    // Feedbacks -------------------------------------------------------------------------------------------------------
-    /*
+    // Feedbacks.
+    /**
      * Show feedback badge plus a due date badge if there is a due date
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
-    public function show_feedback_badge($mod){
+    public function show_feedback_badge($mod) {
         global $COURSE;
         $o = '';
 
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            // if the feedback has a due date show it
-            if($module->module_name == 'feedback' && $module->feedback_id == $mod->instance && $module->feedback_duedate > 0) {
+        if (isset($COURSE->module_data)) foreach ($COURSE->module_data as $module) {
+            // If the feedback has a due date show it.
+            if ($module->module_name == 'feedback' && $module->feedback_id == $mod->instance && $module->feedback_duedate > 0) {
                 $o .= $this->show_due_date_badge($module->feedback_duedate);
                 break;
             }
         }
 
-        // check if the user is able to grade (e.g. is a teacher)
+        // Check if the user is able to grade (e.g. is a teacher).
         if (has_capability('mod/assign:grade', $mod->context)) {
-            // show submission numbers and ungraded submissions if any
+            // Show submission numbers and ungraded submissions if any.
             $o .= $this->show_feedback_completions($mod);
         } else {
             // show date of submission
@@ -551,269 +631,319 @@ class qmultopics_course_renderer extends \core_course_renderer{
         return $o;
     }
 
-    /*
+    /**
      * Show badge with feedback completions of all students
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_feedback_completions($mod) {
         global $COURSE;
 
-        // Show answers by enrolled students
-        $badge_text = '';
-        $badge_class = '';
+        // Show answers by enrolled students.
+        $badgetext = '';
+        $badgeclass = '';
         $capability = 'feedback';
-        $pre_text = '';
+        $pretext = '';
         $xofy = ' of ';
-        $post_text = get_string('badge_completed', 'format_qmultopics');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
+        $posttext = get_string('badge_completed', 'format_qmultopics');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if ($enrolledstudents) {
             $submissions = 0;
-            if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'feedback' && $module->feedback_id == $mod->instance && $module->feedback_userid != null) {
-                    $submissions++;
+            if (isset($COURSE->module_data)) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'feedback' && $module->feedback_id == $mod->instance &&
+                        $module->feedback_userid != null) {
+                        $submissions++;
+                    }
                 }
             }
 
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .$submissions
                 .$xofy
-                .count($enrolled_students)
-                .$post_text;
-
+                .count($enrolledstudents)
+                .$posttext;
         }
-        if($badge_text != '') {
-            return $this->html_badge($badge_text, $badge_class);
+        if ($badgetext != '') {
+            return $this->html_badge($badgetext, $badgeclass);
         } else {
             return '';
         }
     }
 
-    /*
+    /**
      * Show feedback by current student as $USER
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_feedback_completion($mod) {
         global $COURSE, $USER;
-        $badge_class = '';
-        $date_format = "%d %B %Y";
+        $badgeclass = '';
+        $dateformat = "%d %B %Y";
         $submission = false;
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'feedback' && $module->feedback_id == $mod->instance && $module->feedback_userid == $USER->id) {
+        if (isset($COURSE->module_data)) foreach ($COURSE->module_data as $module) {
+            if ($module->module_name == 'feedback' && $module->feedback_id == $mod->instance &&
+                $module->feedback_userid == $USER->id) {
                 $submission = $module;
                 break;
             }
         }
-        if($submission) {
-//            $badge_class = 'badge-success';
-            $badge_text = get_string('badge_completed', 'format_qmultopics').userdate($submission->feedback_submit_time,$date_format);
+        if ($submission) {
+            $badgetext = get_string('badge_completed',
+                    'format_qmultopics').userdate($submission->feedback_submit_time, $dateformat);
         } else {
-            $badge_text = get_string('badge_notcompleted', 'format_qmultopics');
+            $badgetext = get_string('badge_notcompleted', 'format_qmultopics');
         }
-        return $this->html_badge($badge_text, $badge_class);
+        return $this->html_badge($badgetext, $badgeclass);
     }
 
-    // Lessons -------------------------------------------------------------------------------------------------------
-    /*
+    // Lessons.
+    /**
      * Show lesson badge plus additional due date badge if there is a due date
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
-    public function show_lesson_badge($mod){
+    public function show_lesson_badge($mod) {
         global $COURSE;
         $o = '';
 
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            // if the feedback has a due date show it
-            if($module->module_name == 'lesson' & $module->lesson_id == $mod->instance && $module->lesson_duedate > 0) {
-                $o .= $this->show_due_date_badge($module->lesson_duedate);
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                // If the feedback has a due date show it.
+                if ($module->module_name == 'lesson' & $module->lesson_id == $mod->instance && $module->lesson_duedate > 0) {
+                    $o .= $this->show_due_date_badge($module->lesson_duedate);
+                    break;
+                }
             }
         }
 
-        // check if the user is able to grade (e.g. is a teacher)
+        // Check if the user is able to grade (e.g. is a teacher).
         if (has_capability('mod/assign:grade', $mod->context)) {
-            // show submission numbers and ungraded submissions if any
+            // Show submission numbers and ungraded submissions if any.
             $o .= $this->show_lesson_attempts($mod);
         } else {
-            // show date of submission
+            // Show date of submission.
             $o .= $this->show_lesson_attempt($mod);
         }
 
         return $o;
     }
 
-    /*
+    /**
      * Show badge with lesson attempts of all students
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_lesson_attempts($mod) {
         global $COURSE;
 
-        // Show answers by enrolled students
+        // Show answers by enrolled students.
         $spacer = get_string('badge_commaspacer', 'format_qmultopics');
-        $badge_text = '';
-        $badge_class = '';
+        $badgetext = '';
+        $badgeclass = '';
         $capability = 'lesson';
-        $pre_text = '';
+        $pretext = '';
         $xofy = ' of ';
-        $post_text = get_string('badge_attempted', 'format_qmultopics');
-        $completed_text = get_string('badge_completed', 'format_qmultopics');
-        $enrolled_students = $this->enrolled_users($capability);
-        if($enrolled_students){
+        $posttext = get_string('badge_attempted', 'format_qmultopics');
+        $completedtext = get_string('badge_completed', 'format_qmultopics');
+        $enrolledstudents = $this->enrolled_users($capability);
+        if ($enrolledstudents) {
             $submissions = [];
             $completed = [];
-            if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'lesson' && $module->lesson_id == $mod->instance && $module->lesson_userid != null) {
-                    $submissions[$module->lesson_userid] = true;
-                    if($module->lesson_completed != null) {
-                        $completed[$module->lesson_userid] = true;
+            if (isset($COURSE->module_data)) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'lesson' && $module->lesson_id == $mod->instance && $module->lesson_userid != null) {
+                        $submissions[$module->lesson_userid] = true;
+                        if ($module->lesson_completed != null) {
+                            $completed[$module->lesson_userid] = true;
+                        }
                     }
                 }
             }
 
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .count($submissions)
                 .$xofy
-                .count($enrolled_students)
-                .$post_text;
+                .count($enrolledstudents)
+                .$posttext;
 
-            if($completed > 0) {
-                $badge_text =
-                    $badge_text
+            if ($completed > 0) {
+                $badgetext =
+                    $badgetext
                     .$spacer
                     .count($completed)
-                    .$completed_text;
+                    .$completedtext;
             }
         }
-        if($badge_text != '') {
-            return $this->html_badge($badge_text, $badge_class);
+        if ($badgetext != '') {
+            return $this->html_badge($badgetext, $badgeclass);
         } else {
             return '';
         }
     }
 
-    /*
+    /**
      * Show lesson attempt for the current student as $USER
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_lesson_attempt($mod) {
         global $COURSE, $USER;
-        $badge_class = '';
-        $date_format = "%d %B %Y";
+        $badgeclass = '';
+        $dateformat = "%d %B %Y";
         $submission = false;
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'lesson' && $module->lesson_id == $mod->instance && $module->lesson_userid == $USER->id) {
-                $submission = $module;
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                if ($module->module_name == 'lesson' && $module->lesson_id == $mod->instance && $module->lesson_userid == $USER->id) {
+                    $submission = $module;
+                    break;
+                }
             }
         }
-        if($submission) {
-            if($submission->lesson_completed) {
-//            $badge_class = 'badge-success';
-                $badge_text = get_string('badge_completed', 'format_qmultopics').userdate($submission->lesson_completed,$date_format);
+        if ($submission) {
+            if ($submission->lesson_completed) {
+                $badgetext = get_string('badge_completed',
+                        'format_qmultopics').userdate($submission->lesson_completed, $dateformat);
             } else {
-                $badge_text = get_string('badge_attempted', 'format_qmultopics').userdate($submission->lesson_submit_time,$date_format);
+                $badgetext = get_string('badge_attempted',
+                        'format_qmultopics').userdate($submission->lesson_submit_time, $dateformat);
             }
         } else {
-            $badge_text = get_string('badge_notcompleted', 'format_qmultopics');
+            $badgetext = get_string('badge_notcompleted', 'format_qmultopics');
         }
-        return $this->html_badge($badge_text, $badge_class);
+        return $this->html_badge($badgetext, $badgeclass);
     }
 
-    // Quizzes ---------------------------------------------------------------------------------------------------------
-    /*
+    // Quizzes.
+    /**
      * Quiz badge plus a due date badge if there is a due date
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
-    public function show_quiz_badge($mod){
+    public function show_quiz_badge($mod) {
         global $COURSE;
         $o = '';
 
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            // if the quiz has a due date show it
-            if($module->quiz_id == $mod->instance && $module->quiz_duedate > 0) {
-                $o .= $this->show_due_date_badge($module->quiz_duedate);
-                break;
+        if (isset($COURSE->module_data)) {
+            foreach ($COURSE->module_data as $module) {
+                // If the quiz has a due date show it.
+                if ($module->quiz_id == $mod->instance && $module->quiz_duedate > 0) {
+                    $o .= $this->show_due_date_badge($module->quiz_duedate);
+                    break;
+                }
             }
         }
 
-        // check if the user is able to grade (e.g. is a teacher)
+        // Check if the user is able to grade (e.g. is a teacher).
         if (has_capability('mod/assign:grade', $mod->context)) {
             // show submission numbers and ungraded submissions if any
             $o .= $this->show_quiz_attempts($mod);
         } else {
-            // show date of submission
+            // Show date of submission.
             $o .= $this->show_quiz_attempt($mod);
         }
 
         return $o;
     }
 
-    /*
-     * Show quiz attempts of all stydents
+    /**
+     * Show quiz attempts of all students.
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_quiz_attempts($mod) {
         global $COURSE;
 
-        // Show attempts by enrolled students
-        $badge_class = '';
+        // Show attempts by enrolled students.
+        $badgeclass = '';
         $capability = 'quiz';
-        $pre_text = '';
+        $pretext = '';
         $xofy = get_string('badge_xofy', 'format_qmultopics');
-        $post_text = get_string('badge_attempted', 'format_qmultopics');
-        $enrolled_students = $this->enrolled_users($capability);
+        $posttext = get_string('badge_attempted', 'format_qmultopics');
+        $enrolledstudents = $this->enrolled_users($capability);
 
-        if($enrolled_students){
+        if ($enrolledstudents) {
             $submissions = 0;
             $finished = 0;
-            if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-                if($module->module_name == 'quiz' && $module->quiz_id == $mod->instance && $module->quiz_userid != null) {
-                    $submissions++;
-                    if($module->quiz_state == 'finished') {
-                        $finished++;
+            if (isset($COURSE->module_data)) {
+                foreach ($COURSE->module_data as $module) {
+                    if ($module->module_name == 'quiz' && $module->quiz_id == $mod->instance && $module->quiz_userid != null) {
+                        $submissions++;
+                        if ($module->quiz_state == 'finished') {
+                            $finished++;
+                        }
                     }
                 }
             }
-            $badge_text = $pre_text
+            $badgetext = $pretext
                 .$submissions
                 .$xofy
-                .count($enrolled_students)
-                .$post_text
+                .count($enrolledstudents)
+                .$posttext
                 .($submissions > 0 ? ', '.$finished.get_string('badge_finished', 'format_qmultopics') : '');
             ;
 
         }
-        if($badge_text) {
-            return $this->html_badge($badge_text, $badge_class);
+        if ($badgetext) {
+            return $this->html_badge($badgetext, $badgeclass);
         } else {
             return '';
         }
     }
 
-    /*
+    /**
      * Show quiz attempts for the current student as $USER
+     *
+     * @param $mod
+     * @return string
+     * @throws coding_exception
      */
     public function show_quiz_attempt($mod) {
         global $COURSE, $DB, $USER;
         $o = '';
-        $badge_class = '';
-        $date_format = "%d %B %Y";
+        $badgeclass = '';
+        $dateformat = "%d %B %Y";
 
         $submissions = [];
-        if(isset($COURSE->module_data)) foreach($COURSE->module_data as $module) {
-            if($module->module_name == 'quiz' && $module->quiz_id == $mod->instance && $module->quiz_userid == $USER->id) {
+        if (isset($COURSE->module_data)) foreach ($COURSE->module_data as $module) {
+            if ($module->module_name == 'quiz' && $module->quiz_id == $mod->instance && $module->quiz_userid == $USER->id) {
                 $submissions[] = $module;
             }
         }
 
-        if(count($submissions)) foreach($submissions as $submission) {
-            switch($submission->quiz_state) {
-                case "inprogress":
-                    $badge_text = get_string('badge_inprogress', 'format_qmultopics').userdate($submission->quiz_timestart,$date_format);
-                    break;
-                case "finished":
-                    $badge_text = get_string('badge_finished', 'format_qmultopics').userdate($submission->quiz_submit_time,$date_format);
-                    break;
-            }
-            if($badge_text) {
-                $o .= $this->html_badge($badge_text, $badge_class);
+        if (count($submissions)) {
+            foreach ($submissions as $submission) {
+                switch($submission->quiz_state) {
+                    case "inprogress":
+                        $badgetext = get_string('badge_inprogress',
+                                'format_qmultopics').userdate($submission->quiz_timestart,$dateformat);
+                        break;
+                    case "finished":
+                        $badgetext = get_string('badge_finished',
+                                'format_qmultopics').userdate($submission->quiz_submit_time,$dateformat);
+                        break;
+                }
+                if ($badgetext) {
+                    $o .= $this->html_badge($badgetext, $badgeclass);
+                }
             }
         } else {
-            $badge_text = get_string('badge_notattempted', 'format_qmultopics');
-            $o .= $this->html_badge($badge_text, $badge_class);
+            $badgetext = get_string('badge_notattempted', 'format_qmultopics');
+            $o .= $this->html_badge($badgetext, $badgeclass);
         }
         return $o;
     }

@@ -1,5 +1,4 @@
 <?php
-
 require_once($CFG->dirroot . '/course/lib.php');
 
 define('FORMAT_QMULTOPICS_IMAGE_HEIGHT', 200);
@@ -14,7 +13,7 @@ define('FORMAT_QMULTOPICS_IMAGE_NAME', 'qmt1');
 function format_qmultopics_getnews($course) {
     global $CFG, $DB, $OUTPUT;
 
-    require_once($CFG->dirroot . '/mod/forum/lib.php');   // We'll need this
+    require_once($CFG->dirroot . '/mod/forum/lib.php');   // We'll need this.
 
     $text = '';
 
@@ -34,7 +33,7 @@ function format_qmultopics_getnews($course) {
 
     $context = context_module::instance($cm->id);
 
-    /// User must have perms to view discussions in that forum.
+    // User must have perms to view discussions in that forum.
     if (!has_capability('mod/forum:viewdiscussion', $context)) {
         return '';
     }
@@ -58,7 +57,7 @@ function format_qmultopics_getnews($course) {
         $discussion->subject = format_string($discussion->subject, true, $forum->course);
         $discussion->displaymessage = !$shownewsfull ? $discussion->message :
             format_qmultopics_truncatehtml($discussion->message, 500);
-        $discussion->discussionlink = new moodle_url('/mod/forum/discuss.php', array('d'=>$discussion->discussion));
+        $discussion->discussionlink = new moodle_url('/mod/forum/discuss.php', array('d' => $discussion->discussion));
         $discussion->fullname = fullname($discussion);
         $discussion->date = userdate($discussion->modified, $strftimerecent);
         $discussions[$key] = $discussion;
@@ -92,17 +91,17 @@ function format_qmultopics_truncatehtml($text, $length = 100, $ending = '...', $
                 if (preg_match(
                     '/^<(\s*.+?\/\s*|\s*(img|br|input|hr|area|base|basefont|col|frame|isindex|link|meta|param)(\s.+?)?)>$/is',
                     $linematchings[1])) {
-                    // Do nothing/
-                // If tag is a closing tag.
+                    // Do nothing.
                 } else if (preg_match('/^<\s*\/([^\s]+?)\s*>$/s', $linematchings[1], $tagmatchings)) {
-                    // delete tag from $opentags list
+                    // If tag is a closing tag.
+                    // Delete tag from $opentags list.
                     $pos = array_search($tagmatchings[1], $opentags);
                     if ($pos !== false) {
                         unset($opentags[$pos]);
                     }
-                // If tag is an opening tag.
                 } else if (preg_match('/^<\s*([^\s>!]+).*?>$/s', $linematchings[1], $tagmatchings)) {
-                    // add tag to the beginning of $opentags list
+                    // If tag is an opening tag.
+                    // Add tag to the beginning of $opentags list.
                     array_unshift($opentags, strtolower($tagmatchings[1]));
                 }
                 // Add html-tag to $truncate'd text.
@@ -111,7 +110,7 @@ function format_qmultopics_truncatehtml($text, $length = 100, $ending = '...', $
             // Calculate the length of the plain text part of the line; handle entities as one character.
             $contentlength = strlen(preg_replace('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|[0-9a-f]{1,6};/i',
                 ' ', $linematchings[2]));
-            if ($totallength+$contentlength> $length) {
+            if ($totallength + $contentlength > $length) {
                 // The number of characters which are left.
                 $left = $length - $totallength;
                 $entitieslength = 0;
@@ -129,7 +128,7 @@ function format_qmultopics_truncatehtml($text, $length = 100, $ending = '...', $
                         }
                     }
                 }
-                $truncate .= substr($linematchings[2], 0, $left+$entitieslength);
+                $truncate .= substr($linematchings[2], 0, $left + $entitieslength);
                 // Maximum lenght is reached, so get off the loop.
                 break;
             } else {
@@ -159,7 +158,7 @@ function format_qmultopics_truncatehtml($text, $length = 100, $ending = '...', $
     }
     // Add the defined ending to the text.
     $truncate .= $ending;
-    if($considerhtml) {
+    if ($considerhtml) {
         // Close all unclosed html-tags.
         foreach ($opentags as $tag) {
             $truncate .= '</' . $tag . '>';

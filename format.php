@@ -37,18 +37,19 @@ if ($topic = optional_param('topic', 0, PARAM_INT)) {
 }
 // End backwards-compatible aliasing..
 
-// check if the Assessment Information block is required and available - and if needed install it into the course
+// Check if the Assessment Information block is required and available - and if needed install it into the course.
 $fo = $DB->get_records('course_format_options', array('courseid' => $course->id));
-$format_options = array();
-foreach($fo as $o) {
-    $format_options[$o->name] = $o->value;
+$formatoptions = array();
+foreach ($fo as $o) {
+    $formatoptions[$o->name] = $o->value;
 }
 /*
-if ( array_key_exists('enable_assessmentinformation', $format_options) && $format_options['enable_assessmentinformation'] == '1') {
+if ( array_key_exists('enable_assessmentinformation', $formatoptions) && $formatoptions['enable_assessmentinformation'] == '1') {
     $available_blocks = core_plugin_manager::instance()->get_plugins_of_type('block');
     if( array_key_exists("assessment_information", $available_blocks)) { // only do something if the AI block is available
         // get the installed blocks and check if the assessment info block is one of them
-        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
+        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id
+                where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
         $installed_blocks = $DB->get_records_sql($sql, array());
         $assessment_info_block_id = false;
         foreach($installed_blocks as $installed_block) {
@@ -83,12 +84,12 @@ if ( array_key_exists('enable_assessmentinformation', $format_options) && $forma
 */
 $context = context_course::instance($course->id);
 
-if (($marker >=0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
+if (($marker >= 0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
     $course->marker = $marker;
     course_set_marker($course->id, $marker);
 }
 
-// make sure all sections are created
+// Make sure all sections are created.
 $course = course_get_format($course)->get_course();
 course_create_sections_if_missing($course, 1);
 
@@ -100,5 +101,5 @@ if (!empty($displaysection)) {
     $renderer->print_multiple_section_page($course, null, null, null, null);
 }
 
-// Include course format js module
+// Include course format js module.
 $PAGE->requires->js('/course/format/qmultopics/format.js');

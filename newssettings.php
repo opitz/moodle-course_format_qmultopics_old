@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,7 +30,7 @@ require_once('locallib.php');
 require_once($CFG->dirroot . '/lib/filestorage/file_storage.php');
 require_once($CFG->dirroot . '/lib/gdlib.php');
 
-$courseid = required_param('course', PARAM_INT);    // Week/topic ID
+$courseid = required_param('course', PARAM_INT);    // Week/topic ID.
 
 $PAGE->set_url('/course/newssettings.php', array('course' => $courseid));
 
@@ -43,9 +42,10 @@ require_login($course);
 $context = context_course::instance($course->id);
 require_capability('moodle/course:update', $context);
 
-$editoroptions = array('context' => $context, 'maxfiles' => EDITOR_UNLIMITED_FILES, 'maxbytes' => $CFG->maxbytes, 'trusttext' => false, 'noclean' => true);
+$editoroptions = array('context' => $context, 'maxfiles' => EDITOR_UNLIMITED_FILES, 'maxbytes' => $CFG->maxbytes,
+    'trusttext' => false, 'noclean' => true);
 
-//Get saved details:
+// Get saved details.
 if (!$newssettings = $DB->get_record('format_qmultopics_news', array('courseid' => $course->id))) {
     $newssettings = new stdClass();
     $newssettings->courseid = $course->id;
@@ -55,19 +55,19 @@ $newssettings->statictextformat = FORMAT_HTML;
 $newssettings = file_prepare_standard_editor($newssettings, 'statictext', $editoroptions, $context, 'format_qmultopics');
 
 $mform = new newssettings_form(null, array('course' => $course));
-$mform->set_data($newssettings); // set current value
+$mform->set_data($newssettings); // Set current value.
 
 $redir = new moodle_url('/course/view.php', array('id' => $course->id));
-/// If data submitted, then process and store.
+// If data submitted, then process and store.
 if ($mform->is_cancelled()) {
     redirect($redir);
 } else if ($data = $mform->get_data()) {
-    //Insert or update
+    // Insert or update.
     $dbobj = (object) new stdClass();
     $dbobj->displaynews = isset($data->displaynews) ? $data->displaynews : 0;
     $dbobj->usestatictext = isset($data->usestatictext) ? $data->usestatictext : 0;
     $dbobj->shownewsfull = isset($data->shownewsfull) ? $data->shownewsfull : 0;
-    if(isset($data->statictext_editor)) {
+    if (isset($data->statictext_editor)) {
         $dbobj->statictext = isset($data->statictext_editor['text']) ? $data->statictext_editor['text'] : '';
         $dbobj->statictextformat = isset($data->statictext_editor['format']) ? $data->statictext_editor['format'] : 1;
     }

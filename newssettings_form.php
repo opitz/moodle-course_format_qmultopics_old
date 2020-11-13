@@ -1,5 +1,4 @@
 <?php
-
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
 }
@@ -12,7 +11,7 @@ class newssettings_form extends moodleform {
         $mform = $this->_form;
         $course = $this->_customdata['course'];
 
-        //Hidden elements:
+        // Hidden elements:
         $mform->addElement('hidden', 'course', $course->id);
         $mform->setType('course', PARAM_INT);
 
@@ -23,7 +22,7 @@ class newssettings_form extends moodleform {
 
         $mform->disabledIf('name', 'displaynews', 'checked');
 
-        /// Prepare file upload
+        // Prepare file upload.
         $mform->addElement('checkbox', 'usestatictext', get_string('usestatictext', 'format_qmultopics'));
         $mform->addElement('editor', 'statictext_editor', get_string('statictext', 'format_qmultopics'));
         $mform->setType('statictext_editor', PARAM_RAW);
@@ -32,7 +31,6 @@ class newssettings_form extends moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
-//--------------------------------------------------------------------------------
         $this->add_action_buttons();
     }
 }

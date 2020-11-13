@@ -1,5 +1,4 @@
 <?php
-
 function xmldb_format_qmultopics_upgrade($oldversion = 0) {
 
     global $DB;
@@ -33,17 +32,19 @@ function xmldb_format_qmultopics_upgrade($oldversion = 0) {
     }
     if ($oldversion < 2012062506) {
         $table = new xmldb_table('qmultopics_newssettings');
-        
+
         // Define field alttext to be added to qmultopics_newssettings.
-        $field = new xmldb_field('alttext', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'image');
+        $field = new xmldb_field('alttext', XMLDB_TYPE_CHAR, '255',
+            null, null, null, null, 'image');
 
         // Conditionally launch add field alttext.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
-        }        
-        
+        }
+
         // Define field usestatictext to be added to qmultopics_newssettings.
-        $field = new xmldb_field('usestatictext', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'alttext');
+        $field = new xmldb_field('usestatictext', XMLDB_TYPE_INTEGER, '1',
+            XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'alttext');
 
         // Conditionally launch add field usestatictext.
         if (!$dbman->field_exists($table, $field)) {
@@ -51,14 +52,16 @@ function xmldb_format_qmultopics_upgrade($oldversion = 0) {
         }
 
         // Define field statictext to be added to qmultopics_newssettings.
-        $field = new xmldb_field('statictext', XMLDB_TYPE_TEXT, 'big', null, null, null, null, 'usestatictext');
+        $field = new xmldb_field('statictext', XMLDB_TYPE_TEXT, 'big',
+            null, null, null, null, 'usestatictext');
 
         // Conditionally launch add field statictext.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
         // Define field statictextformat to be added to qmultopics_newssettings.
-        $field = new xmldb_field('statictextformat', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'statictext');
+        $field = new xmldb_field('statictextformat', XMLDB_TYPE_INTEGER, '4',
+            XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'statictext');
 
         // Conditionally launch add field statictextformat.
         if (!$dbman->field_exists($table, $field)) {
@@ -75,7 +78,6 @@ function xmldb_format_qmultopics_upgrade($oldversion = 0) {
         if ($dbman->table_exists($table)) {
             $dbman->rename_table($table, 'format_qmultopics_news');
         }
-
         upgrade_plugin_savepoint(true, 2012062600, 'format', 'qmultopics');
     }
 

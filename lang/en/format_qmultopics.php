@@ -78,22 +78,23 @@ $string['formatsettingsinformation'] = '<br />To reset the settings of the cours
 $string['setlayout'] = 'Set layout';
 
 // Negative view of layout, kept for previous versions until such time as they are updated.
-$string['setlayout_default'] = 'Default'; // 1.
-$string['setlayout_no_toggle_section_x'] = 'No toggle section x'; // 2.
-$string['setlayout_no_section_no'] = 'No section number'; // 3.
-$string['setlayout_no_toggle_section_x_section_no'] = 'No toggle section x and section number'; // 4.
-$string['setlayout_no_toggle_word'] = 'No toggle word'; // 5.
-$string['setlayout_no_toggle_word_toggle_section_x'] = 'No toggle word and toggle section x'; // 6.
-$string['setlayout_no_toggle_word_toggle_section_x_section_no'] = 'No toggle word, toggle section x and section number'; // 7.
+$string['setlayout_default'] = 'Default';
+$string['setlayout_no_toggle_section_x'] = 'No toggle section x';
+$string['setlayout_no_section_no'] = 'No section number';
+$string['setlayout_no_toggle_section_x_section_no'] = 'No toggle section x and section number';
+$string['setlayout_no_toggle_word'] = 'No toggle word';
+$string['setlayout_no_toggle_word_toggle_section_x'] = 'No toggle word and toggle section x';
+$string['setlayout_no_toggle_word_toggle_section_x_section_no'] = 'No toggle word, toggle section x and section number';
+
 // Positive view of layout.
-$string['setlayout_all'] = "Toggle word, 'Topic x' / 'Week x' / 'Day x' and section number"; // 1.
-$string['setlayout_toggle_word_section_number'] = 'Toggle word and section number'; // 2.
-$string['setlayout_toggle_word_section_x'] = "Toggle word and 'Topic x' / 'Week x' / 'Day x'"; // 3.
-$string['setlayout_toggle_word'] = 'Toggle word'; // 4.
-$string['setlayout_toggle_section_x_section_number'] = "'Topic x' / 'Week x' / 'Day x' and section number"; // 5.
-$string['setlayout_section_number'] = 'Section number'; // 6.
-$string['setlayout_no_additions'] = 'No additions'; // 7.
-$string['setlayout_toggle_section_x'] = "'Topic x' / 'Week x' / 'Day x'"; // 8.
+$string['setlayout_all'] = "Toggle word, 'Topic x' / 'Week x' / 'Day x' and section number";
+$string['setlayout_toggle_word_section_number'] = 'Toggle word and section number';
+$string['setlayout_toggle_word_section_x'] = "Toggle word and 'Topic x' / 'Week x' / 'Day x'";
+$string['setlayout_toggle_word'] = 'Toggle word';
+$string['setlayout_toggle_section_x_section_number'] = "'Topic x' / 'Week x' / 'Day x' and section number";
+$string['setlayout_section_number'] = 'Section number';
+$string['setlayout_no_additions'] = 'No additions';
+$string['setlayout_toggle_section_x'] = "'Topic x' / 'Week x' / 'Day x'";
 
 $string['setlayoutelements'] = 'Elements';
 $string['setlayoutstructure'] = 'Structure';
@@ -134,6 +135,7 @@ $string['setlayoutstructure_help'] = "The layout structure of the course.  You c
 $string['setlayout_help'] = 'Contains the settings to do with the layout of the format within the course.';
 $string['resetlayout_help'] = 'Resets the layout element, structure, columns, icon position and shown section summary to the default values so it will be the same as a course the first time it is in the \'Collapsed Topics\' format.';
 $string['resetalllayout_help'] = 'Resets the layout to the default values for all courses so it will be the same as a course the first time it is in the \'Collapsed Topics \'format.';
+
 // Moodle Tracker CONTRIB-3529.
 $string['setcolour_help'] = 'Contains the settings to do with the colour of the format within the course.';
 $string['settoggleforegroundcolour_help'] = 'Sets the colour of the text on the toggle.';
@@ -142,6 +144,7 @@ $string['settogglebackgroundcolour_help'] = 'Sets the background colour of the t
 $string['settogglebackgroundhovercolour_help'] = 'Sets the background colour of the toggle when the mouse moves over it.';
 $string['resetcolour_help'] = 'Resets the colours to the default values so it will be the same as a course the first time it is in the \'Collapsed Topics\' format.';
 $string['resetallcolour_help'] = 'Resets the colours to the default values for all courses so it will be the same as a course the first time it is in the \'Collapsed Topics\' format.';
+
 // Columns enhancement.
 $string['setlayoutcolumns_help'] = 'How many columns to use.';
 $string['setlayoutcolumnorientation_help'] = 'Vertical - Sections go top to bottom.<br />Horizontal - Sections go left to right.';
@@ -330,8 +333,7 @@ $string['readme_title'] = 'Collapsed Topics read-me';
 $string['readme_desc'] = 'Please click on \'{$a->url}\' for lots more information about Collapsed Topics.';
 
 
-// QMUL Strings
-
+// QMUL Strings.
 $string['assessmentinformation'] = 'Assessment Information';
 $string['assessmentinformation_help'] = 'Add assessment information here';
 $string['assignmentsdue'] = 'Assignments Due';
@@ -347,7 +349,7 @@ $string['tabcontent'] = 'Tab Content';
 $string['titlerequiredwhenenabled'] = 'Tab is required to have a title when enabled';
 $string['editnewssettings'] = 'Edit news display settings';
 
-// strings for tabs
+// Strings for tabs.
 $string['extratabname'] = 'All';
 $string['orphaned_tabname'] = 'Orphaned';
 $string['section0'] = 'First Topic';
@@ -387,7 +389,7 @@ $string['defaultshowassessmentinfotab_desc'] = 'When installed show the "Assessm
 
 $string['hidden_tab_hint'] = 'This tab contains only hidden sections and will not be shown to students';
 
-// News strings
+// News strings.
 $string['readfullpost'] = 'Read full post';
 $string['morenews'] = 'More news';
 
@@ -417,7 +419,7 @@ $string['resetalldisplayinstructions'] = 'Display instructions';
 $string['resetdisplayinstructions_help'] = 'Resets the display instructions to the default value so it will be the same as a course the first time it is in the Collapsed Topics format.';
 $string['resetalldisplayinstructions_help'] = 'Resets the display instructions to the default value for all courses so it will be the same as a course the first time it is in the Collapsed Topics format.';
 
-// QMUL related
+// QMUL related.
 $string['assessmentinformation'] = 'Assessment Information';
 $string['assessmentinformation_help'] = 'Add assessment information here';
 $string['assignmentsdue'] = 'Assignments Due';
@@ -432,7 +434,7 @@ $string['tabtitle'] = 'Tab Title';
 $string['tabcontent'] = 'Tab Content';
 $string['titlerequiredwhenenabled'] = 'Tab is required to have a title when enabled';
 
-// Tab related
+// Tab related.
 $string['single_section_tabs'] = 'Use section name as tab name for single sections';
 $string['single_section_tabs_label'] = 'Use section name as tab name for single sections';
 $string['single_section_tabs_help'] = 'When checked tabs with a single section will use the section name as tab name.';
@@ -440,7 +442,6 @@ $string['single_section_tabs_help'] = 'When checked tabs with a single section w
 $string['tab_assessment_info_title'] = 'Assessment Information';
 $string['tab_assessment_information_title'] = 'Assessment Information';
 
-//$string['tab_assessment_info_block_title'] = 'Assessment Info Block';
 $string['tab_assessment_info_block_title'] = 'Assessment Information';
 
 $string['assessment_info_block_tab'] = 'How to show "Assessment Info" block when installed';
@@ -457,14 +458,14 @@ $string['tabtitle_editlabel'] = 'New value for {a}';
 
 $string['hidden_tab_hint'] = 'This tab contains only hidden topics and will not be shown to students';
 
-// News settings
+// News settings.
 $string['newssettingsof'] = 'News settings for {$a}';
 $string['displaynews'] = 'Display the news section';
 $string['shownewsfull'] = 'Show the full news content';
 $string['statictext'] = 'Static text';
 $string['usestatictext'] = 'Use static text';
 
-// Badges
+// Badges.
 $string['badge_due'] = 'Due ';
 $string['badge_duetoday'] = 'DUE TODAY ';
 $string['badge_wasdue'] = 'Was due ';

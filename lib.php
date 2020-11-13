@@ -26,7 +26,6 @@
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
 require_once($CFG->dirroot. '/course/format/topics2/lib.php');
-//require_once($CFG->dirroot. '/course/format/topcoll/lib.php');
 
 /**
  * Main class for the Topics (QMUL) course format
@@ -135,25 +134,25 @@ class format_qmultopics extends format_topics2 {
     public function course_format_options($foreditform = false) {
         global $CFG, $COURSE, $DB;
         /*
-        $max_tabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
-        $max_tabs = 9; // Currently there is a maximum of 9 tabs!
+        $maxtabs = (isset($CFG->max_tabs) ? $CFG->max_tabs : 5);
+        $maxtabs = 9; // Currently there is a maximum of 9 tabs!
         */
         $fo = $DB->get_records('course_format_options', array('courseid' => $COURSE->id));
-        $format_options = array();
-        foreach($fo as $o) {
-            $format_options[$o->name] = $o->value;
+        $formatoptions = array();
+        foreach ($fo as $o) {
+            $formatoptions[$o->name] = $o->value;
         }
 
         // Check for legacy 'toggle' format_option and change 'coursedisplay' accordingly where needed.
-        if (isset($format_options['toggle']) && $format_options['toggle'] && $format_options['coursedisplay'] ==
+        if (isset($formatoptions['toggle']) && $formatoptions['toggle'] && $formatoptions['coursedisplay'] ==
             COURSE_DISPLAY_SINGLEPAGE) {
             $rec = $DB->get_record('course_format_options', array('courseid' => $COURSE->id, 'name' => 'coursedisplay'));
             $rec->value = COURSE_DISPLAY_SINGLEPAGE;
             $DB->update_record('course_format_options', $rec);
         }
 
-        $max_tabs = ((isset($format_options['maxtabs']) && $format_options['maxtabs'] > 0) ?
-            $format_options['maxtabs'] : (isset($CFG->max_tabs) ? $CFG->max_tabs : 9));
+        $maxtabs = ((isset($formatoptions['maxtabs']) && $formatoptions['maxtabs'] > 0) ?
+            $formatoptions['maxtabs'] : (isset($CFG->max_tabs) ? $CFG->max_tabs : 9));
         static $courseformatoptions = false;
         if ($courseformatoptions === false) {
             $courseconfig = get_config('moodlecourse');
@@ -164,7 +163,6 @@ class format_qmultopics extends format_topics2 {
                     'help_component' => 'format_topics2',
                     'default' => (isset($CFG->max_tabs) ? $CFG->max_tabs : 5),
                     'type' => PARAM_INT,
-//                    'element_type' => 'hidden',
                 ),
                 'limittabname' => array(
                     'label' => get_string('limittabname_label', 'format_topics2'),
@@ -172,7 +170,6 @@ class format_qmultopics extends format_topics2 {
                     'help_component' => 'format_topics2',
                     'default' => 0,
                     'type' => PARAM_INT,
-//                    'element_type' => 'hidden',
                 ),
 
                 'hiddensections' => array(
@@ -252,7 +249,7 @@ class format_qmultopics extends format_topics2 {
                 'label' => '',
                 'element_type' => 'hidden'
             );
-            for ($i = 1; $i <= $max_tabs; $i++) {
+            for ($i = 1; $i <= $maxtabs; $i++) {
                 $courseformatoptions['tab'.$i.'_title'] = array(
                     'default' => "Tab ".$i,
                     'type' => PARAM_TEXT,
@@ -362,7 +359,7 @@ class format_qmultopics extends format_topics2 {
 
         foreach ($savedata as $key => $value) {
             // From 3.6 on HTML editor will return an array - if so just get the txt to store.
-            if (gettype($value) == 'array' && isset($value['text'])){
+            if (gettype($value) == 'array' && isset($value['text'])) {
                 $value = $value['text'];
             }
             if (isset($records[$key])) {
@@ -456,7 +453,7 @@ function format_qmultopics_inplace_editable($itemtype, $itemid, $newvalue) {
             array($itemid, 'qmultopics'), MUST_EXIST);
         return course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
     }
-    // deal with inplace changes of a tab name
+    // Deal with inplace changes of a tab name.
     if ($itemtype === 'tabname') {
         global $DB, $PAGE;
         $courseid = key($_SESSION['USER']->currentcourseaccess);
