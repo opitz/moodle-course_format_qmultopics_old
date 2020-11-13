@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Collapsed Topics Information
@@ -33,8 +47,8 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/course/format/qmultopics/lib.php');
 
 /**
- * restore plugin class that provides the necessary information
- * needed to restore one qmultopics course format
+ * Restore plugin class that provides the necessary information
+ * Needed to restore one qmultopics course format
  */
 class restore_format_qmultopics_plugin extends restore_format_plugin {
     /**
@@ -49,11 +63,12 @@ class restore_format_qmultopics_plugin extends restore_format_plugin {
         $elepath = $this->get_pathfor('/newssettings');
         $paths[] = new restore_path_element($elename, $elepath);
 
-        return $paths; // And we return the interesting paths
+        return $paths; // And we return the interesting paths.
     }
 
     /**
-     * Process the 'plugin_format_qmultopics_course' element within the 'course' element in the 'course.xml' file in the '/course' folder
+     * Process the 'plugin_format_qmultopics_course' element within the 'course' element in
+     * the 'course.xml' file in the '/course' folder
      * of the zipped backup 'mbz' file.
      */
     public function process_format_qmultopics($data) {
@@ -62,8 +77,8 @@ class restore_format_qmultopics_plugin extends restore_format_plugin {
         $data = (object)$data;
         $oldid = $data->id;
 
-        // We only process this information if the course we are restoring to
-        // has 'qmultopics' format (target format can change depending of restore options)
+        // We only process this information if the course we are restoring to.
+        // Has 'qmultopics' format (target format can change depending of restore options).
         $format = $DB->get_field('course', 'format', array('id' => $this->task->get_courseid()));
         if ($format != 'qmultopics') {
             return;
@@ -74,5 +89,7 @@ class restore_format_qmultopics_plugin extends restore_format_plugin {
         $this->set_mapping($this->get_namefor('newssettings'), $oldid, $newitemid, true);
     }
 
-    protected function after_execute_structure() { }
+    protected function after_execute_structure() {
+
+    }
 }

@@ -41,8 +41,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     private $courseformat = null;
     private $tcsettings;
 
-    public function __construct(moodle_page $page, $target)
-    {
+    public function __construct(moodle_page $page, $target) {
         global $COURSE;
 
         parent::__construct($page, $target);
@@ -151,7 +150,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
     public function get_group_assign_data() {
         global $COURSE, $DB;
         $sql = "
-            SELECT 
+            SELECT
             gm.id as ID
             ,asu.assignment
             ,asu.groupid
@@ -181,7 +180,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
      * @return string
      */
     public function output_news($course) {
-        global $CFG, $DB, $OUTPUT, $PAGE;
+        global $CFG, $DB;
 
         $streditsummary = get_string('editsummary');
         $context = context_course::instance($course->id);
@@ -189,14 +188,14 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
         require_once($CFG->dirroot.'/course/format/qmultopics/locallib.php');
         $subcat = $DB->get_record('course_categories', array('id' => $course->category));
-        $o .= $OUTPUT->heading(format_string($subcat->name), 2, 'schoolname');
-        $o .= $OUTPUT->heading(format_string($course->fullname), 2, 'coursename');
+        $o .= $this->output->heading(format_string($subcat->name), 2, 'schoolname');
+        $o .= $this->output->heading(format_string($course->fullname), 2, 'coursename');
 
-        if ($PAGE->user_is_editing() && has_capability('moodle/course:update', $context)) {
+        if ($this->page->user_is_editing() && has_capability('moodle/course:update', $context)) {
             $o .= '<p class="clearfix"><a title="' .
                 get_string('editnewssettings', 'format_qmultopics') . '" ' .
                 ' href="' . $CFG->wwwroot . '/course/format/qmultopics/newssettings.php' .
-                '?course=' . $course->id . '"><img src="' . $OUTPUT->pix_url('t/edit') . '" ' .
+                '?course=' . $course->id . '"><img src="' . $this->output->pix_url('t/edit') . '" ' .
                 ' class="iconsmall edit" alt="' . $streditsummary . '" /></a></p>';
         }
 
@@ -280,17 +279,18 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         $tabs = array();
 
         // Get the installed blocks and check if the assessment info block is one of them.
-        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where cx.contextlevel = 50 and cx.instanceid = ".$course->id;
-        $installed_blocks = $DB->get_records_sql($sql, array());
-        $assessment_info_block_id = false;
-        foreach ($installed_blocks as $installed_block) {
-            if ($installed_block->blockname == 'assessment_information') {
-                $assessment_info_block_id = (int)$installed_block->id;
+        $sql = "SELECT * FROM {context} cx join {block_instances} bi on bi.parentcontextid = cx.id where
+                cx.contextlevel = 50 and cx.instanceid = ".$course->id;
+        $installedblocks = $DB->get_records_sql($sql, array());
+        $assessmentinfoblockid = false;
+        foreach ($installedblocks as $installedblock) {
+            if ($installedblock->blockname == 'assessment_information') {
+                $assessmentinfoblockid = (int)$installedblock->id;
                 break;
             }
         }
         // The assessment info block tab.
-        if ($assessment_info_block_id) {
+        if ($assessmentinfoblockid) {
             // Make sure that "Assessment Info Block" title is replaced by the real one ("Assessment Information").
             if (isset($this->tcsettings['tab_assessment_info_block_title']) &&
                 $this->tcsettings['tab_assessment_info_block_title'] == 'Assessment Info Block') {
@@ -309,7 +309,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             $tab->name = 'assessment_info_block';
             $tab->title = $this->tcsettings['tab_assessment_info_block_title'];
             $tab->generic_title = get_string('tab_assessment_info_title', 'format_qmultopics');
-            $tab->content = ''; // not required - we are only interested in the tab
+            $tab->content = ''; // Not required - we are only interested in the tab.
             $tab->sections = "block_assessment_information";
             $tab->section_nums = "";
             $tabs[$tab->id] = $tab;
@@ -354,19 +354,19 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         $context = $DB->get_record('context', array('instanceid' => $course->id, 'contextlevel' => '50'));
 
         // Install the Assessment Information block.
-        $ai_record = new stdClass();
-        $ai_record->blockname = 'assessment_information';
-        $ai_record->parentcontextid = $context->id;
-        $ai_record->showinsubcontexts = 0;
-        $ai_record->requiredbytheme = 0;
-        $ai_record->pagetypepattern = 'course-view-*';
-        $ai_record->defaultregion = 'side-pre';
-        $ai_record->defaultweight = -5;
-        $ai_record->configdata = '';
-        $ai_record->timecreated = time();
-        $ai_record->timemodified = time();
+        $airecord = new stdClass();
+        $airecord->blockname = 'assessment_information';
+        $airecord->parentcontextid = $context->id;
+        $airecord->showinsubcontexts = 0;
+        $airecord->requiredbytheme = 0;
+        $airecord->pagetypepattern = 'course-view-*';
+        $airecord->defaultregion = 'side-pre';
+        $airecord->defaultweight = -5;
+        $airecord->configdata = '';
+        $airecord->timecreated = time();
+        $airecord->timemodified = time();
 
-        return $DB->insert_record('block_instances', $ai_record);
+        return $DB->insert_record('block_instances', $airecord);
     }
 
     /**
@@ -379,18 +379,18 @@ class format_qmultopics_renderer extends format_topics2_renderer {
      * @throws moodle_exception
      */
     public function get_assessmentinformation($content) {
-        global $CFG, $DB, $COURSE, $OUTPUT, $USER;
+        global $CFG, $DB, $COURSE, $USER;
 
-        $output = html_writer::tag('div', format_text($content), array('class'=>'assessmentinfo col-12 mb-3'));
+        $output = html_writer::tag('div', format_text($content), array('class' => 'assessmentinfo col-12 mb-3'));
 
         $assignments = $this->get_assignments();
 
         $assignoutput = html_writer::tag('div',
-            get_string('assignmentsdue', 'format_qmultopics'), array('class'=>'card-header h5'));
-        $assignoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
+            get_string('assignmentsdue', 'format_qmultopics'), array('class' => 'card-header h5'));
+        $assignoutput .= html_writer::start_tag('div', array('class' => 'list-group list-group-flush'));
         $assignsubmittedoutput = html_writer::tag('div',
-            get_string('assignmentssubmitted', 'format_qmultopics'), array('class'=>'card-header h5'));
-        $assignsubmittedoutput .= html_writer::start_tag('div', array('class'=>'list-group list-group-flush'));
+            get_string('assignmentssubmitted', 'format_qmultopics'), array('class' => 'card-header h5'));
+        $assignsubmittedoutput .= html_writer::start_tag('div', array('class' => 'list-group list-group-flush'));
 
         $modinfo = get_fast_modinfo($COURSE);
 
@@ -440,7 +440,8 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             $params = array();
             if ($groups[0]) {
                 list ($groupsql, $params) = $DB->get_in_or_equal($groups[0]);
-                $sql .= ", CASE WHEN ovrd1.allowsubmissionsfromdate IS NULL THEN MIN(ovrd2.allowsubmissionsfromdate) ELSE ovrd1.allowsubmissionsfromdate END AS timeopenover,
+                $sql .= ", CASE WHEN ovrd1.allowsubmissionsfromdate IS NULL THEN MIN(ovrd2.allowsubmissionsfromdate) ELSE
+                 ovrd1.allowsubmissionsfromdate END AS timeopenover,
                     CASE WHEN ovrd1.duedate IS NULL THEN MAX(ovrd2.duedate) ELSE ovrd1.duedate END AS timecloseover
                     FROM {assign} module
                     LEFT JOIN {assign_overrides} ovrd1 ON module.id=ovrd1.assignid AND $USER->id=ovrd1.userid
@@ -487,15 +488,15 @@ class format_qmultopics_renderer extends format_topics2_renderer {
 
             $duedate = date('d/m/Y', $assignment->duedate);
 
-            $out .= html_writer::start_tag('div', array('class'=>'list-group-item assignment'.$hidden));
+            $out .= html_writer::start_tag('div', array('class' => 'list-group-item assignment'.$hidden));
 
-            $out .= html_writer::start_tag('div', array('class'=>'d-flex flex-wrap align-items-center mb-2'));
-            $out .= $OUTPUT->pix_icon('icon', 'assign', 'mod_assign', ['class'=>'mr-2']);
-            $out .= html_writer::link($url, $assignment->name, array('class'=>'name col p-0'));
+            $out .= html_writer::start_tag('div', array('class' => 'd-flex flex-wrap align-items-center mb-2'));
+            $out .= $this->output->pix_icon('icon', 'assign', 'mod_assign', ['class' => 'mr-2']);
+            $out .= html_writer::link($url, $assignment->name, array('class' => 'name col p-0'));
 
             if ($assignment->duedate > 0) {
-                $out .= html_writer::tag('div', $duedate, array('class'=>'due-date ml-auto badge badge-'.$statusclass,
-                    'data-toggle'=>'tooltip', 'data-placement'=>'top', 'title'=>$duestatus));
+                $out .= html_writer::tag('div', $duedate, array('class' => 'due-date ml-auto badge badge-'.$statusclass,
+                    'data-toggle' => 'tooltip', 'data-placement' => 'top', 'title'=>$duestatus));
             }
             $out .= html_writer::end_tag('div');
 
@@ -514,21 +515,21 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         }
         if ($submitted == 0) {
             $assignsubmittedoutput .= html_writer::tag('div',
-                get_string('noassignmentssubmitted', 'format_qmultopics'), array('class'=>'card-body'));
+                get_string('noassignmentssubmitted', 'format_qmultopics'), array('class' => 'card-body'));
         }
         if ($due == 0) {
             $assignoutput .= html_writer::tag('div',
-                get_string('noassignmentsdue', 'format_qmultopics'), array('class'=>'card-body'));
+                get_string('noassignmentsdue', 'format_qmultopics'), array('class' => 'card-body'));
         }
         $assignoutput .= html_writer::end_tag('div');
         $assignsubmittedoutput .= html_writer::end_tag('div');
-        $assignoutput = html_writer::tag('div', $assignoutput, array('class'=>'card'));
-        $assignsubmittedoutput = html_writer::tag('div', $assignsubmittedoutput, array('class'=>'card'));
+        $assignoutput = html_writer::tag('div', $assignoutput, array('class' => 'card'));
+        $assignsubmittedoutput = html_writer::tag('div', $assignsubmittedoutput, array('class' => 'card'));
 
-        $output .= html_writer::tag('div', $assignoutput, array('class'=>'col-12 col-md-6 mb-1'));
-        $output .= html_writer::tag('div', $assignsubmittedoutput, array('class'=>'col-12 col-md-6 mb-1'));
+        $output .= html_writer::tag('div', $assignoutput, array('class' => 'col-12 col-md-6 mb-1'));
+        $output .= html_writer::tag('div', $assignsubmittedoutput, array('class' => 'col-12 col-md-6 mb-1'));
 
-        return html_writer::tag('div', $output, array('class'=>'row'));
+        return html_writer::tag('div', $output, array('class' => 'row'));
     }
 
     /**
@@ -599,12 +600,12 @@ class format_qmultopics_renderer extends format_topics2_renderer {
      * @throws dml_exception
      */
     public function render_extratab($tab) {
-        global $DB, $PAGE, $OUTPUT;
+        global $DB;
         $o = '';
         if ($tab->sections == '') {
-            $o .= html_writer::start_tag('li', array('class'=>'tabitem nav-item', 'style' => 'display:none;'));
+            $o .= html_writer::start_tag('li', array('class' => 'tabitem nav-item', 'style' => 'display:none;'));
         } else {
-            $o .= html_writer::start_tag('li', array('class'=>'tabitem nav-item'));
+            $o .= html_writer::start_tag('li', array('class' => 'tabitem nav-item'));
         }
 
         $sectionsarray = explode(',', str_replace(' ', '', $tab->sections));
@@ -614,15 +615,15 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             }
         }
 
-        if ($PAGE->user_is_editing()) {
+        if ($this->page->user_is_editing()) {
             // Get the format option record for the given tab - we need the id.
             // If the record does not exist, create it first.
             if (!$DB->record_exists('course_format_options', array(
-                'courseid' => $PAGE->course->id,
+                'courseid' => $this->page->course->id,
                 'name' => 'title_'.$tab->id
             ))) {
                 $record = (object) new stdClass();
-                $record->courseid = $PAGE->course->id;
+                $record->courseid = $this->page->course->id;
                 $record->format = 'qmultopics';
                 $record->section = 0;
                 $record->name = 'title_'.$tab->id;
@@ -631,7 +632,7 @@ class format_qmultopics_renderer extends format_topics2_renderer {
             }
 
             $formatoptiontab = $DB->get_record('course_format_options', array(
-                'courseid' => $PAGE->course->id,
+                'courseid' => $this->page->course->id,
                 'name' => 'title_'.$tab->id
             ));
             $itemid = $formatoptiontab->id;
@@ -640,30 +641,30 @@ class format_qmultopics_renderer extends format_topics2_renderer {
         }
 
         if ($tab->id == 'tab0') {
-            $o .= '<span 
-                data-toggle="tab" id="'.$tab->id.'" 
-                sections="'.$tab->sections.'" 
-                section_nums="'.$tab->section_nums.'" 
-                class="tablink nav-link " 
-                tab_title="'.$tab->title.'", 
+            $o .= '<span
+                data-toggle="tab" id="'.$tab->id.'"
+                sections="'.$tab->sections.'"
+                section_nums="'.$tab->section_nums.'"
+                class="tablink nav-link "
+                tab_title="'.$tab->title.'",
                 generic_title = "'.$tab->generic_title.'"
                 >';
         } else {
-            $o .= '<span 
-                data-toggle="tab" id="'.$tab->id.'" 
-                sections="'.$tab->sections.'" 
-                section_nums="'.$tab->section_nums.'" 
-                class="tablink topictab nav-link " 
-                tab_title="'.$tab->title.'" 
-                generic_title = "'.$tab->generic_title.'" 
-                style="'.($PAGE->user_is_editing() ? 'cursor: move;' : '').'">';
+            $o .= '<span
+                data-toggle="tab" id="'.$tab->id.'"
+                sections="'.$tab->sections.'"
+                section_nums="'.$tab->section_nums.'"
+                class="tablink topictab nav-link "
+                tab_title="'.$tab->title.'"
+                generic_title = "'.$tab->generic_title.'"
+                style="'.($this->page->user_is_editing() ? 'cursor: move;' : '').'">';
         }
         // Render the tab name as inplace_editable.
         $tmpl = new \core\output\inplace_editable('format_topics2', 'tabname', $itemid,
-            $PAGE->user_is_editing(),
+            $this->page->user_is_editing(),
             format_string($tab->title), $tab->title, get_string('tabtitle_edithint', 'format_topics2'),
             get_string('tabtitle_editlabel', 'format_topics2', format_string($tab->title)));
-        $o .= $OUTPUT->render($tmpl);
+        $o .= $this->output->render($tmpl);
         $o .= "</span>";
         $o .= html_writer::end_tag('li');
         return $o;
