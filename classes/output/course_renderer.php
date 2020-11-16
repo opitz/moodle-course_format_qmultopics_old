@@ -511,7 +511,7 @@ class qmultopics_course_renderer extends \core_course_renderer{
             return false;
         }
         foreach ($COURSE->group_assign_data as $record) {
-            if ($record->assignment == $mod->instance && $record->user_id == $USER->id && $record->grade > 0) {
+            if ($record->assignment == $mod->instance && $record->userid == $USER->id && $record->grade > 0) {
                 return true;
             }
         }
