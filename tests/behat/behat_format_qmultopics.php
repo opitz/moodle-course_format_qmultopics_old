@@ -17,7 +17,7 @@
 /**
  * Behat course-related steps definitions.
  *
- * @package    format_topics2
+ * @package    format_qmultopics
  * @category   test
  * @copyright  2020 Matthias Opitz
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -39,7 +39,7 @@ require_once(__DIR__ . '/../../../../../course/tests/behat/behat_course.php');
  * @copyright 2020 Matthias Opitz
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class behat_format_topics2 extends behat_base {
+class behat_format_qmultopics extends behat_base {
 
     /**
      * Moves course section to a tab.
